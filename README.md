@@ -1,1 +1,1 @@
-# riot_xively_coffee_bar
+# riot-xively-coffee-bar
