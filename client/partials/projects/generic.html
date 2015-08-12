@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col-xs-8 device-window">
+        <ul>
+            <li ng-repeat="message in messages">
+                <span class="devicename">{{message.devicename}}</span>
+                <span class="message">{{message.message}}</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-xs-4 user-window">
+        <ul>
+            <li ng-repeat="device in devices">{{device}}</li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label for="msgInput" class="col-sm-1">Message</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="msgInput" placeholder="Enter Text Here..." ng-model="msg">
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" class="btn btn-primary" ng-click="sendMessage(msg)">BroadCast</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-xs-6 device-window">
+        <div odometer="numberofusers" class="odometer"></div>
+    </div>
+    <div class="col-xs-6 device-window">
+        <div odometer="individualBoard" class="odometer"></div>
+    </div>
+</div>
