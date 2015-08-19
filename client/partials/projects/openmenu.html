@@ -1,8 +1,447 @@
-<div class="row">
-    <div class="col-xs-6 device-window">
-        <div odometer="numberofusers" class="odometer"></div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../favicond.ico">
+
+    <title>Sticky Footer Navbar Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../css/sticky-footer-navbar.css" rel="stylesheet">
+    <link href="../css/base-theme.css" rel="stylesheet">
+    <link href="../css/float-sidebar.css" rel="stylesheet">
+    <link href="../css/animate.css" rel="stylesheet">
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    $('.slideout-menu-toggle').on('click', function(event){
+    	event.preventDefault();
+    	// create menu variables
+    	var slideoutMenu = $('.slideout-menu');
+    	var slideoutMenuWidth = $('.slideout-menu').width();
+    	
+    	// toggle open class
+    	slideoutMenu.toggleClass("open");
+    	
+    	// slide menu
+    	if (slideoutMenu.hasClass("open")) {
+	    	slideoutMenu.animate({
+		    	left: "0px"
+	    	});	
+    	} else {
+	    	slideoutMenu.animate({
+		    	left: -slideoutMenuWidth
+	    	}, 250);	
+    	}
+    });
+});
+</script>
+  </head>
+
+  <body>
+    
+    <!-- Fixed navbar navbar-fixed-top-->
+<nav class="navbar navbar-default ">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <div class="user pull-left">
+                <img class="img-responsive pull-left" src="../images/user.svg">
+                <span class="user-box pull-left">
+                    <h1 class="name">SAM</h1>
+                    <span class="location">FROM: DENVER</span>
+                </span>
+            </div>
+            
+            <div class="chart-box pull-left hidden-xs ">
+                <p>COMPANY: IBM</p>
+                <p>TITLE: DIRECTOR OF OPERATIONS</p>
+                <p>IBM 159,99 <span class="label label-danger">159,99  </span></p>
+                <img class="img-responsive pull-left" src="../images/chart.svg">
+            </div>
+            <div class="weather pull-left hidden-xs ">
+                <img class="img-responsive pull-left" src="../images/termometer.svg">
+                <img class="sun img-responsive pull-left" src="../images/sun.svg">
+                <p>DENVER</p>
+                <p>88°F</p>
+            </div>
+        </div>
+        
+        <div class=" navbar-brand pull-right hidden-xs hidden-sm">
+            <img class="img-responsive " src="../images/logo/logo-color.svg">
+        </div>
     </div>
-    <div class="col-xs-6 device-window">
-        <div odometer="individualBoard" class="odometer"></div>
+</nav>
+    
+
+    <!-- Begin page content -->
+<div class="container">
+        
+    <!-- Begin Sidebar -->
+    <div class="slideout-menu">
+        <h3>Menu <a href="#" class="slideout-menu-toggle">×</a></h3>
+        <ul>
+            <li><a href="#">Home <i class="fa fa-angle-right"></i></a></li>
+            <li><a href="#">Tour Information <i class="fa fa-angle-right"></i></a></li>
+            <li><a href="#">Tour Pricing <i class="fa fa-angle-right"></i></a></li>
+            <li><a href="#">Photo Gallery <i class="fa fa-angle-right"></i></a></li>
+            <li><a href="#">News & Events <i class="fa fa-angle-right"></i></a></li>
+        </ul>
     </div>
-</div>
+    <div class="toggle-slide"><a href="#" class="button slideout-menu-toggle ">Toggle Menu</a></div>
+    <!-- End Sidebar -->
+    
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+            <div id="black" class="flipcard h">
+                <div class="front ">
+                    <div class="menu-panel bg-primary text-center animated fadeInDown">
+                        <h2><span>
+                            <img  src="../images/products/black.svg">
+                        </span>BLACK</h2>
+                        <div class="content-panel text-center">
+                            <div class="row-panel">
+                                <div class="option">
+                                    <span ng-show='!isActive(1)'><i class="icon-drink font-sm" ng-click="activate(1)"></i></span>
+                                    <span ng-show='isActive(1)'><i class="icon-drink-selected font-sm"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(2)'><i class="icon-drink font-md" ng-click="activate(2)"></i></span>
+                                    <span ng-show='isActive(2)'><i class="icon-drink-selected font-md"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(3)'><i class="icon-drink font-lg" ng-click="activate(3)"></i></span>
+                                    <span ng-show='isActive(3)'><i class="icon-drink-selected font-lg"></i></span>
+                                </div>
+                            </div>
+                            <div class="row-panel">
+                                <div class="font-xs option">S</div>
+                                <div class="font-xs option">M</div>
+                                <div class="font-xs option">L</div>
+                            </div>
+                            <div class="star-button">            
+                                <button onclick="flipcard(1);"><i class="icon-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- End Front -->
+
+                <!-- Begin Back back content -->
+                <div class="back">
+                    <div class="menu-panel bg-primary text-center">
+                        <img src="../images/back-star.svg">
+                        <p class="back-txt">Do you want to choose this as the person’s fav beverage?</p>
+                        <div class="text-center">
+                            <button class="btn btn-secondary btn-lg equal-btn">YES</button>
+                            <button onclick="flipcard(1);" class="btn btn-secondary btn-lg equal-btn">CANCEL</button>
+                        </div>
+                    </div>
+                </div><!-- End Back back content -->
+            </div>
+        </div> <!-- End col -->
+
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+            <div id="mocha" class="flipcard h">
+                <div class="front">
+                    <div class="menu-panel bg-primary text-center">
+                <h2><span>
+                    <img  src="../images/products/mocha.svg">
+                </span>MOCHA</h2>
+                <div class="content-panel text-center">
+                    <div class="row-panel">
+                        <div class="option">
+                            <span ng-show='!isActive(4)'><i class="icon-drink font-sm" ng-click="activate(4)"></i></span>
+                            <span ng-show='isActive(4)'><i class="icon-drink-selected font-sm"></i></span>
+                        </div>
+        
+                        <div class="option">
+                            <span ng-show='!isActive(5)'><i class="icon-drink font-md" ng-click="activate(5)"></i></span>
+                            <span ng-show='isActive(5)'><i class="icon-drink-selected font-md"></i></span>
+                        </div>
+        
+                        <div class="option">
+                            <span ng-show='!isActive(6)'><i class="icon-drink font-lg" ng-click="activate(6)"></i></span>
+                            <span ng-show='isActive(6)'><i class="icon-drink-selected font-lg"></i></span>
+                        </div>
+                    </div>
+                    <div class="row-panel">
+                        <div class="font-xs option">S</div>
+                        <div class="font-xs option">M</div>
+                        <div class="font-xs option">L</div>
+                    </div>
+                    <div class="star-button">
+                        <button onclick="flipcard(2)"><i class="icon-star"></i></button>
+                    </div>
+                </div>
+            </div>
+                </div>
+                
+                <!-- Begin Back back content -->
+                <div class="back">
+                    <div class="menu-panel bg-primary text-center">
+                        <img src="../images/back-star.svg">
+                        <p class="back-txt">Do you want to choose this as the person’s fav beverage?</p>
+                        <div class="text-center">
+                            <button class="btn btn-secondary btn-lg equal-btn">YES</button>
+                            <button onclick="flipcard(2);" class="btn btn-secondary btn-lg equal-btn">CANCEL</button>
+                        </div>
+                    </div>
+                </div><!-- End Back back content -->
+            </div>
+        </div><!-- /.col --> 
+
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+            <div id = "iced" class = "flipcard h">
+                <div class = "front">
+                    <div class="menu-panel bg-primary text-center">
+                        <h2 class="font-xs"><span>
+                            <img  src="../images/products/iced.svg">
+                        </span> ICED COFFEE</h2>
+                        <div class="content-panel text-center">
+                            <div class="row-panel">
+                                <div class="option">
+                                    <span ng-show='!isActive(7)'><i class="icon-iced-coffee font-sm" ng-click="activate(7)"></i></span>
+                                    <span ng-show='isActive(7)'><i class="icon-iced-coffee-selected font-sm"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(8)'><i class="icon-iced-coffee font-md" ng-click="activate(8)"></i></span>
+                                    <span ng-show='isActive(8)'><i class="icon-iced-coffee-selected font-md"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(9)'><i class="icon-iced-coffee font-lg" ng-click="activate(9)"></i></span>
+                                    <span ng-show='isActive(9)'><i class="icon-iced-coffee-selected font-lg"></i></span>
+                                </div>
+                            </div>
+                            <div class="row-panel">
+                                <div class="font-xs option">S</div>
+                                <div class="font-xs option">M</div>
+                                <div class="font-xs option">L</div>
+                            </div>
+                            <div class="star-button">
+                                <button onclick="flipcard(3)"><i class="icon-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Begin Back back content -->
+                <div class="back">
+                    <div class="menu-panel bg-primary text-center">
+                        <img src="../images/back-star.svg">
+                        <p class="back-txt">Do you want to choose this as the person’s fav beverage?</p>
+                        <div class="text-center">
+                            <button class="btn btn-secondary btn-lg equal-btn">YES</button>
+                            <button onclick="flipcard(3);" class="btn btn-secondary btn-lg equal-btn">CANCEL</button>
+                        </div>
+                    </div>
+                </div><!-- End Back back content -->
+            </div>
+        </div><!-- /.col -->      
+    </div> <!-- End row -->
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+            <div id = "latte" class = "flipcard h">
+                <div class = "front">
+            	    <div class="menu-panel bg-primary text-center">
+                        <h2><span>
+                            <img  src="../images/products/latte.svg">
+                        </span> LATTE</h2>
+                        <div class="content-panel text-center">
+                            <div class="row-panel">
+                                <div class="option">
+                                    <span ng-show='!isActive(10)'><i class="icon-drink font-sm" ng-click="activate(10)"></i></span>
+                                    <span ng-show='isActive(10)'><i class="icon-drink-selected font-sm"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(11)'><i class="icon-drink font-md" ng-click="activate(11)"></i></span>
+                                    <span ng-show='isActive(11)'><i class="icon-drink-selected font-md"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(12)'><i class="icon-drink font-lg" ng-click="activate(12)"></i></span>
+                                    <span ng-show='isActive(12)'><i class="icon-drink-selected font-lg"></i></span>
+                                </div>
+                            </div>
+                            <div class="row-panel">
+                                <div class="font-xs option">S</div>
+                                <div class="font-xs option">M</div>
+                                <div class="font-xs option">L</div>
+                            </div>
+                            <div class="star-button">
+                                <button onclick = "flipcard(4)"><i class="icon-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Begin Back back content -->
+                <div class="back">
+                    <div class="menu-panel bg-primary text-center">
+                        <img src="../images/back-star.svg">
+                        <p class="back-txt">Do you want to choose this as the person’s fav beverage?</p>
+                        <div class="text-center">
+                            <button class="btn btn-secondary btn-lg equal-btn">YES</button>
+                            <button onclick="flipcard(4);" class="btn btn-secondary btn-lg equal-btn">CANCEL</button>
+                        </div>
+                    </div>
+                </div><!-- End Back back content -->
+            </div>
+        </div><!-- /.col --> 
+    
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+            <div id = "cappuccino" class = "flipcard h">
+                <div class="front">
+                    <div class="menu-panel bg-primary text-center">
+                        <h2 class="font-xs"><span>
+                            <img  src="../images/products/cappuccino.svg">
+                        </span> Cappuccino</h2>
+                        <div class="content-panel text-center">
+                            <div class="row-panel">
+                                <div class="option">
+                                    <span ng-show='!isActive(13)'><i class="icon-coffee font-sm" ng-click="activate(13)"></i></span>
+                                    <span ng-show='isActive(13)'><i class="icon-coffee-selected font-sm"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(14)'><i class="icon-coffee font-md" ng-click="activate(14)"></i></span>
+                                    <span ng-show='isActive(14)'><i class="icon-coffee-selected font-md"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(15)'><i class="icon-coffee font-lg" ng-click="activate(15)"></i></span>
+                                    <span ng-show='isActive(15)'><i class="icon-coffee-selected font-lg"></i></span>
+                                </div>
+                            </div>
+                            <div class="row-panel">
+                                <div class="font-xs option">S</div>
+                                <div class="font-xs option">M</div>
+                                <div class="font-xs option">L</div>
+                            </div>
+                            <div class="star-button">
+                                <button onclick = "flipcard(5)"><i class="icon-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Begin Back back content -->
+                <div class="back">
+                    <div class="menu-panel bg-primary text-center">
+                        <img src="../images/back-star.svg">
+                        <p class="back-txt">Do you want to choose this as the person’s fav beverage?</p>
+                        <div class="text-center">
+                            <button class="btn btn-secondary btn-lg equal-btn">YES</button>
+                            <button onclick="flipcard(5);" class="btn btn-secondary btn-lg equal-btn">CANCEL</button>
+                        </div>
+                    </div>
+                </div><!-- End Back back content -->
+            </div>
+        </div><!-- /.col --> 
+    
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+            <div id = "other" class = "flipcard h">
+                <div class = "front">
+                    <div class="menu-panel bg-primary text-center">
+                        <h2><span>
+                            <img  src="../images/products/other.svg">
+                        </span> Other</h2>
+                        <div class="content-panel text-center">
+                            <div class="row-panel">
+                                <div class="option">
+                                    <span ng-show='!isActive(16)'><i class="icon-other-drink font-sm" ng-click="activate(16)"></i></span>
+                                    <span ng-show='isActive(16)'><i class="icon-other-drink-selected font-sm"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(17)'><i class="icon-other-drink font-md" ng-click="activate(17)"></i></span>
+                                    <span ng-show='isActive(17)'><i class="icon-other-drink-selected font-md"></i></span>
+                                </div>
+                                <div class="option">
+                                    <span ng-show='!isActive(18)'><i class="icon-other-drink font-lg" ng-click="activate(18)"></i></span>
+                                    <span ng-show='isActive(18)'><i class="icon-other-drink-selected font-lg"></i></span>
+                                </div>
+                            </div>
+                            <div class="row-panel">
+                                <div class="font-xs option">S</div>
+                                <div class="font-xs option">M</div>
+                                <div class="font-xs option">L</div>
+                            </div>
+                            <div class="star-button">
+                                <button onclick = "flipcard(6)"><i class="icon-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Begin Back back content -->
+                <div class="back">
+                    <div class="menu-panel bg-primary text-center">
+                        <img src="../images/back-star.svg">
+                        <p class="back-txt">Do you want to choose this as the person’s fav beverage?</p>
+                        <div class="text-center">
+                            <button class="btn btn-secondary btn-lg equal-btn">YES</button>
+                            <button onclick="flipcard(6);" class="btn btn-secondary btn-lg equal-btn">CANCEL</button>
+                        </div>
+                    </div>
+                </div><!-- End Back back content -->
+            </div>
+        </div><!-- /.col -->
+    </div> <!-- /.End Row-->  
+                
+    <div class="row text-center">      
+        <button class="btn btn-primary btn-lg equal-btn">Served</button>
+        <button class="btn btn-primary btn-lg equal-btn">Cancel</button>
+    </div> <!-- /.End Row-->  
+</div> <!-- /.End Container-->  
+<!--
+    <footer class="footer">
+      <div class="container">
+        <p class="text-mu
+        ted">Place sticky footer content here.</p>
+      </div>
+    </footer>
+
+-->
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script type="text/javascript">
+        function flipcard(value) {
+            switch (value) {
+                case 1: document.querySelector('#black').classList.toggle('flip'); break;
+                case 2: document.querySelector('#mocha').classList.toggle('flip'); break;
+                case 3: document.querySelector('#iced').classList.toggle('flip'); break;
+                case 4: document.querySelector('#latte').classList.toggle('flip'); break;
+                case 5: document.querySelector('#cappuccino').classList.toggle('flip'); break;
+                case 6: document.querySelector('#other').classList.toggle('flip'); break;
+            }
+        }
+    </script>
+  </body>
+</html>
+

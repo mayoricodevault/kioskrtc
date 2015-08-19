@@ -3,8 +3,8 @@
   display: -moz-inline-box;
   -moz-box-orient: vertical;
   display: inline-block;
-  vertical-align: middle;
-  *vertical-align: auto;
+  /*vertical-align: middle;
+  *vertical-align: auto;*/
   position: relative;
 }
 .odometer.odometer-auto-theme, .odometer.odometer-theme-digital {
@@ -14,8 +14,8 @@
   display: -moz-inline-box;
   -moz-box-orient: vertical;
   display: inline-block;
-  vertical-align: middle;
-  *vertical-align: auto;
+ /* vertical-align: middle;
+  *vertical-align: auto;*/
   position: relative;
 }
 .odometer.odometer-auto-theme .odometer-digit, .odometer.odometer-theme-digital .odometer-digit {
@@ -25,8 +25,8 @@
   display: -moz-inline-box;
   -moz-box-orient: vertical;
   display: inline-block;
-  vertical-align: middle;
-  *vertical-align: auto;
+ /* vertical-align: middle;
+  *vertical-align: auto;*/
   visibility: hidden;
 }
 .odometer.odometer-auto-theme .odometer-digit .odometer-digit-spacer, .odometer.odometer-theme-digital .odometer-digit .odometer-digit-spacer {
@@ -37,7 +37,7 @@
   display: block;
   position: absolute;
   top: 0;
-  left: 0;
+  /*left: 0;*/
   right: 0;
   bottom: 0;
   overflow: hidden;

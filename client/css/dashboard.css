@@ -1,0 +1,25 @@
+.dblabel{	
+    background:none!important;
+    color:#808080!important;
+    font-size:2.5em!important;
+    font-family: "Chunkfive"!important;
+}
+
+.dbsmall{	
+    background:none!important;
+    color:#FFF!important;
+    font-size:2em!important;
+    font-family: "DINCondensed_Bold"!important;
+}
+
+.dbdrinks {
+    background:none!important;
+    font-family: "Chunkfive"!important;
+    font-size:6em!important;
+}
+
+.dbdrinks-icon {
+    background:none!important;
+    color: #FF4943!important;
+    font-size:6em!important;
+}

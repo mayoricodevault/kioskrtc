@@ -79,7 +79,8 @@ app.post("/xively", function(request, response) {
   //The request body expects a param named "message"
   var message = request.body.message;
 
-  // console.log(request.body);
+
+  console.log(request.body);
   //If the message is empty or wasn't sent it's a bad request
   if(_.isUndefined(message) || _.isEmpty(message.trim())) {
     return response.json(400, {error: "Message is invalid"});
@@ -90,6 +91,7 @@ app.post("/xively", function(request, response) {
   if(_.isUndefined(request.body.value)) {
     return response.json(400, {error: "Values must be defined"});
   }
+  
   
   //We also expect the sender's name with the message
   var devicename = request.body.devicename;

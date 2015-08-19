@@ -1,0 +1,67 @@
+@charset "utf-8";
+/* CSS Document */
+body{
+	background:#FF4942;
+	}
+
+.hello-trap {
+    background: url("../images/speakbox.svg");
+    background-size: cover;
+    min-width: 351px;
+    padding: 0px 20px;
+    font-size: 78px;
+    text-align: center;
+    word-break: break-word;
+    min-height: 280px;
+    max-width: 220px;
+    max-height: 360px;
+    color: #FF4942;
+}
+.grinder-trap-right {
+    background: url("../images/speakbox-right-s.svg");
+    background-size: cover;
+    min-width: 351px;
+    padding: 52px 30px;
+    font-size: 35px;
+    line-height: 33px;
+    text-align: center;
+    word-break: break-word;
+    min-height: 300px;
+    max-width: 220px;
+    max-height: 360px;
+    color: #FF4942;
+    -ms-transform: rotate(27deg);
+    /* -webkit-transform: rotate(47deg); */
+    /* transform: rotate(-73deg); */
+	z-index: 1;
+}
+.grinder-trap-left {
+    background: url("../images/speakbox-left-s.svg");
+    background-size: cover;
+    min-width: 351px;
+    padding: 63px 52px;
+    font-size: 35px;
+    line-height: 33px;
+    text-align: center;
+    word-break: break-word;
+    min-height: 300px;
+    max-width: 220px;
+    max-height: 360px;
+    color: #FF4942;
+    -ms-transform: rotate(27deg);
+    /* -webkit-transform: rotate(47deg); */
+    /* transform: rotate(-73deg); */
+	z-index: 1;
+}
+.navbar-default {
+    background-color: #FF4942;
+    border-color: #FF4942;
+}
+.grinder{
+	position: absolute;
+    top: 150px;
+    left: 0;
+    right: 0;
+    z-index: 0;
+	}
+	

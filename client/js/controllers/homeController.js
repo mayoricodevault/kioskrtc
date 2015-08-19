@@ -1,4 +1,6 @@
-xively.controller('homeController', ['$scope', function($scope){
+xively.controller('homeController', ['$scope','$interval', function($scope, $interval){
+    
+        
     $scope.myInterval = 4000;
     $scope.slides = [{
         image: "img/fullstack.png",

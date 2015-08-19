@@ -1,0 +1,84 @@
+.slideout-menu {
+	position: fixed;
+    top: 40px;
+	left: -250px;
+	width: 250px;
+	height: 100%;
+	background: #FF4943;
+	z-index: 1031;
+}
+.slideout-menu h3 {
+	position: relative;
+	padding: 12px 10px;
+	color: #fff;
+	font-size: 1.2em;
+	font-weight: 400;
+	border-bottom: 0px solid #222;
+}
+.slideout-menu .slideout-menu-toggle {
+    position: absolute;
+    /*top: 7px;*/
+    right: 10px;
+    display: inline-block;
+    padding: 6px 9px 5px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    line-height: 1;
+    background: transparent;
+    color: #eee;
+    text-decoration: none;
+    vertical-align: top;
+}
+.slideout-menu .slideout-menu-toggle:hover {
+	color: #fff;
+}
+.toggle-slide{
+    position: fixed;
+    left: 0;
+    top: 4px;
+    z-index: 1031;
+    background-color: #DB3F2A;
+    color: #eee;
+    padding: 5px;
+}
+.toggle-slide a {
+    color: #eee;
+    text-decoration: none;
+}
+.toggle-slide a:focus, .toggle-slide a:hover {
+    color: #fff;
+}
+.slideout-menu ul {
+    list-style: none;
+    font-weight: 300;
+	padding-left:0;
+    border-top: 0px solid #151515;
+    border-bottom: 0px solid #454545;
+}
+.slideout-menu ul li {
+    border-top: 0px solid #454545;
+    border-bottom: 0px solid #151515;
+}
+.slideout-menu ul li a {
+    position: relative;
+    display: block;
+    padding: 5px 40px;
+    color: #eee;
+    font-size: 21px;
+    border-bottom: 3px solid transparent;
+    border-top: 2px solid transparent;
+    text-decoration: none;
+}
+.slideout-menu ul li a:hover {
+    background: rgba(255,255,255,0.5);
+    color: #fff;
+    border-bottom: 3px solid #fff;
+    border-top: 2px solid #fff;
+}
+
+.slideout-menu ul li a i {
+	position: absolute;
+	top: 9px;
+	right: 10px;
+	opacity: .5;
+}
