@@ -1,50 +1,77 @@
 var xively = angular.module('xively', [
     'ngRoute',
     'ui.bootstrap',
-    'chart.js',
     'ngAnimate',
     'btford.socket-io',
     'infinite-scroll',
-    'ui.odometer',
-    'LocalStorageModule'])
+    'LocalStorageModule',
+    'firebase'])
     .config(['localStorageServiceProvider',function(localStorageServiceProvider){
         localStorageServiceProvider.setPrefix('xy')
     }])
-    .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider){
+    .config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider){
         
         //typical routes... when someone navigates to a given directory, load the partial, and use the controller
-        $routeProvider.when('/home', {templateUrl: '/partials/home.html', controller: 'homeController'});
-        $routeProvider.when('/projects', {templateUrl: '/partials/projects.html', controller: 'projectsController'});
-        $routeProvider.when('/projects/generic', {templateUrl: '/partials/projects/generic.html', controller: 'genericController'});
-        $routeProvider.when('/projects/openmenu', {templateUrl: '/partials/projects/openmenu.html', controller: 'openmenuController'});
-        $routeProvider.when('/projects/greetingh1', {templateUrl: '/partials/projects/greetingh1.html', controller: 'greetingh1Controller'});
-        $routeProvider.when('/projects/greetingh2', {templateUrl: '/partials/projects/greetingh2.html', controller: 'greetingh2Controller'});
-        $routeProvider.when('/projects/expressmenu', {templateUrl: '/partials/projects/expressmenu.html', controller: 'expressmenuController'});
-        $routeProvider.when('/projects/dashboard', {templateUrl: '/partials/projects/dashboard.html', controller: 'dashboardController'});
-        $routeProvider.when('/projects/dashboardop1', {templateUrl: '/partials/projects/dashboardop1.html', controller: 'dashboardop1Controller'});
-        $routeProvider.when('/projects/dashboardop2', {templateUrl: '/partials/projects/dashboardop2.html', controller: 'dashboardop2Controller'});
-        $routeProvider.when('/projects/coffeemenu', {templateUrl: '/partials/projects/coffeemenu.html', controller: 'coffeemenuController'});
-        $routeProvider.when('/projects/kiosk1', {templateUrl: '/partials/projects/kiosk1.html', controller: 'kiosk1Controller'});
-        $routeProvider.when('/projects/kioskfavorite', {templateUrl: '/partials/projects/kioskfavorite.html', controller: 'kioskfavoriteController'});
-        $routeProvider.when('/projects/kioskmenu', {templateUrl: '/partials/projects/kioskmenu.html', controller: 'kioskmenuController'});
-        $routeProvider.when('/projects/kioskthankyou', {templateUrl: '/partials/projects/kioskthankyou.html', controller: 'kioskthankyouController'});
-        $routeProvider.when('/projects/splash', {templateUrl: '/partials/projects/splash.html', controller: 'kiosksplashController'});
-        $routeProvider.when('/projects/baristafavorite', {templateUrl: '/partials/projects/baristafavorite.html', controller: 'baristaController'});
-        $routeProvider.when('/projects/baristamenu', {templateUrl: '/partials/projects/baristamenu.html', controller: 'baristamenuController'});
-        $routeProvider.when('/projects/list', {templateUrl: '/partials/projects/list.html', controller: 'listController'});
-        $routeProvider.when('/projects/kioskname', {templateUrl: '/partials/projects/kioskname.html', controller: 'kiosknameController'});
-        $routeProvider.when('/projects/kiosknameop2', {templateUrl: '/partials/projects/kiosknameop2.html', controller: 'kiosknameop2Controller'});
+        
+        $routeProvider.when('/settings', {
+                templateUrl: '/partials/setup.html', 
+                controller: 'splashController',
+                resolve: {
+                    app: function($q) {
+                        var  defer = $q.defer();
+                        defer.resolve();
+                        return defer.promise;
+                    }
+                }
+            
+        });
+        
+        $routeProvider.when('/splash', {
+                templateUrl: '/partials/splash.html', 
+                controller: 'splashController',
+                resolve: {
+                    authenticate: authenticate
+                }
+            
+        });
+        
+        $routeProvider.when('/kiosk/welcome', {templateUrl: '/partials/kiosk/welcome.html', controller: 'welcomeController'});
+        $routeProvider.when('/kiosk/menubar', {templateUrl: '/partials/kiosk/menubar.html', controller: 'menubarController'});
+        $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController'});
+        $routeProvider.when('/kiosk/register', {templateUrl: '/partials/kiosk/register.html', controller: 'registerController'});
+        $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController' });
+        $routeProvider.when('/kiosk/settings', {templateUrl: '/partials/kiosk/settings.html', controller: 'settingsController' });
         
         //if no valid routes are found, redirect to /home
-        $routeProvider.otherwise({redirectTo: '/home'});
+        $routeProvider.otherwise({redirectTo: '/settings'});
         //new comment
         $locationProvider.html5Mode({enabled: true, requireBase: false});
+        $httpProvider.interceptors.push('AuthInterceptor');
+        
+        function authenticate($q, LSFactory , $timeout, $location) {
+              if (LSFactory.getSessionId()) {
+                // Resolve the promise successfully
+                return $q.when()
+              } else {
+                // The next bit of code is asynchronously tricky.
+        
+                $timeout(function() {
+                  // This code runs after the authentication promise has been rejected.
+                  // Go to the log-in page
+                  	 $location.path('/settings');
+                })
+        
+                // Reject the authentication promise to prevent the state from loading
+                return $q.reject()
+              }
+        }
         
     }])
     .filter('startFrom', function(){
         return function(data, start){
             return data.slice(start);
         }
-    });
-    
+    })
+    .constant('FIREBASE_URI', 'https://kxively.firebaseio.com/people')
+    .constant("API_URL", 'http://kiosk-mmayorivera.c9.io');
     

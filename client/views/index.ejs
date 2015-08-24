@@ -12,7 +12,7 @@
     <!--Fixes routing errors when refreshing some routes ie. projects/customerapi.html-->
     <base href="/" />
 
-    <title>TestLabs</title>
+    <title>Kiosk</title>
 
     <link rel="stylesheet" href="css/main/bootstrap.min.css">
     <link href="css/main/easy-sidebar.css" rel="stylesheet" type="text/css">
@@ -38,15 +38,12 @@
 
     <link rel="stylesheet" href="libs/angular-chart.js/angular-chart.css" />
 
-
-       
-    
   </head>
 
   <body>
 
     <div class="container-fluid" ng-cloak>
-      <div ng-include="'partials/header.html'"></div>
+      
       
 
       <!-- Main component for a primary marketing message or call to action -->
@@ -74,53 +71,47 @@
     <script type="text/javascript" src="libs/angular-socket-io/socket.js"></script>
     <script type="text/javascript" src="libs/angular-local-storage/angular-local-storage.min.js"></script>
      <script type="text/javascript" src="libs/jquery/jquery.scrollbar.js"></script>
-    <!-- Install library chart-->
-    
-    <script src="libs/chartjs/Chart.js"></script>
-    <!--<script type="text/javascript" src="libs/angular/angular.js"></script>-->
-    <script type="text/javascript" src="libs/angular-chart.js/angular-chart.js"></script>
-    <!--end -->
     
         <!--Odometer-->
     <script type="text/javascript" src="libs/odometer/odometer.js"></script>
-    <script type="text/javascript" src="libs/angular-odometer-js/angular-odometer.js"></script>
-    
-    <!--NgInfinite Scroll-->
-    <script type="text/javascript" src="libs/ngInfiniteScroll/build/ng-infinite-scroll.min.js"></script>
-    
-    <script type="text/javascript" src="js/app.js"></script>
-    
-    
-    <!--Main Controllers-->
-    <script type="text/javascript" src="js/controllers/homeController.js"></script>
-    <script type="text/javascript" src="js/controllers/navController.js"></script>
-    <script type="text/javascript" src="js/controllers/projectsController.js"></script>
+    <script type="text/javascript" src="libs/angular-odometer-js/angular-odometer.js"></script>  
+    <script src="https://cdn.firebase.com/v0/firebase.js"></script>
+    <script type="text/javascript" src="libs/angularfire/angularfire.js"></script>
+
 
     
-    <!--Project Controllers-->
-    <script type="text/javascript" src="js/controllers/projects/genericController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/openmenuController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/greetingh1Controller.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/greetingh2Controller.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/expressmenuController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/dashboardController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/dashboardop1Controller.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/dashboardop2Controller.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/coffeemenuController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/weatherController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/kiosk1Controller.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/baristaController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/baristamenuController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/listController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/kiosknameController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/kiosknameop2Controller.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/kioskmenuController.js"></script>
-    <script type="text/javascript" src="js/controllers/projects/kioskthankyouController.js"></script>
+    <!--NgInfinite Scroll-->
+    <script type="text/javascript" src="libs/ngInfiniteScroll/ng-infinite-scroll.js"></script>
     
+    <script type="text/javascript" src="js/app.js"></script>
     
     <!--Services-->
     <script type="text/javascript" src="js/services/Api.js"></script>
     <script type="text/javascript" src="js/services/SocketFactory.js"></script>
+     <script type="text/javascript" src="js/services/VisitorsService.js"></script>
+     
+    <script type="text/javascript" src="js/services/LSFactory.js"></script>
+    <script type="text/javascript" src="js/services/SubscriptionFactory.js"></script>
+    <script type="text/javascript" src="js/services/AuthTokenFactory.js"></script>
+    <script type="text/javascript" src="js/services/AuthInterceptor.js"></script>
+
+    <script type="text/javascript" src="js/services/sharedProperties.js"></script>
+    <script type="text/javascript" src="js/services/storeService.js"></script>
+    
+    <!--Main Controllers-->
+    <script type="text/javascript" src="js/controllers/navController.js"></script>
+    
+    <!--Project Controllers-->
+    <script type="text/javascript" src="js/controllers/projects/registerController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/menubarController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/thankyouController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/welcomeController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/splashController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/weatherController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/selectController.js"></script>
+    <script type="text/javascript" src="js/controllers/projects/settingsController.js"></script>
+    
+
     
     <!-- Directives-->
     <script type="text/javascript" src="js/directives/xivebox.js"></script>

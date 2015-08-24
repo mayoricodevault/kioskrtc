@@ -1,3 +1,4 @@
 module.exports = {
-    'url': 'mongodb://' + process.env.IP
-}
+    'url': 'mongodb://' + 'iottemplate-mmayorivera.c9.io',
+    'firebase' : 'http://kxively.firebaseio.com'
+};

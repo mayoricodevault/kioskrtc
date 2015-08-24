@@ -1,17 +1,21 @@
 'use strict';
-xively.controller('WeatherCtrl', function($http, $scope){
+xively.controller('WeatherCtrl', function($http, $scope,localStorageService){
     
     // make API call to Yahoo with the ZIP code parameter
-	//$scope.getWeather = function(zip){
-	$scope.zip = 80123;
-	$http.get('https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20weather.forecast%20WHERE%20location%3D%22' + 80123 + '%22&format=json&diagnostics=true&callback=')
+	$scope.getWeather = function(zip){
+	var oldPerson=localStorageService.get('currentPerson');
+	console.log(oldPerson+"asdasdasda222");
+	
+	$scope.zip =oldPerson.zipcode;
+	$http.get('https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20weather.forecast%20WHERE%20location%3D%22' + $scope.zip + '%22&format=json&diagnostics=true&callback=')
 		.success(function(data){
 			$scope.weather = data.query.results.channel
 			$scope.forecast = data.query.results.channel.item.forecast
 			$scope.tempIndex = (parseInt($scope.weather.item.condition.temp) - parseInt($scope.forecast[0].low)) / (parseInt($scope.forecast[0].high) - parseInt($scope.forecast[0].low)) * 100
 			
 		})
-//	}
+	}
+	console.log("asdasdasdas"+$scope.zip);
 	//decide which weather icon SVG to display for the current weather
 	$scope.weatherImg = function(code){
 		if([6, 9, 11, 12, 35, 40].indexOf(parseInt(code)) > -1){

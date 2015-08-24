@@ -8,18 +8,22 @@ var path = require('path');
 var expressJwt = require('express-jwt');
 var jwt = require('jsonwebtoken');
 //get our port # from enviromental variable: PORT
-var port = process.env.PORT || 3001;
-
+// var port = process.env.PORT || 3002;
+var port = 3002;
 var jwtSecret = 'asesam0/3uk';
 var session = require("express-session")({
     secret: jwtSecret,
     resave: true,
     saveUninitialized: true
   });
+var user = {
+  username : "xively",
+  password : "123"
+};
 var sharedsession = require("express-socket.io-session");
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
-var cors= require('cors');
+var sessionMgm = require("./server/services/sessionMgmnt");
 var deviceMgm = require("./server/services/deviceMgmnt");
 app.use(session);
 app.use(cors());
@@ -172,25 +176,14 @@ app.post("/sync", function(request, response) {
   response.json(200, {results: "Message received"});
 
 });
-app.post('/subscribe', authenticate, function(req, res) {
-  var body =  req.body;
-  var  fSession = deviceMgm.getSessionBySocketId(body.socketid);
-  if (!fSession ) {
-      var sessionid = jwt.sign({
-          tagId: body.tagid,
-          socketid : body.scio
-      }, jwtSecret);
-      body.sessionid = sessionid;
-      deviceMgm.subscribe(body);
-      res.send({
-        sessionid: body.sessionid,
-        socketid : body.scio,
-        locationid : body.locationid,
-        serverid : body.serverid
-      });
-  } else {
-    res.json(200, {results: "Already in Session"});
-  }
+app.post('/login', authenticate, function(req, res) {
+  var token = jwt.sign({
+    username: user.username
+  }, jwtSecret);
+  res.send({
+    token: token,
+    user: user
+  });
 });
 
 app.post('/me', function(req, res) {
@@ -232,19 +225,12 @@ function unescapeEmail(email) {
 }
 function authenticate(req,res, next) {
   var body =  req.body;
-  if(!body.scio) {
-    res.status(400).end("Must Have Socket Session Id");
+  if(!body.username || !body.password) {
+    res.status(400).end("Must Provide Username or Password");
   }
-  if(!body.tagid) {
-    res.status(400).end("Must Have a Device Tag /Type");
+  if (body.username!==user.username || body.password !==user.password)  {
+     res.status(401).end("Username or Password invalid or incorrect");
   }
-  if(!body.locationid) {
-    res.status(400).end("Must Have a Location Selected");
-  }
-  if(!body.serverId) {
-    res.status(400).end("Must Have a Sever Selected");
-  }
-  
   next();
 }
 //make our app listen for incoming requests on the port assigned above
