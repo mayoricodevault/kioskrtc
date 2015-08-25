@@ -1,52 +1,36 @@
 var express = require('express');
 var app = express();
-//socket IO stuff
+var favicon = require('express-favicon');
 var http = require('http').Server(app);
 var _ = require("underscore");
 var io = require('socket.io')(http);
 var path = require('path');
 var expressJwt = require('express-jwt');
 var jwt = require('jsonwebtoken');
-//get our port # from enviromental variable: PORT
 var port = process.env.PORT || 3001;
-
 var jwtSecret = 'asesam0/3uk';
-var session = require("express-session")({
-    secret: jwtSecret,
-    resave: true,
-    saveUninitialized: true
-  });
+var session = require("express-session")({secret: jwtSecret,resave: true,saveUninitialized: true});
 var sharedsession = require("express-socket.io-session");
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var cors= require('cors');
-var deviceMgm = require("./server/services/deviceMgmnt");
+var requestify = require('requestify');
+var configDB = require('./server/config/database.js');
+var Firebase = require('firebase');
+var appfire = new Firebase(configDB.firebase);
+var moment = require('moment');
 app.use(session);
 app.use(cors());
-var cors= require('cors');
-
-var requestify = require('requestify');
-
+app.use(favicon(__dirname + '/client/img/favicon.ico'));
 app.use(bodyParser.json());
 app.use(methodOverride());
-//Set our view engine to EJS, and set the directory our views will be stored in
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, 'client', 'views'));
 app.use(express.static(path.resolve(__dirname, 'client')));
-//setup, configure, and connect Data Bases
-var mongoose = require('mongoose');
-var configDB = require('./server/config/database.js');
-mongoose.connect(configDB.url);
-var Firebase = require('firebase');
-var appfire = new Firebase(configDB.firebase);
-var activeVisitors = appfire.child('people');
-var activeSessions = appfire.child('sessions');
-//Socket io Specific Settings
 io.use(sharedsession(session));
 io.set('heartbeat timeout',10000);
 io.set('heartbeat interval',9000);
 var devices = [];
-var sessionsConnections = {};
 var numberofusers = 0;
 //Socket io Events Handling
 io.on('connection', function(socket) {
@@ -54,46 +38,39 @@ io.on('connection', function(socket) {
   numberofusers = io.sockets.server.eio.clientsCount;
   console.log("Number of Users : " + numberofusers);
   console.log("A Device has Connected!" + socket.id);
+  // console.log(io.sockets.connected);
   
-  socket.on('request-devices', function(){
-    socket.emit('devices', {devices: devices});
-  });
-  
-  socket.on('sync', function(data){
-      io.emit('sync', {socketId: data.soid, action: data.action });
-  });
-  
-  socket.on('register', function(data){
-      io.emit('message', data);
-  });
+  // io.sockets.connected //Return {socket_1_id: {}, socket_2_id: {}} . This is the most convenient one, since you can just refer to io.sockets.connected[id] then do common things like emit()
+// io.sockets.sockets //Returns [{socket_1}, {socket_2}, ....]. Can refer to socket_i.id to distinguish
+// io.sockets.adapter.sids //Return {socket_1_id: {}, socket_2_id: {}} . Looks similar to the first one but the object is not actually the socket, just the information.
+
+// Not directly helps but still relevant
+// io.sockets.adapter.rooms //Returns {room_1_id: {}, room_2_id: {}}
+// io.sockets.server.eio.clients //Return client sockets
+// io.sockets.server.eio.clientsCount //Return number of connected clients
   
   socket.on('unknown', function(data){
       io.emit('message', data);
   });
   
-  socket.on('subscribe', function(data){
-    if (!_.isEmpty(data)) {
-       var ssio = deviceMgm.getSessionBySocketId(data.socketid);
-      if(!ssio){
-        ssio.subscribe(data);
-      }
-    }
+  socket.on('subscribed', function(data){
+      console.log("---> Subscribed");
+      console.log(data);
+      console.log("---> end Subscribed");
+      //Todo: Send Message to Admin
   });
   
-  socket.on('disconnect', function(){
-    console.log(devicename + ' has Disconnected!');
-    devices.splice(devices.indexOf(devicename), 1);
+  socket.on('disconnect', function(data){
+    
+    console.log(data + ' has Disconnected!');
     io.emit('remove-device', {devicename: devicename});
   });
 });
 app.post("/xively", function(request, response) {
-
-  //The request body expects a param named "message"
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.json(400, {error: "Invalid People Card"});
   }
-  //If the message is empty or wasn't sent it's a bad request
   if(_.isUndefined(people.name) || _.isEmpty(people.name)) {
     return response.json(400, {error: "Name is invalid"});
   }
@@ -115,88 +92,93 @@ app.post("/xively", function(request, response) {
   if(_.isUndefined(people.companyname) || _.isEmpty(people.companyname) ){
     return response.json(400, {error: "Company Must be defined"});
   }
-  // Find Visitor
-  var isKnown = true;
-  var activeVisitors = appfire.child('people/'+escapeEmail(people.email));
-  activeVisitors
+  
+  var activePeople = new appfire.child('people/'+escapeEmail(people.email));
+  activePeople
     .once('value', function(snap) {
       if(!snap.val()) {
-         isKnown = false;   
-         activeVisitors.set(people);
+         activePeople.set(people);
+         io.sockets.emit('unknown', people);
+       } else {
+         io.sockets.emit('register', people);
        }
   });
-  
-  var fSession = _.find(sessionsConnections, function(sessionC){ return sessionC.name == people.zoneto; });
-
-  if (fSession) {
-    if (isKnown) {
-      io.sockets.connected[fSession.id].emit('register', people);
-    } else {
-      io.sockets.connected[fSession.id].emit('unknown', people);
-    }
-  } else {
-    if (isKnown) {
-      io.sockets.emit("register", people);
-    } else  {
-      io.sockets.emit("unknown", people);
-    }
-  }
-  // //Looks good, let the client know
-  response.json(200, {results: "Message received"});
+  response.json(200, {results: "Message Send it"});
 
 });
 app.post("/sync", function(request, response) {
-
-  //The request body expects a param named "message"
-  var sync = request.body.sync;
-  //If the message is empty or wasn't sent it's a bad request
-  if(_.isUndefined(sync) || _.isEmpty(sync.trim())) {
+  var sync = request.body;
+  if(_.isUndefined(sync) || _.isEmpty(sync)) {
     return response.json(400, {error: "Message is invalid"});
   }
   if(_.isUndefined(sync.action)) {
     return response.json(400, {error: "Action Must be defined"});
   }
-  
-  if(_.isUndefined(sync.device)) {
-    return response.json(400, {error: "Device Must be defined"});
+  if(_.isUndefined(sync.tagId)) {
+    return response.json(400, {error: "Tag Id Must be defined"});
   }
-
-  //let them know there was a new message
-  var fSession = _.find(sessionsConnections, function(sessionC){ return sessionC.name == sync.device; });
-
-   if (fSession) {
-     console.log('Sending..');
-     io.sockets.connected[fSession.id].emit('sync', { action: sync.action });
-   } 
-  //Looks good, let the client know
-  response.json(200, {results: "Message received"});
+  if(_.isUndefined(sync.sessionid)) {
+    return response.json(400, {error: "Session Id Must be defined"});
+  }
+  if(_.isUndefined(sync.socketid)) {
+    return response.json(400, {error: "Socket Id Must be defined"});
+  }
+  if(_.isUndefined(sync.url)) {
+    return response.json(400, {error: "Url Must be defined"});
+  }
+  sync.sessionid=sync.sessionid;
+  io.sockets.emit('sync', sync);
+   // io.sockets.connected[sync.socketid].emit('sync', { action: sync.action });
+  response.json(200, {results: "Action Syncronized!!"});
 
 });
 app.post('/subscribe', authenticate, function(req, res) {
   var body =  req.body;
-  var  fSession = deviceMgm.getSessionBySocketId(body.socketid);
-  if (!fSession ) {
-      var sessionid = jwt.sign({
-          tagId: body.tagid,
-          socketid : body.scio
-      }, jwtSecret);
-      body.sessionid = sessionid;
-      deviceMgm.subscribe(body);
-      res.send({
-        sessionid: body.sessionid,
-        socketid : body.scio,
-        locationid : body.locationid,
-        serverid : body.serverid
-      });
-  } else {
-    res.json(200, {results: "Already in Session"});
-  }
+  var foundSession = appfire.child('sessions/'+body.socketid);
+    foundSession
+      .once('value', function(snap) {
+        if(!snap.val()) {
+            var sessionid = jwt.sign({
+                deviceName: body.deviceName,
+                socketid : body.socketid
+            }, jwtSecret);
+            body.sessionid = sessionid;
+            var sess = new Object();
+            sess.sessionid = body.sessionid;
+            sess.socketid = body.socketid;
+            sess.deviceName = body.deviceName;
+            sess.tagId = body.tagId;
+            sess.serverUrl = body.serverUrl;
+            sess.ipaddr = process.env.IP;
+            sess.stamp = moment().format();
+            foundSession.set(sess);
+            res.send({
+              sessionid: body.sessionid,
+              socketid : body.socketid,
+              tagId: body.tagId,
+              deviceDesc : body.deviceName,
+              serverUrl : body.serverUrl
+            });            
+        } else {
+           res.json(200, {results: "Already in Session"});
+        }
+    });
+   
 });
-
+app.post('/unsubscribe', unAuth, function(req, res) {
+  var body =  req.body;
+  var foundSession = appfire.child('sessions/'+body.socketid);
+    foundSession.remove(function(error) {
+      if (error) {
+        res.json(400, {results: "Synchronization failed"});
+      } else {
+        res.json(200, {results: "Session Removed"});
+      }
+    });
+});
 app.post('/me', function(req, res) {
     res.send(req.user);
 });
-
 app.post('/remote', function (req, res) {
     requestify.request('https://rtc-mmayorivera.c9.io/xively', {
     method: 'POST',
@@ -224,30 +206,34 @@ app.get('/*', function(req, res) {
   res.render('index.ejs');
 });
 // ---> end routes <---- 
-function escapeEmail(email) {
-    return (email || '').replace('.', ',');
-}
-function unescapeEmail(email) {
-    return (email || '').replace(',', '.');
-}
 function authenticate(req,res, next) {
   var body =  req.body;
-  if(!body.scio) {
+  if(!body.socketid) {
     res.status(400).end("Must Have Socket Session Id");
   }
-  if(!body.tagid) {
-    res.status(400).end("Must Have a Device Tag /Type");
+  if(!body.deviceName) {
+    res.status(400).end("Must Have a Device Name");
   }
-  if(!body.locationid) {
-    res.status(400).end("Must Have a Location Selected");
+  if(!body.tagId) {
+    res.status(400).end("Must Have a Device Tag / Type");
   }
-  if(!body.serverId) {
-    res.status(400).end("Must Have a Sever Selected");
+  if(!body.serverUrl) {
+    res.status(400).end("Must Have a valid Sever Selected");
   }
   
   next();
 }
-//make our app listen for incoming requests on the port assigned above
+function unAuth(req,res, next) {
+  var body =  req.body;
+  if(!body.socketid) {
+    res.status(400).end("Must Have Socket Session Id");
+  }
+  next();
+}
+
+function  escapeEmail(email) {
+    return (email || '').replace('.', ',');
+}
 http.listen(port, function() {
   console.log('SERVER RUNNING... PORT: ' + port);
 })

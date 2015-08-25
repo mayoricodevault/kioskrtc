@@ -1,4 +1,23 @@
-xively.controller('menubarController', ['$scope', 'Socket','localStorageService','sharedProperties' ,function($scope, Socket,localStorageService,sharedProperties){
+xively.controller('menubarController', ['$scope', '$rootScope','Socket','localStorageService','sharedProperties' ,'SubscriptionFactory', 'LSFactory', 'API_URL', '$window',function($scope,$rootScope, Socket,localStorageService,sharedProperties,SubscriptionFactory, LSFactory, API_URL,$window){
+
+    Socket.on('sync', function(data){
+        if (LSFactory.getSessionId() === data.sessionid) {
+            if (data.action === 'reset') {
+                SubscriptionFactory.unsubscribe(data.socketid).
+            		then(function success(response){
+                        LSFactory.setData("sessionid");
+                        LSFactory.setData("socketid");
+                        LSFactory.setData("serverUrl");
+                        LSFactory.setData("deviceName");
+                        $rootScope.user = null;
+                        $rootScope.socketidSession = null;
+                        Socket.disconnect(true);
+            			$window.location.href = API_URL+"/splash";
+            		}, subsError);
+            }
+        }
+         
+    });
 
     $scope.actual=sharedProperties.getPerson();
     
@@ -69,7 +88,10 @@ xively.controller('menubarController', ['$scope', 'Socket','localStorageService'
     $scope.$watch('people',function(){
         localStorageService.set('people',$scope.people);
     },true);
-    
+    function subsError(response) {
+		
+		alert("error" + response.data);
+	}
 
     
 }]);

@@ -1,5 +1,6 @@
 var xively = angular.module('xively', [
     'ngRoute',
+    'ngResource',
     'ui.bootstrap',
     'ngAnimate',
     'btford.socket-io',
@@ -15,7 +16,7 @@ var xively = angular.module('xively', [
         
         $routeProvider.when('/settings', {
                 templateUrl: '/partials/setup.html', 
-                controller: 'splashController',
+                controller: 'setupController',
                 resolve: {
                     app: function($q) {
                         var  defer = $q.defer();
@@ -29,18 +30,15 @@ var xively = angular.module('xively', [
         $routeProvider.when('/splash', {
                 templateUrl: '/partials/splash.html', 
                 controller: 'splashController',
-                resolve: {
-                    authenticate: authenticate
-                }
+                resolve: {authenticate: authenticate}
             
         });
         
-        $routeProvider.when('/kiosk/welcome', {templateUrl: '/partials/kiosk/welcome.html', controller: 'welcomeController'});
-        $routeProvider.when('/kiosk/menubar', {templateUrl: '/partials/kiosk/menubar.html', controller: 'menubarController'});
-        $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController'});
-        $routeProvider.when('/kiosk/register', {templateUrl: '/partials/kiosk/register.html', controller: 'registerController'});
-        $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController' });
-        $routeProvider.when('/kiosk/settings', {templateUrl: '/partials/kiosk/settings.html', controller: 'settingsController' });
+        $routeProvider.when('/kiosk/welcome', {templateUrl: '/partials/kiosk/welcome.html', controller: 'welcomeController', resolve: {authenticate: authenticate}});
+        $routeProvider.when('/kiosk/menubar', {templateUrl: '/partials/kiosk/menubar.html', controller: 'menubarController', resolve: {authenticate: authenticate}});
+        $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController', resolve: {authenticate: authenticate}});
+        $routeProvider.when('/kiosk/register', {templateUrl: '/partials/kiosk/register.html', controller: 'registerController', resolve: {authenticate: authenticate}});
+        $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController', resolve: {authenticate: authenticate} });
         
         //if no valid routes are found, redirect to /home
         $routeProvider.otherwise({redirectTo: '/settings'});
@@ -48,8 +46,8 @@ var xively = angular.module('xively', [
         $locationProvider.html5Mode({enabled: true, requireBase: false});
         $httpProvider.interceptors.push('AuthInterceptor');
         
-        function authenticate($q, LSFactory , $timeout, $location) {
-              if (LSFactory.getSessionId()) {
+        function authenticate($q, LSFactory , $timeout, $location, AuthTokenFactory) {
+              if (LSFactory.getSessionId() && AuthTokenFactory.getToken() ) {
                 // Resolve the promise successfully
                 return $q.when()
               } else {

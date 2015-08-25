@@ -1,8 +1,25 @@
 
-xively.controller('welcomeController', ['$scope', 'Socket','localStorageService','sharedProperties' ,function($scope, Socket,localStorageService,sharedProperties){
+xively.controller('welcomeController', ['$scope', '$rootScope','Socket','localStorageService','sharedProperties','LSFactory', '$window','API_URL','SubscriptionFactory' ,function($scope, $rootScope, Socket,localStorageService,sharedProperties,LSFactory, $window,API_URL){
     
   
-    
+    Socket.on('sync', function(data){
+        if (LSFactory.getSessionId() === data.sessionid) {
+            if (data.action === 'reset') {
+                SubscriptionFactory.unsubscribe(data.socketid).
+            		then(function success(response){
+                        LSFactory.setData("sessionid");
+                        LSFactory.setData("socketid");
+                        LSFactory.setData("serverUrl");
+                        LSFactory.setData("deviceName");
+                        $rootScope.user = null;
+                        $rootScope.socketidSession = null;
+                        Socket.disconnect(true);
+            			$window.location.href = API_URL+"/splash";
+            		}, subsError);
+            }
+        }
+         
+    });
     /////////////// Welcome HI Name
 
 
@@ -21,6 +38,9 @@ xively.controller('welcomeController', ['$scope', 'Socket','localStorageService'
     },true);
     
     //////////////End Welcome HI Name
-    
+    function subsError(response) {
+		
+		alert("error" + response.data);
+	}
     
 }])

@@ -21,6 +21,7 @@ xively.controller('MainCtrl', function(Api, $scope, shareComponentService, Subsc
 			LSFactory.setData("scio", response.data.scio);
          	LSFactory.setData("locationid", response.data.locationid);
          	LSFactory.setData("serverid", response.data.serverid);
+         	Socket.on('subscribed', response);
 			console.log("Success"+ response.data.scio);
 			$window.location.href = API_URL+"/splash";
 		}, subsError);

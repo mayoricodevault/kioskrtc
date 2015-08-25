@@ -1,6 +1,5 @@
 xively.factory('LSFactory', function LSFactory($window) {
     'use strict';
-    
     var store = $window.localStorage;
     return {
       getUser: getUser,
@@ -13,7 +12,7 @@ xively.factory('LSFactory', function LSFactory($window) {
     }
     
     function getSessionId() {
-      return store.getItem("ksk_sessionid");
+      return store.getItem("sessionid");
     }
     
     

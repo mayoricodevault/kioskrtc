@@ -1,11 +1,10 @@
-xively.controller('splashController', ['$scope', 'Socket','localStorageService','$location','sharedProperties','storeService' ,function($scope, Socket,localStorageService, $location,sharedProperties,storeService){
+xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localStorageService','$location','sharedProperties','storeService', 'SubscriptionFactory', 'LSFactory' , '$window', 'API_URL',function($scope, $rootScope, Socket,localStorageService, $location,sharedProperties,storeService, SubscriptionFactory, LSFactory,$window, API_URL){
     
     storeService.jsonWrite('paneSelected',{id:'2'});
-    Socket.connect();
 
     Socket.on('register', function(data){
-        sharedProperties.setPerson(data);
-        storeService.jsonWrite('paneSelected',{id:'1'});
+       sharedProperties.setPerson(data);
+       storeService.jsonWrite('paneSelected',{id:'1'});
        $location.path('/kiosk/select'); 
 
     });
@@ -15,17 +14,26 @@ xively.controller('splashController', ['$scope', 'Socket','localStorageService',
     });
     
     Socket.on('sync', function(data){
-    
-        if (data.action == 'restart') {
-            // si esta en disable enable button 
-        }
-        
-          if (data.action == 'disable') {
-            // disable button order
+        if (LSFactory.getSessionId() === data.sessionid) {
+            if (data.action === 'reset') {
+                SubscriptionFactory.unsubscribe(data.socketid).
+            		then(function success(response){
+            		    
+                        LSFactory.setData("sessionid");
+                        LSFactory.setData("socketid");
+                        LSFactory.setData("serverUrl");
+                        LSFactory.setData("deviceName");
+                        $rootScope.user = null;
+                        $rootScope.socketidSession = null;
+                        Socket.disconnect(true);
+            			$window.location.href = API_URL+"/splash";
+            		}, subsError);
+            }
         }
          
-   });
-
-   // socket.emit
-    
+    });
+  
+    function subsError(response) {
+        alert("error" + response.data);
+    }
 }])

@@ -1,19 +1,36 @@
-var Device = require('../models/device');
-var Setting = require('../models/setting');
-var User = require('../models/users');
-var session = require('../models/users');
+var requestify = require('requestify');
+var stringify = require('json-stringify');
 module.exports = function(router, socket){
-    
-    router.get('/devices/:id', function(req, res){
-        Device.findOne({_id: req.params.id}, function(err, data){
-            res.json(data);
-        })
+    router.get('/servers/', function(req, res){
+         requestify.request('http://iottemplate-mmayorivera.c9.io/serverlist', {
+                method: 'GET',
+                body: req.body,
+                headers : {
+                        'Content-Type': 'application/json'
+                },
+                dataType: 'json'        
+                }).then(function(response) {
+                    var result = JSON.parse(response.body);
+                    res.json(200, result.servers );
+            });
         
+   
+    });
+    router.get('/devices/', function(req, res){
+         requestify.request('http://iottemplate-mmayorivera.c9.io/deviceslist', {
+                method: 'GET',
+                body: req.body,
+                headers : {
+                        'Content-Type': 'application/json'
+                },
+                dataType: 'json'        
+                }).then(function(response) {
+                    var result = JSON.parse(response.body);
+                    console.log(result);
+                    res.json(200, result.devices );
+            });
         
-    })
-    
-    router.post('/devices/:id', function(req, res){
-        
+   
     });
     
 }

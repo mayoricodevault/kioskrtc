@@ -5,20 +5,24 @@ xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '
         getSession : getSession
     };
     
-    function subscribe(scio, deviceType,locationId, serverId) {
+    function subscribe(socketid, deviceName,tagId, serverUrl) {
       return $http.post( API_URL + '/subscribe', {
-          scio : scio,
-          deviceType: deviceType,
-          locationId : locationId,
-          serverId : serverId
+          socketid : socketid,
+          deviceName: deviceName,
+          tagId : tagId,
+          serverUrl : serverUrl
       }).then(function success(response) {
          AuthTokenFactory.setToken(response.data.sessionid);
-         
          return response;
       });
     }
-    function unsubscribe() {
-        AuthTokenFactory.setToken();
+    function unsubscribe(socketid) {
+          return $http.post( API_URL + '/unsubscribe', {
+              socketid : socketid
+          }).then(function success(response) {
+             AuthTokenFactory.setToken();
+             return response;
+          });
     }
     function getSession() {
         if (AuthTokenFactory.isAuth) {
