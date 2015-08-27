@@ -28,7 +28,7 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
     $scope.redirectSplash=function(){
          $timeout(function() {
          $location.path('/splash'); 
-        }, 30000);
+        }, 10000);
     };
     $scope.redirectSplash();
 }]);

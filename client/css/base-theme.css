@@ -1,3 +1,8 @@
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+
 body {
    /* padding-top: 15px;
     padding-bottom: 10px;*/
@@ -25,6 +30,14 @@ html{
     -webkit-transform: rotate(7deg); /* Chrome, Safari, Opera */
     transform: rotate(7deg);
 	}
+.user-p{
+    
+}
+.alert {
+position: relative;
+width: 100%;
+z-index:1;
+}
 /* #Site Styles
 ================================================== */
 .h4, .h5, .h6, h4, h5, h6 {
@@ -89,6 +102,13 @@ html{
     border-radius: 15px;
     -webkit-box-shadow: 0 0px 0px rgba(0,0,0,.05);
     box-shadow: 0 0px 0px rgba(0,0,0,.05);
+}
+.footer{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    left:0;
+    right:0;
 }
 .footer-content {
     margin: 10px;

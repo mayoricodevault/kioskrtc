@@ -1,8 +1,8 @@
 
-xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','sharedProperties','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window',function($scope,$rootScope, Socket,localStorageService,sharedProperties,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window){
+xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','sharedProperties','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window','$timeout',function($scope,$rootScope, Socket,localStorageService,sharedProperties,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window,$timeout){
     
     
-    Socket.on('sync', function(data){
+     Socket.on('sync', function(data){
         if (LSFactory.getSessionId() === data.sessionid) {
             if (data.action === 'reset') {
                 SubscriptionFactory.unsubscribe(data.socketid).
@@ -17,8 +17,22 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             			$window.location.href = API_URL+"/splash";
             		}, subsError);
             }
+            if (data.action === 'snap') {
+                $scope.base64 = '';
+                $('#snap').html("");
+                html2canvas(document.body, {
+                  onrendered: function(canvas) {
+                    var binaryData = canvas.toDataURL();  
+                    $scope.base64  = binaryData.replace(/^data:image\/png;base64,/,"");
+                    $('#snap').html('<img id="imgscreen" src="'+ $scope.base64 +'" />');
+                    var snapname = LSFactory.getSocketId();
+                    Socket.emit('snap',  {snapname :snapname, binaryData :  $scope.base64 });
+                    $scope.base64= '';
+                  }
+                });
+
+            }
         }
-         
     });
     
     $scope.paneSelected = storeService.jsonRead('paneSelected');
@@ -26,6 +40,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.isFavorite=false;
     
     $scope.selected = undefined;
+    $scope.trySelect = false;
     
     /// GET INFORMATION PERSON
         //get current Person of Local Storage 
@@ -78,6 +93,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         $scope.reset = function () {
             $scope.visitors = null;
             $scope.visitors = VisitorsService.getVisitors();
+            $scope.visitors.sort();
         };
         
         function visitorsToArray(oVisitors) {
@@ -98,16 +114,44 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
              
              $scope.isFavorite=false;
              
-             if($scope.selected===undefined)
+            if($scope.selected===undefined) {
+                if (!$scope.trySelect) $scope.hideMsg();
+                $scope.trySelect=true;
                 return false;
-            
+            }
+            if($scope.selected=="") {
+                if (!$scope.trySelect) $scope.hideMsg();
+                $scope.trySelect=true;
+                return false;
+            }
+            if(typeof $scope.selected!=='object') {
+                if (!$scope.trySelect) $scope.hideMsg();
+                $scope.trySelect=true;
+                return false;
+            }
+            console.log($scope.selected);
             $scope.paneSelected = {id:'3'};
-            storeService.jsonWrite('dataActual',$scope.selected);
-            $scope.currentPerson = storeService.jsonRead('dataActual');
+            $scope.currentPerson = $scope.selected;
+            console.log($scope.currentPerson);
             storeService.jsonWrite('paneSelected',$scope.paneSelected);
         
             return true;
         };
+        
+        $scope.trySelectFun=function() {
+            
+            return $scope.trySelect;
+        };
+        $scope.closeMsg = function () {
+            console.log("click closeMsg");
+            $scope.trySelect=false;
+        };
+        // Hiding alert
+        $scope.hideMsg = function(){
+        $timeout(function() {
+            $scope.closeMsg();
+        }, 3000);
+    }
     
     /*-------------------- END REGISTER CONTROLLER -----------------------*/
     
@@ -206,15 +250,16 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     
     /*---------------------Weather controller---------------------------------*/
 
-	
-	$scope.zip =$scope.currentPerson.zipcode;
-	$http.get('https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20weather.forecast%20WHERE%20location%3D%22' + $scope.zip + '%22&format=json&diagnostics=true&callback=')
+    $scope.zip ={"zipcode":$scope.currentPerson.zipcode};
+    
+	$http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.zip)
 		.success(function(data){
-			$scope.weather = data.query.results.channel
-			$scope.forecast = data.query.results.channel.item.forecast
-			$scope.tempIndex = (parseInt($scope.weather.item.condition.temp) - parseInt($scope.forecast[0].low)) / (parseInt($scope.forecast[0].high) - parseInt($scope.forecast[0].low)) * 100
-			
-	})
+			$scope.weather=data.query.results.channel;
+
+	});
+    function subsError(response) {
+        alert("error" + response.data);
+    }
 	/*-----------------End Weather ********************************************/
 	
 }]);

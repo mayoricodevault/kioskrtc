@@ -4,7 +4,8 @@ xively.factory('LSFactory', function LSFactory($window) {
     return {
       getUser: getUser,
       setData: setData,
-      getSessionId:getSessionId
+      getSessionId:getSessionId,
+      getSocketId : getSocketId
     };
 
     function getUser() {
@@ -15,6 +16,9 @@ xively.factory('LSFactory', function LSFactory($window) {
       return store.getItem("sessionid");
     }
     
+    function getSocketId() {
+      return store.getItem("socketid");
+    }
     
     function getData(dataKey) {
         return store.getItem(dataKey);

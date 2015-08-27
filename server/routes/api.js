@@ -11,7 +11,7 @@ module.exports = function(router, socket){
                 dataType: 'json'        
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
-                    res.json(200, result.servers );
+                    res.status(200).json(result.servers )
             });
         
    
@@ -27,7 +27,7 @@ module.exports = function(router, socket){
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
                     console.log(result);
-                    res.json(200, result.devices );
+                    res.status(200).json(result.devices )
             });
         
    

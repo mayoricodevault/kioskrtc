@@ -19,6 +19,7 @@ var configDB = require('./server/config/database.js');
 var Firebase = require('firebase');
 var appfire = new Firebase(configDB.firebase);
 var moment = require('moment');
+var fs = require('fs');
 app.use(session);
 app.use(cors());
 app.use(favicon(__dirname + '/client/img/favicon.ico'));
@@ -49,10 +50,23 @@ io.on('connection', function(socket) {
 // io.sockets.server.eio.clients //Return client sockets
 // io.sockets.server.eio.clientsCount //Return number of connected clients
   
-  socket.on('unknown', function(data){
-      io.emit('message', data);
-  });
   
+  socket.on('snap', function(data){
+      var binaryData = new Buffer(data.binaryData, 'base64').toString('binary');
+      // fs.writeFile(data.snapname+ "-out.png", binaryData, "binary", function(err) {
+      //     console.log(err); // writes out file without error, but it's not a valid image
+      // });
+      // var snapFileName ='https://kiosk-mmayorivera.c9.io/'+data.snapname+"-out.png";
+      var activeSession = appfire.child('sessions/'+data.snapname);
+      activeSession
+        .once('value', function(snap) {
+          if(snap.val()) {
+             var SessionRequest = snap.val();
+             SessionRequest.snapshot = data.binaryData;
+             activeSession.set(SessionRequest);
+           } 
+      });
+  });
   socket.on('subscribed', function(data){
       console.log("---> Subscribed");
       console.log(data);
@@ -61,39 +75,55 @@ io.on('connection', function(socket) {
   });
   
   socket.on('disconnect', function(data){
-    
     console.log(data + ' has Disconnected!');
     io.emit('remove-device', {devicename: devicename});
   });
 });
+app.post("/weather", function(request, response) {
+  var zipcode = request.body.zipcode;
+  var weather =null;
+  if(_.isUndefined(zipcode) || _.isEmpty(zipcode)) {
+    return response.status(400).json({error: "Invalid Zip Code"});
+  }
+  requestify.request('https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20weather.forecast%20WHERE%20location%3D%22' + zipcode + '%22&format=json&diagnostics=true&callback=', {
+    method: 'GET',
+    dataType: 'json' ,
+    }).then(function(res) {
+         weather = JSON.parse(res.body);
+         return response.status(200).json(weather);
+    });
+
+});
+
+
 app.post("/xively", function(request, response) {
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
-    return response.json(400, {error: "Invalid People Card"});
+    return response.status(400).json({error: "Invalid People Card"});
   }
   if(_.isUndefined(people.name) || _.isEmpty(people.name)) {
-    return response.json(400, {error: "Name is invalid"});
+    return response.status(400).json({error: "Name is invalid"});
   }
   if(_.isUndefined(people.email) || _.isEmpty(people.email)){
-    return response.json(400, {error: "Email Must be defined"});
+    return response.status(400).json( {error: "Email Must be defined"});
   }
   if(_.isUndefined(people.favcoffe) || _.isEmpty(people.favcoffe)) {
-    return response.json(400, {error: "Favorite Must be defined"});
+    return response.status(400).json( {error: "Favorite Must be defined"});
   }
   if(_.isUndefined(people.zipcode) || _.isEmpty(people.zipcode)) {
-    return response.json(400, {error: "Zip Code Must be defined"});
+    return response.status(400).json( {error: "Zip Code Must be defined"});
   }
   if(_.isUndefined(people.zonefrom) || _.isEmpty(people.zonefrom)) {
-    return response.json(400, {error: "Zone Must be defined"});
+    return response.status(400).json( {error: "Zone Must be defined"});
   }
   if(_.isUndefined(people.zoneto) || _.isEmpty(people.zoneto)) {
-    return response.json(400, {error: "Zone Must be defined"});
+    return response.status(400).json({error: "Zone Must be defined"});
   }
   if(_.isUndefined(people.companyname) || _.isEmpty(people.companyname) ){
-    return response.json(400, {error: "Company Must be defined"});
+    return response.status(400).json({error: "Company Must be defined"});
   }
   
-  var activePeople = new appfire.child('people/'+escapeEmail(people.email));
+  var activePeople = appfire.child('people/'+escapeEmail(people.email));
   activePeople
     .once('value', function(snap) {
       if(!snap.val()) {
@@ -103,7 +133,7 @@ app.post("/xively", function(request, response) {
          io.sockets.emit('register', people);
        }
   });
-  response.json(200, {results: "Message Send it"});
+  response.status(200).json({results: "Message Send it"});
 
 });
 app.post("/sync", function(request, response) {
@@ -179,20 +209,20 @@ app.post('/unsubscribe', unAuth, function(req, res) {
 app.post('/me', function(req, res) {
     res.send(req.user);
 });
-app.post('/remote', function (req, res) {
-    requestify.request('https://rtc-mmayorivera.c9.io/xively', {
-    method: 'POST',
-    body: req.body,
-    headers : {
-            'Content-Type': 'application/json'
-    },
-    dataType: 'json'        
-    }).then(function(response) {
-        // Get the response body
-        console.log(response);
-    });
-    res.json(200, {results: "Message received and proceed to Forward"});
-});
+// app.post('/remote', function (req, res) {
+//     requestify.request('https://rtc-mmayorivera.c9.io/xively', {
+//     method: 'POST',
+//     body: req.body,
+//     headers : {
+//             'Content-Type': 'application/json'
+//     },
+//     dataType: 'json'        
+//     }).then(function(response) {
+//         // Get the response body
+//         console.log(response);
+//     });
+//     res.json(200, {results: "Message received and proceed to Forward"});
+// });
 // ---> routes <---- 
 app.get('/', function(req, res) {
   res.render('index.ejs');

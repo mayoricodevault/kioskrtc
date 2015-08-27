@@ -1,4 +1,6 @@
-xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL){
+xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL' ,function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL){
+	$scope.isFullScreen = false;
+
 	$scope.DeviceTye="KIOSK";
 	
     $scope.serverSelected = "";
@@ -8,6 +10,25 @@ xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'S
     Api.Server.query({}, function(data){
     	$scope.servers=data;
     }); 
+    
+    $scope.goFullscreen = function () {
+		console.log("ASD");
+      // Fullscreen
+      if (Fullscreen.isEnabled())
+         Fullscreen.cancel();
+      else
+         Fullscreen.all();
+
+      // Set Fullscreen to a specific element (bad practice)
+      // Fullscreen.enable( document.getElementById('img') )
+
+   };
+
+
+
+   $scope.goFullScreenViaWatcher = function() {
+      $scope.isFullScreen = !$scope.isFullScreen;
+   };
     
     $scope.subscribe = function(deviceName,tagId, serverUrl) {
 		var socket =  Socket.connect();
