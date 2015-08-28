@@ -6,9 +6,17 @@
 body {
    /* padding-top: 15px;
     padding-bottom: 10px;*/
-	font-family: "DINCondensed_Bold";
+	font-family: "ProximaNovaRegular";
 	margin-bottom: 0;
 }
+body{
+    background:#f6f6f6 url("../images/coffee-bar-bg.jpg") fixed center no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+    }
 html{
       height: 100%;
 }
@@ -45,9 +53,9 @@ z-index:1;
     margin-bottom: 5px;
 }
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-    font-family: "Chunkfive";
-	color:#FF4943;
-	text-transform:uppercase;
+    font-family: "ProximaNovaBold";
+	color:#4e4e4e;
+	text-transform:initial;
 }
 .menu-panel .h1,
 .menu-panel .h2,
@@ -68,11 +76,11 @@ z-index:1;
 }
 .h2, h2 {
     font-size: 2.5em;
-	text-transform:uppercase;
+
 }
 .h3, h3 {
     font-size: 2em;
-	text-transform:uppercase;
+
 }
  .h2 span, h2  span{  
     position: relative;
@@ -149,7 +157,8 @@ z-index:1;
 
 	}
 .img-beverage{
-	 width:50px;
+	width: 220px;
+    margin: auto;
 	}
 .station{
 	    border-right: 1px solid #FF4943;
@@ -206,13 +215,46 @@ z-index:1;
 .dropdown-menu {
   right:0;
 }
+.input-box {
+    background-color: transparent;
+    border: 0;
+    font-size: 32px;
+    color: #4e4e4e;
+    outline: 0;
+}
+.circle {
+    width: 450px;
+    height: 450px;
+    padding: 60px 10px;
+    vertical-align: middle;
+    color: #fff;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background: #FF4943;
+    text-transform: initial;
+    margin: auto;
+}
+.circle p{
+       font-size: 22px;
+}
+
+/* #DropDown Menu
+================================================== */
+.dropdown-menu>.active>a, 
+.dropdown-menu>.active>a:focus, 
+.dropdown-menu>.active>a:hover {
+    background-color: #FF4943;
+}
 /* #NavBar Header
 ================================================== */
 
 .navbar ul.log-out{
   margin:0;
 }
-#nav-toggle span, #nav-toggle span:before, #nav-toggle span:after {
+#nav-toggle span, 
+#nav-toggle span:before, 
+#nav-toggle span:after {
   cursor: pointer;
   border-radius: 1px;
   height: 5px;
@@ -314,7 +356,7 @@ margin-top:20px;
 }
 .user-box {
     font-size: 2em;
-    color: #FF4943;
+    color: #4e4e4e;
     padding: 0 20px;
     display: inline-block;
 }
@@ -323,7 +365,7 @@ margin-top:20px;
     color: #FF4943;
 }
 .location {
-    font-family: "DINCondensed_Bold";
+    font-family: "ProximaNovaRegular";
     font-size: 29px;
     position: relative;
     top: -23px;
@@ -383,7 +425,6 @@ margin-top:20px;
 	}
 .row-option{
   display:table-cell;
-  width: 33%;
 }
 .row-panel{
 	display: table-row;
@@ -467,9 +508,9 @@ iframe{
 	    min-width: 120px;
 	}	
 	.btn-primary {
-    color: #fff;
-    background-color: #F94537;
-    border-color: #F94537;
+     color: #4e4e4e;
+    background-color: #fff;
+    border-color: #4e4e4e;
 }
 	.btn-primary:hover {
     color: #fff;
@@ -482,12 +523,7 @@ iframe{
     border-color: #F94537;
 	outline:0;
 }
-.active{
-	color: #fff;
-    background-color: rgba(255,255,255,0.5);
-    border-bottom: 2px solid #fff;
-    border-top: 2px solid #fff;
-	}
+
 .btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover, .btn-primary:active.focus, .btn-primary:active:focus, .btn-primary:active:hover, .open>.dropdown-toggle.btn-primary.focus, .open>.dropdown-toggle.btn-primary:focus, .open>.dropdown-toggle.btn-primary:hover {
  	color: #fff;
     background-color: #F94537;
@@ -515,9 +551,35 @@ iframe{
     padding: 7px 30px;
 	
 }
+
+	.btn-default {
+    color: #4e4e4e;
+    background-color: #fff;
+    border-color: #4e4e4e;
+}
+/* Custom default button */
+.btn-default:hover,
+.btn-default:focus {
+   	color: #fff;
+    background-color: #F94537;
+    border-color: #F94537;
+	outline:0;
+}
+
 .btn{
-	text-transform: uppercase;
-	}
+    font-family: "ProximaNovaRegular";
+    font-size: 15px;
+    font-weight: 700;
+    text-transform:initial;
+    line-height: 1;
+    padding: 10px 35px;
+    -webkit-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+    cursor:pointer;
+    border-radius: 4px;
+}
+
+
 /* Rrows
 ================================================== */
 .row-eq-height {
@@ -564,38 +626,41 @@ color:#42210B!important;
 .font-lg{
 	font-size:6em!important;
 	}
+	
 @font-face {
- font-family: "Raleway-SemiBold";
- src: url("../fonts/Raleway-SemiBold.eot") /* EOT file for IE */
-}
+  font-family: "ProximaNovaBold";
+  src:url('../fonts/ProximaNovaBold.otf');
+  src:url('../fonts/ProximaNovaBold.eot');
+  src:url('../fonts/ProximaNovaBold.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/ProximaNovaBold.woff') format('woff'),
+      url('../fonts/ProximaNovaBold.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+}	
+
 @font-face {
- font-family: "Raleway-SemiBold";
- src: url("../fonts/Raleway-SemiBold.ttf") /* TTF file for CSS3 browsers */
-}
+  font-family: "ProximaNovaLight";
+  src:url('../fonts/ProximaNovaLight.otf');
+  src:url('../fonts/ProximaNovaLight.eot');
+  src:url('../fonts/ProximaNovaLight.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/ProximaNovaLight.woff') format('woff'),
+      url('../fonts/ProximaNovaLight.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+}	
+
 @font-face {
- font-family: "Raleway-ExtraBold";
- src: url("../fonts/Raleway-ExtraBold.eot") /* EOT file for IE */
-}
-@font-face {
- font-family: "Raleway-ExtraBold";
- src: url("../fonts/Raleway-ExtraBold.ttf") /* TTF file for CSS3 browsers */
-}
-@font-face {
- font-family: "Raleway-Regular";
- src: url("../fonts/Raleway-Regular.eot") /* EOT file for IE */
-}
-@font-face {
- font-family: "Raleway-Regular";
- src: url("../fonts/Raleway-Regular.ttf") /* TTF file for CSS3 browsers */
-}
-@font-face {
- font-family:"Roboto-Medium";
- src: url("../fonts/Roboto-Medium.eot") /* EOT file for IE */
-}
-@font-face {
- font-family: "Roboto-Medium";
- src: url("../fonts/Roboto-Medium.ttf") /* TTF file for CSS3 browsers */
-}
+  font-family: "ProximaNovaRegular";
+  src:url('../fonts/ProximaNovaRegular.otf');
+  src:url('../fonts/ProximaNovaRegular.eot');
+  src:url('../fonts/ProximaNovaRegular.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/ProximaNovaRegular.woff') format('woff'),
+      url('../fonts/ProximaNovaRegular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+}	
+
+
 @font-face {
   font-family: "xively-font";
   src:url("../fonts/xively-font.eot");

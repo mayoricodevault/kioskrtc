@@ -12,9 +12,6 @@ var xively = angular.module('xively', [
     .config(['localStorageServiceProvider',function(localStorageServiceProvider){
         localStorageServiceProvider.setPrefix('xy')
     }])
-  .config(['$httpProvider', function($httpProvider) {
-  $httpProvider.defaults.withCredentials = true;
-}])
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider){
         
         //typical routes... when someone navigates to a given directory, load the partial, and use the controller
@@ -76,5 +73,7 @@ var xively = angular.module('xively', [
         }
     })
     .constant('FIREBASE_URI', 'https://kxively.firebaseio.com/people')
+    .constant('FIREBASE_URI_ORDERS', 'https://kxively.firebaseio.com/orders')
+    .constant('FIREBASE_URI_ROOT', 'https://kxively.firebaseio.com')
     .constant("API_URL", 'https://kiosk-mmayorivera.c9.io');
     

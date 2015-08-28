@@ -1,5 +1,5 @@
-xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localStorageService','$location','sharedProperties','storeService', 'SubscriptionFactory', 'LSFactory' , '$window', 'API_URL',function($scope, $rootScope, Socket,localStorageService, $location,sharedProperties,storeService, SubscriptionFactory, LSFactory,$window, API_URL){
-     $scope.base64 = '';
+xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localStorageService','$location','sharedProperties','storeService', 'SubscriptionFactory', 'LSFactory' , '$window', 'API_URL', 'SessionsService',function($scope, $rootScope, Socket,localStorageService, $location,sharedProperties,storeService, SubscriptionFactory, LSFactory,$window, API_URL, SessionsService){
+    $scope.base64 = '';
     storeService.jsonWrite('paneSelected',{id:'2'});
 
     Socket.on('register', function(data){
@@ -13,6 +13,16 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
     Socket.on('unknown', function(data){
         if (LSFactory.getSessionId() === data.zoneto) {
             $location.path('/kiosk/register'); 
+        }
+    });
+    
+    Socket.on('ping', function(data){
+        if (LSFactory.getSessionId() === data.sessionid) {
+            var socketid = LSFactory.getSocketId();
+            SessionsService.updateSessionStatus(socketid, data.ts);
+        } else if (data.sessionid ==="All") {
+            var socketid = LSFactory.getSocketId();
+            SessionsService.updateSessionStatus(LSFactory.getSessionId() , data.ts);
         }
     });
     

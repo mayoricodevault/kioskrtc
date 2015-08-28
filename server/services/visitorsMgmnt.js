@@ -1,6 +1,6 @@
 var configDB = require('../config/database.js');
 var Firebase = require('firebase');
-var geappfire = new Firebase(configDB.firebase);
+var appfire = new Firebase(configDB.firebase);
 var _ = require("underscore");
 var moment = require('moment');
 var sessionsConnections = [];

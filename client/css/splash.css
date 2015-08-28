@@ -1,7 +1,4 @@
-body{
-    background:url(../images/splash-img.jpg);
-    background-size:cover;
-}
+
 .btn-green {
     background: #26a79d;
     border: #26a79d;
@@ -18,19 +15,7 @@ body{
     left: 0;
     right: 0;
 }
-.btn{
-    font-family: "Raleway-SemiBold";
-    border-color: #e23e28;
-    text-transform: uppercase;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1;
-    padding: 15px 35px;
-    -webkit-transition: all 0.2s ease-in-out;
-    transition: all 0.2s ease-in-out;
-    cursor:pointer;
-    border-radius: 10px;
-}
+
 .h1, .h2, .h4, .h5, .h6, h1, h2,  h4, h5, h6 {
     font-family: "Roboto-Medium";
 	text-transform:uppercase;

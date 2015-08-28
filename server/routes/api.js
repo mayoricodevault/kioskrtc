@@ -1,8 +1,9 @@
 var requestify = require('requestify');
 var stringify = require('json-stringify');
+var configDB = require('../config/config.js');
 module.exports = function(router, socket){
     router.get('/servers/', function(req, res){
-         requestify.request('http://iottemplate-mmayorivera.c9.io/serverlist', {
+         requestify.request(configDB.url_controller + '/serverlist', {
                 method: 'GET',
                 body: req.body,
                 headers : {
@@ -17,7 +18,7 @@ module.exports = function(router, socket){
    
     });
     router.get('/devices/', function(req, res){
-         requestify.request('http://iottemplate-mmayorivera.c9.io/deviceslist', {
+         requestify.request(configDB.url_controller + '/deviceslist', {
                 method: 'GET',
                 body: req.body,
                 headers : {
@@ -26,11 +27,9 @@ module.exports = function(router, socket){
                 dataType: 'json'        
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
-                    console.log(result);
                     res.status(200).json(result.devices )
             });
         
    
     });
-    
 }

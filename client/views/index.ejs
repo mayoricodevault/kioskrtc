@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--DOCTYPE html -->
 <html lang="en" ng-app="xively">
   <head>
     
@@ -31,14 +31,15 @@
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.3.0/animate.min.css" type="text/css" />
     <link rel="stylesheet" href="css/custom.css" type="text/css" />
-    <link rel="stylesheet" href="css/jquery.scrollbar.css" type="text/css" />
+    
 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     
     <link rel="stylesheet" href="libs/odometer/themes/odometer-theme-digital.css"/>
-    <link rel="stylesheet" href="bower/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bower/ngtoast/dist/ngToast.min.css">
+    <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="libs/ngtoast/dist/ngToast.min.css">
     <link rel="stylesheet" href="libs/angular-chart.js/angular-chart.css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 
   </head>
 
@@ -61,6 +62,7 @@
     
     <!--JQuery and Bootstrap-->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.js"></script>
     <script type="text/javascript" src="bootstrap/js/ie-emulation-modes-warning.js"></script>
     <script type="text/javascript" src="libs/html2canvas.js"></script>
@@ -74,13 +76,14 @@
     <script type="text/javascript" src="libs/angular-socket-io/socket.js"></script>
     <script type="text/javascript" src="libs/angular-local-storage/angular-local-storage.min.js"></script>
     <script type="text/javascript" src="libs/jquery/jquery.scrollbar.js"></script>
-    <script src="bower/angular-sanitize/angular-sanitize.min.js"></script>
-    <script src="bower/ngtoast/dist/ngToast.min.js"></script>
+    <script type="text/javascript" src="libs/angular-sanitize/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="libs/ngtoast/dist/ngToast.min.js"></script>
     
         <!--Odometer-->
     <script type="text/javascript" src="libs/odometer/odometer.js"></script>
     <script type="text/javascript" src="libs/angular-odometer-js/angular-odometer.js"></script>  
     <script src="https://cdn.firebase.com/v0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.1.1/firebase.js"></script>
     <script type="text/javascript" src="libs/angularfire/angularfire.js"></script>
 
 
@@ -88,23 +91,20 @@
     <!--NgInfinite Scroll-->
     <script type="text/javascript" src="libs/ngInfiniteScroll/ng-infinite-scroll.js"></script>
     
+
     <script type="text/javascript" src="js/app.js"></script>
-    
     <!--Services-->
     <script type="text/javascript" src="js/services/Api.js"></script>
     <script type="text/javascript" src="js/services/SocketFactory.js"></script>
-     <script type="text/javascript" src="js/services/VisitorsService.js"></script>
-     
+    <script type="text/javascript" src="js/services/VisitorsService.js"></script>
+    <script type="text/javascript" src="js/services/SessionsService.js"></script>
+    <script type="text/javascript" src="js/services/OrdersService.js"></script>
+    <script type="text/javascript" src="js/services/storeService.js"></script>
+    <script type="text/javascript" src="js/services/sharedProperties.js"></script>    
     <script type="text/javascript" src="js/services/LSFactory.js"></script>
     <script type="text/javascript" src="js/services/SubscriptionFactory.js"></script>
     <script type="text/javascript" src="js/services/AuthTokenFactory.js"></script>
     <script type="text/javascript" src="js/services/AuthInterceptor.js"></script>
-
-    <script type="text/javascript" src="js/services/sharedProperties.js"></script>
-    <script type="text/javascript" src="js/services/storeService.js"></script>
-    
-    <!--Main Controllers-->
-    <script type="text/javascript" src="js/controllers/navController.js"></script>
     
     <!--Project Controllers-->
     <script type="text/javascript" src="js/controllers/projects/registerController.js"></script>
@@ -116,18 +116,8 @@
     <script type="text/javascript" src="js/controllers/projects/selectController.js"></script>
     <script type="text/javascript" src="js/controllers/projects/setupController.js"></script>
 
-    
-    <!-- Directives-->
-    <script type="text/javascript" src="js/directives/xivebox.js"></script>
-
-    
-    
     <!--Tools-->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-   
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
   </body>
 </html>

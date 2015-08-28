@@ -4,8 +4,13 @@ xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'S
 	$scope.DeviceTye="KIOSK";
 	
     $scope.serverSelected = "";
+    $scope.devices = [];
     Api.Device.query({}, function(data){
-    	$scope.devices=data;
+        for(var key in data){
+            if(data[key].type=='Kiosk'){
+                $scope.devices.push(data[key]);
+            }
+        }
     });
     Api.Server.query({}, function(data){
     	$scope.servers=data;

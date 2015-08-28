@@ -1,6 +1,5 @@
-xively.service('sharedProperties', function() {
+xively.factory('sharedProperties', function() {
     var person;
-    
     return {
         setPerson: function(p) {
             person=p;

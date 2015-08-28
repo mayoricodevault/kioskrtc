@@ -15,7 +15,7 @@ var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var cors= require('cors');
 var requestify = require('requestify');
-var configDB = require('./server/config/database.js');
+var configDB = require('./server/config/config.js');
 var Firebase = require('firebase');
 var appfire = new Firebase(configDB.firebase);
 var moment = require('moment');
@@ -39,24 +39,13 @@ io.on('connection', function(socket) {
   numberofusers = io.sockets.server.eio.clientsCount;
   console.log("Number of Users : " + numberofusers);
   console.log("A Device has Connected!" + socket.id);
-  // console.log(io.sockets.connected);
-  
-  // io.sockets.connected //Return {socket_1_id: {}, socket_2_id: {}} . This is the most convenient one, since you can just refer to io.sockets.connected[id] then do common things like emit()
-// io.sockets.sockets //Returns [{socket_1}, {socket_2}, ....]. Can refer to socket_i.id to distinguish
-// io.sockets.adapter.sids //Return {socket_1_id: {}, socket_2_id: {}} . Looks similar to the first one but the object is not actually the socket, just the information.
-
-// Not directly helps but still relevant
-// io.sockets.adapter.rooms //Returns {room_1_id: {}, room_2_id: {}}
-// io.sockets.server.eio.clients //Return client sockets
-// io.sockets.server.eio.clientsCount //Return number of connected clients
-  
-  
+  // console.log(io.sockets.connected)
   socket.on('snap', function(data){
       var binaryData = new Buffer(data.binaryData, 'base64').toString('binary');
-      // fs.writeFile(data.snapname+ "-out.png", binaryData, "binary", function(err) {
-      //     console.log(err); // writes out file without error, but it's not a valid image
-      // });
-      // var snapFileName ='https://kiosk-mmayorivera.c9.io/'+data.snapname+"-out.png";
+      fs.writeFile(data.snapname+ "-out.png", binaryData, "binary", function(err) {
+          console.log(err); // writes out file without error, but it's not a valid image
+      });
+      var snapFileName ='https://kiosk-mmayorivera.c9.io/'+data.snapname+"-out.png";
       var activeSession = appfire.child('sessions/'+data.snapname);
       activeSession
         .once('value', function(snap) {
@@ -67,6 +56,7 @@ io.on('connection', function(socket) {
            } 
       });
   });
+  
   socket.on('subscribed', function(data){
       console.log("---> Subscribed");
       console.log(data);
@@ -94,8 +84,6 @@ app.post("/weather", function(request, response) {
     });
 
 });
-
-
 app.post("/xively", function(request, response) {
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
@@ -136,6 +124,19 @@ app.post("/xively", function(request, response) {
   response.status(200).json({results: "Message Send it"});
 
 });
+// ******************* ORDER ************
+app.post("/add-order", function (req, res) {
+  var people = req.body.people;
+  var activePeople = appfire.child('orders/'+escapeEmail(people.email));
+  activePeople
+    .once('value', function(snap) {
+      if(!snap.val()) {
+         activePeople.set(people);
+       } 
+  });
+  res.status(200).json({results: "People Added Successfully"});
+});
+// ****************** END_ORDER
 app.post("/sync", function(request, response) {
   var sync = request.body;
   if(_.isUndefined(sync) || _.isEmpty(sync)) {
@@ -158,9 +159,8 @@ app.post("/sync", function(request, response) {
   }
   sync.sessionid=sync.sessionid;
   io.sockets.emit('sync', sync);
+  response.status(200).json({results: "Action Syncronized!!"});
    // io.sockets.connected[sync.socketid].emit('sync', { action: sync.action });
-  response.json(200, {results: "Action Syncronized!!"});
-
 });
 app.post('/subscribe', authenticate, function(req, res) {
   var body =  req.body;
@@ -200,15 +200,27 @@ app.post('/unsubscribe', unAuth, function(req, res) {
   var foundSession = appfire.child('sessions/'+body.socketid);
     foundSession.remove(function(error) {
       if (error) {
-        res.json(400, {results: "Synchronization failed"});
+       res.status(400).json({results: "Synchronization failed"})
       } else {
-        res.json(200, {results: "Session Removed"});
+        res.status(200).json({results: "Session Removed"})
       }
     });
 });
 app.post('/me', function(req, res) {
     res.send(req.user);
 });
+app.post('/ping', function(req, res) {
+    var body = req.body;
+    if(_.isUndefined(body.sessionid) || _.isEmpty(body.sessionid)) {
+        res.status(400).json({results: "Invalid Request!!!"});
+    }
+    if(_.isUndefined(body.ts)) {
+        res.status(400).json({results: "Invalid Request!!!"});
+    }
+     io.sockets.emit('ping', {sessionid : body.sessionid, ts : body.ts});
+    res.status(200).end({results: "Message received and proceed to Forward"});
+});
+
 // app.post('/remote', function (req, res) {
 //     requestify.request('https://rtc-mmayorivera.c9.io/xively', {
 //     method: 'POST',

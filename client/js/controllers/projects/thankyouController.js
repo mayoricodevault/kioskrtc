@@ -1,11 +1,20 @@
 
-xively.controller('thankyouController', ['$scope', 'Socket','localStorageService','sharedProperties','$location','storeService','$timeout',function($scope, Socket,localStorageService,sharedProperties, $location,storeService,$timeout){
+xively.controller('thankyouController', ['$scope', 'Socket','localStorageService','sharedProperties','$location','storeService','$timeout','OrdersService',function($scope, Socket,localStorageService,sharedProperties, $location,storeService,$timeout,OrdersService){
 
-        $scope.people = [];
+        
     
         //watch change local Storage;
-        var oldPeople=localStorageService.get('people');
-        $scope.people=oldPeople || [];
+        //var oldPeople=localStorageService.get('people');
+        //$scope.people=oldPeople || [];
+        
+        
+        //$scope.cleanOrders = OrdersService.getOrders();
+        $scope.people=OrdersService.getOrders();
+        //console.info("TAMANIO "+$scope.people.length);
+       //console.info("dsd"+$scope.people[0].name);
+        
+        
+        
         
          //get current Person of Local Storage 
         $scope.currentPerson=sharedProperties.getPerson();
@@ -15,6 +24,7 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
              $scope.currentPerson=oldPerson || [];
              
         }
+        
         if ($scope.people.length>9){
           $scope.people.shift();
         }
@@ -25,10 +35,12 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
 
     });
     
+    
     $scope.redirectSplash=function(){
          $timeout(function() {
          $location.path('/splash'); 
-        }, 10000);
+        }, 10000000);
     };
     $scope.redirectSplash();
+    
 }]);
