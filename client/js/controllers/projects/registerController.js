@@ -63,9 +63,8 @@ xively.controller('registerController', ['$scope', '$rootScope', 'Socket','local
     }
     
     $scope.selectUser = function(){
-        console.log("selected --> ",$scope.selected.name);
         sharedProperties.setPerson($scope.selected);
-    }
+    };
     function subsError(response) {
         alert("error" + response.data);
     }

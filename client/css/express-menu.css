@@ -67,11 +67,12 @@ body {
     border-top: 2px solid #E8DF6B;
 	}
 /* Sidebar navigation */
+
 .nav-sidebar {
   margin-right: -21px; /* 20px padding + 1px border */
   margin-bottom: 20px;
   margin-left: -20px;
-  font-size:18px;
+  font-size:14px;
 }
 .nav-sidebar > li > a {
   padding-right: 20px;
@@ -83,9 +84,9 @@ body {
 .nav-sidebar>li>a:focus,
 .nav-sidebar>li>a:hover {
   	color: #4e4e4e;
-    background-color: rgba(232,223,107,0.2);
-    border-bottom: 2px solid #E8DF6B;
-    border-top: 2px solid #E8DF6B;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    border-top: 2px solid transparent;
 }
 .nav-sidebar > .active > a, 
 .nav-sidebar > .active > a:hover, 

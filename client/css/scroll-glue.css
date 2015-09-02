@@ -1,0 +1,21 @@
+[scroll-glue-top],
+[scroll-glue-bottom],
+[scroll-glue]{
+        /*height: 500px;*/
+        height: 100%;
+        overflow-y: scroll;
+        border: 1px solid gray;
+}
+
+[scroll-glue-left],
+[scroll-glue-right]{
+      /*width: 100px;*/
+    overflow-x: scroll;
+    border: 1px solid gray;
+    padding: 10px;
+}
+
+[scroll-glue-left] span,
+[scroll-glue-right] span{
+    border: 1px solid black;
+}

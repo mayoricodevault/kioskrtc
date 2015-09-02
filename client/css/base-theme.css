@@ -38,9 +38,7 @@ html{
     -webkit-transform: rotate(7deg); /* Chrome, Safari, Opera */
     transform: rotate(7deg);
 	}
-.user-p{
-    
-}
+
 .alert {
 position: relative;
 width: 100%;
@@ -113,11 +111,12 @@ z-index:1;
 }
 .footer{
     position: absolute;
-    bottom: 0;
+    bottom: 20px;
     width: 100%;
     left:0;
     right:0;
 }
+.footer img{ width:150px;}
 .footer-content {
     margin: 10px;
 }
@@ -154,12 +153,13 @@ z-index:1;
 	position: relative;
     top: 22px;
 	margin-left: 15px;
-
 	}
+	
 .img-beverage{
-	width: 220px;
+	width: 150px;
     margin: auto;
 	}
+	
 .station{
 	    border-right: 1px solid #FF4943;
 	}
@@ -209,7 +209,7 @@ z-index:1;
     
 }
 .dropdown-box{
-    width: 390px;
+    width: auto;
     margin: auto;
 }
 .dropdown-menu {
@@ -217,11 +217,19 @@ z-index:1;
 }
 .input-box {
     background-color: transparent;
+    padding: 0 5px!important;
     border: 0;
-    font-size: 32px;
+    font-family:"ProximaNovaBold";
+    font-size: 4em;
     color: #4e4e4e;
     outline: 0;
+    border-left: 1px solid #4e4e4e;
+    border-radius: 0;
 }
+.input-box:focus {
+  border-left: 1px solid transparent;
+}
+
 .circle {
     width: 450px;
     height: 450px;
@@ -235,10 +243,61 @@ z-index:1;
     text-transform: initial;
     margin: auto;
 }
+
 .circle p{
        font-size: 22px;
 }
-
+.circle-b {
+    padding: 7px 10px;
+    vertical-align: middle;
+    color: #fff;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background: #FF4943;
+    text-transform: initial;
+    margin: auto;
+}
+.dropdown-box input::-webkit-input-placeholder {
+    font-size:12px;
+    color:#979797;
+    font-family:"ProximaNovaBold";
+    line-height: 1.5em;
+    text-align: center;
+  	position:relative;
+	  top:60px;
+  
+}
+.dropdown-box input::-moz-placeholder {
+    font-size:12px;
+    color:#979797;
+    font-family:"ProximaNovaBold";
+    line-height: 1.5em;
+    text-align: center;
+  	position:relative;
+	  top:60px;
+   
+}
+.dropdown-box input:-moz-placeholder {   /* Older versions of Firefox */
+    font-size:12px;
+    color:#979797;
+    font-family:"ProximaNovaBold";
+    line-height: 1.5em;
+    text-align: center;
+  	position:relative;
+	  top:60px;
+  
+}
+.dropdown-box input:-ms-input-placeholder { 
+    font-size:12px;
+    color:#979797;
+    font-family:"ProximaNovaBold";
+    line-height: 1.5em;
+    text-align: center;
+  	position:relative;
+	  top:60px;
+  
+}
 /* #DropDown Menu
 ================================================== */
 .dropdown-menu>.active>a, 
@@ -297,16 +356,20 @@ z-index:1;
 .user{
 	    margin: auto;
 	}
+	
 .user img{
 	    margin-top: 5px;
 		margin:auto;
 	}
-.user p{
-	    font-size: 12px;
+	
+.user p {
+    font-family:"ProximaNovaBold";
+    font-size: 27px;
     margin: 0;
-	    position: relative;
-    top: -15px;
-	}
+    color: #848484;
+    position: relative;
+    top: -23px;
+}
 .chart-box p{
 	padding:0;
 	margin:0;
@@ -320,20 +383,20 @@ z-index:1;
 	margin-top:10px;
 	}
 .weather{
-/*	width:110px;
-	margin:15px;
-	    position: absolute;
-    top: 0;
-    right: 0;*/
+	 position: relative;
+    top: 17px;
+
 	}
 
 .weather p{
-    padding: 0;
-    margin: -9px 0 0 0;
-    font-size: 19px;
+    padding: 3px 0;
+    margin: 0 0 0 0;
+    font-size: 20px;
+    line-height:12px;
     position: relative;
-    top: -14px;
-	left: 5px;
+    top: 6px;
+    color: #A4A3A3;
+    left: 10px;
 	}
 .weather-express{
 	width:160px;
@@ -360,6 +423,7 @@ margin-top:20px;
     padding: 0 20px;
     display: inline-block;
 }
+
 .user-box-express{
     font-size: 2em;
     color: #FF4943;
@@ -386,7 +450,7 @@ margin-top:20px;
     overflow: hidden;
     padding: 25px 20px;
     margin-bottom: 10px;
-	height: 255px;
+	height: 222px;
     color: #fff;
 }
 .icon-beverage{
@@ -454,7 +518,7 @@ iframe{
 	margin-top:20px;
 	}
 .bottom-buffer{
-	margin-top:20px;
+	margin-bottom:20px;
 	}
 .both-buffer{
 	margin-top:20px;
@@ -579,6 +643,28 @@ iframe{
     border-radius: 4px;
 }
 
+.btn-default.disabled, 
+.btn-default.disabled.active, 
+.btn-default.disabled.focus, 
+.btn-default.disabled:active, 
+.btn-default.disabled:focus, 
+.btn-default.disabled:hover, 
+.btn-default[disabled], 
+.btn-default[disabled].active, 
+.btn-default[disabled].focus, 
+.btn-default[disabled]:active, 
+.btn-default[disabled]:focus, 
+.btn-default[disabled]:hover, 
+fieldset[disabled] .btn-default, 
+fieldset[disabled] .btn-default.active, 
+fieldset[disabled] .btn-default.focus, 
+fieldset[disabled] .btn-default:active, 
+fieldset[disabled] .btn-default:focus, 
+fieldset[disabled] .btn-default:hover {
+    background-color: #fff;
+    border-color: #ccc;
+    color: #333;
+}
 
 /* Rrows
 ================================================== */
@@ -771,7 +857,7 @@ color:#42210B!important;
 .flipcard {
   position: relative;
   /*width: 220px;*/
-  height: 275px;
+  height: 215px;
   perspective: 500px;
 }
 .flipcard.v:hover .front, .flipcard.v.flip .front{
@@ -925,8 +1011,25 @@ color:#42210B!important;
 .navbar-right {
     float: right!important;
 }
+
 }
 
+@media (max-width: 1025px){
+
+
+.font-xs{
+	font-size:1.5em!important;
+	}
+.font-sm{
+	font-size:3.5em!important;
+	}
+.font-md{
+	font-size:4.5em!important;
+	}
+.font-lg{
+	font-size:5.5em!important;
+	}
+	}
 .margin-bottom {
     margin-bottom:15px;
 }

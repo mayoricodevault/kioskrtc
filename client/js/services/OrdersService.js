@@ -1,42 +1,39 @@
-//xively.factory('OrdersService', ['$firebaseObject', 'FIREBASE_URI_ORDERS', function ($firebaseObject, FIREBASE_URI_ORDERS) {
-xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_URI_ORDERS', function ($firebaseObject,$firebaseArray, FIREBASE_URI_ORDERS) {
+xively.factory('OrdersService', ['$firebaseObject','$firebaseArray','$firebase', 'FIREBASE_URI_ORDERS', function ($firebaseObject,$firebaseArray,$firebase, FIREBASE_URI_ORDERS) {
     var ref = new Firebase(FIREBASE_URI_ORDERS);
-/*
-var activeOrders = {};
-var query = ref.orderByChild("timeStamp");
-query.on("child_added", function(messageSnapshot) {
-  // This will only be called for the last 100 messages
-   activeOrders=messageSnapshot.val();
-//  var messageData = messageSnapshot.val();
-  
-});
-*/
-//ref = ref.orderByChild("timeStamp");
-    
-    
-    
-    
-    
-    
-    var activeOrders = $firebaseArray(ref);
-    
-    
-    
-    
-    //var sync = $firebaseObject(ref);
-    //var activeOrders = sync.$asObject();
+    var activeOrders = $firebaseObject(ref);
+    var activeOrdersArray = $firebaseArray(ref);
     
     var getOrders = function () {
         return activeOrders;
     };
-    var addOrder = function (neworder) {
-        // desarrollar
-        
-        // FIREBASE_URI_ORDERS/email
-        
+     var getOrdersArray = function () {
+           
+        return activeOrdersArray;
     };
+    
+    var getOrder = function(email){
+        ref.child(replaceAll(email)).once('value',function(snap){
+            if(!snap.val()) {
+              // not exist  
+              return null;
+            }else{
+                //Exist
+                return snap.val();
+            }
+        });    
+    };
+    
     return {
         getOrders: getOrders,
-        addOrder: addOrder
+        getOrdersArray: getOrdersArray,
+        getOrder:getOrder
     };
+    
+    
+    function replaceAll( text){
+      while (text.toString().indexOf(".") != -1)
+          text = text.toString().replace(".",",");
+      return text;
+    }    
+    
 }]);

@@ -21,7 +21,6 @@
 	text-transform:uppercase;
 }
 .h3, h3{
-      font-family: "Raleway-ExtraBold";
       	text-transform:uppercase;
       	    text-shadow: 1px 1px #000000;
       	   font-size: 36px;
@@ -31,7 +30,6 @@
     margin-bottom: 30px;
 }
 p{
- font-family: "Raleway-Regular";
  font-size:16px;
 }
 @media (max-width: 768px) {

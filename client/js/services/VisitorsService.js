@@ -1,6 +1,6 @@
-xively.factory('VisitorsService', ['$firebaseObject', 'FIREBASE_URI', function ($firebaseObject, FIREBASE_URI) {
+xively.factory('VisitorsService', ['$firebaseArray', 'FIREBASE_URI', function ($firebaseArray, FIREBASE_URI) {
     var ref = new Firebase(FIREBASE_URI);
-    var activeVisitors = $firebaseObject(ref);
+    var activeVisitors = $firebaseArray(ref);
     var getVisitors = function () {
         return activeVisitors;
     };

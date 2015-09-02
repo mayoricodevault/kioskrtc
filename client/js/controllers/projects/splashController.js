@@ -1,28 +1,29 @@
 xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localStorageService','$location','sharedProperties','storeService', 'SubscriptionFactory', 'LSFactory' , '$window', 'API_URL', 'SessionsService',function($scope, $rootScope, Socket,localStorageService, $location,sharedProperties,storeService, SubscriptionFactory, LSFactory,$window, API_URL, SessionsService){
     $scope.base64 = '';
     storeService.jsonWrite('paneSelected',{id:'2'});
-
     Socket.on('register', function(data){
-        if (LSFactory.getSessionId() === data.zoneto) {
-               sharedProperties.setPerson(data);
-               storeService.jsonWrite('paneSelected',{id:'1'});
-               $location.path('/kiosk/select'); 
+        if (SubscriptionFactory.isStation(data.zoneto)) {
+           sharedProperties.setPerson(data);
+           storeService.jsonWrite('paneSelected',{id:'1'});
+           $location.path('/kiosk/select'); 
         }
     });
     
     Socket.on('unknown', function(data){
-        if (LSFactory.getSessionId() === data.zoneto) {
+        if (LSFactory.isStation() === data.zoneto) {
             $location.path('/kiosk/register'); 
         }
     });
     
     Socket.on('ping', function(data){
+        console.log('alguien me envio ping');
+        var socketid = LSFactory.getSocketId();
         if (LSFactory.getSessionId() === data.sessionid) {
-            var socketid = LSFactory.getSocketId();
             SessionsService.updateSessionStatus(socketid, data.ts);
         } else if (data.sessionid ==="All") {
-            var socketid = LSFactory.getSocketId();
             SessionsService.updateSessionStatus(LSFactory.getSessionId() , data.ts);
+        } else {
+            SessionsService.updateSessionStatus(LSFactory.getSocketId() , data.ts);
         }
     });
     
@@ -31,14 +32,8 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
             if (data.action === 'reset') {
                 SubscriptionFactory.unsubscribe(data.socketid).
             		then(function success(response){
-                        LSFactory.setData("sessionid");
-                        LSFactory.setData("socketid");
-                        LSFactory.setData("serverUrl");
-                        LSFactory.setData("deviceName");
-                        $rootScope.user = null;
-                        $rootScope.socketidSession = null;
                         Socket.disconnect(true);
-            			$window.location.href = API_URL+"/splash";
+            			$window.location.href = API_URL+"/settings";
             		}, subsError);
             }
             if (data.action === 'snap') {
@@ -54,12 +49,8 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
                     $scope.base64= '';
                   }
                 });
-
             }
         }
-        
-        
-         
     });
   
     function subsError(response) {

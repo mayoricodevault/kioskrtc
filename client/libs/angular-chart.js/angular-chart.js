@@ -2,7 +2,7 @@
   'use strict';
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['angular', 'chart.js'], factory);
+    define(['angular', 'chart'], factory);
   } else if (typeof exports === 'object') {
     // Node/CommonJS
     module.exports = factory(require('angular'), require('chart.js'));
@@ -32,9 +32,9 @@
 
   if (usingExcanvas) Chart.defaults.global.animation = false;
 
-  angular.module('chart.js', [])
+  return angular.module('chart.js', [])
     .provider('ChartJs', ChartJsProvider)
-    .factory('ChartJsFactory', ['ChartJs', ChartJsFactory])
+    .factory('ChartJsFactory', ['ChartJs', '$timeout', ChartJsFactory])
     .directive('chartBase', ['ChartJsFactory', function (ChartJsFactory) { return new ChartJsFactory(); }])
     .directive('chartLine', ['ChartJsFactory', function (ChartJsFactory) { return new ChartJsFactory('Line'); }])
     .directive('chartBar', ['ChartJsFactory', function (ChartJsFactory) { return new ChartJsFactory('Bar'); }])
@@ -81,21 +81,30 @@
     };
   }
 
-  function ChartJsFactory (ChartJs) {
+  function ChartJsFactory (ChartJs, $timeout) {
     return function chart (type) {
       return {
         restrict: 'CA',
         scope: {
-          data: '=',
-          labels: '=',
-          options: '=',
-          series: '=',
+          data: '=?',
+          labels: '=?',
+          options: '=?',
+          series: '=?',
           colours: '=?',
           getColour: '=?',
           chartType: '=',
           legend: '@',
-          click: '=',
-          hover: '='
+          click: '=?',
+          hover: '=?',
+
+          chartData: '=?',
+          chartLabels: '=?',
+          chartOptions: '=?',
+          chartSeries: '=?',
+          chartColours: '=?',
+          chartLegend: '@',
+          chartClick: '=?',
+          chartHover: '=?'
         },
         link: function (scope, elem/*, attrs */) {
           var chart, container = document.createElement('div');
@@ -104,6 +113,24 @@
           container.appendChild(elem[0]);
 
           if (usingExcanvas) window.G_vmlCanvasManager.initElement(elem[0]);
+
+          ['data', 'labels', 'options', 'series', 'colours', 'legend', 'click', 'hover'].forEach(deprecated);
+          function aliasVar (fromName, toName) {
+            scope.$watch(fromName, function (newVal) {
+              if (typeof newVal === 'undefined') return;
+              scope[toName] = newVal;
+            });
+          }
+          /* provide backward compatibility to "old" directive names, by
+           * having an alias point from the new names to the old names. */
+          aliasVar('chartData', 'data');
+          aliasVar('chartLabels', 'labels');
+          aliasVar('chartOptions', 'options');
+          aliasVar('chartSeries', 'series');
+          aliasVar('chartColours', 'colours');
+          aliasVar('chartLegend', 'legend');
+          aliasVar('chartClick', 'click');
+          aliasVar('chartHover', 'hover');
 
           // Order of setting "watch" matter
 
@@ -117,7 +144,7 @@
               chart.destroy();
             }
 
-            chart = createChart(chartType, scope, elem);
+            createChart(chartType);
           }, true);
 
           scope.$watch('series', resetChart, true);
@@ -129,7 +156,7 @@
             if (isEmpty(newVal)) return;
             if (angular.equals(newVal, oldVal)) return;
             if (chart) chart.destroy();
-            chart = createChart(newVal, scope, elem);
+            createChart(newVal);
           });
 
           scope.$on('$destroy', function () {
@@ -146,7 +173,41 @@
             // so we have to re-create the chart entirely
             if (chart) chart.destroy();
 
-            chart = createChart(chartType, scope, elem);
+            createChart(chartType);
+          }
+
+          function createChart (type) {
+            if (isResponsive(type, scope) && elem[0].clientHeight === 0 && container.clientHeight === 0) {
+              return $timeout(function () {
+                createChart(type);
+              }, 50);
+            }
+            if (! scope.data || ! scope.data.length) return;
+            scope.getColour = typeof scope.getColour === 'function' ? scope.getColour : getRandomColour;
+            scope.colours = getColours(type, scope);
+            var cvs = elem[0], ctx = cvs.getContext('2d');
+            var data = Array.isArray(scope.data[0]) ?
+              getDataSets(scope.labels, scope.data, scope.series || [], scope.colours) :
+              getData(scope.labels, scope.data, scope.colours);
+            var options = angular.extend({}, ChartJs.getOptions(type), scope.options);
+            chart = new ChartJs.Chart(ctx)[type](data, options);
+            scope.$emit('create', chart);
+
+            ['hover', 'click'].forEach(function (action) {
+              if (scope[action])
+                cvs[action === 'click' ? 'onclick' : 'onmousemove'] = getEventHandler(scope, chart, action);
+            });
+            if (scope.legend && scope.legend !== 'false') setLegend(elem, chart);
+          }
+
+          function deprecated (attr) {
+            if (typeof console !== 'undefined' && ChartJs.getOptions().env !== 'test') {
+              var warn = typeof console.warn === 'function' ? console.warn : console.log;
+              if (!! scope[attr]) {
+                warn.call(console, '"%s" is deprecated and will be removed in a future version. ' +
+                  'Please use "chart-%s" instead.', attr, attr);
+              }
+            }
           }
         }
       };
@@ -156,7 +217,7 @@
       if (newVal && oldVal && newVal.length && oldVal.length) {
         return Array.isArray(newVal[0]) ?
         newVal.length === oldVal.length && newVal.every(function (element, index) {
-          return element.length === oldVal[index].length;}) :
+          return element.length === oldVal[index].length; }) :
           oldVal.reduce(sum, 0) > 0 ? newVal.length === oldVal.length : false;
       }
       return false;
@@ -164,25 +225,6 @@
 
     function sum (carry, val) {
       return carry + val;
-    }
-
-    function createChart (type, scope, elem) {
-      if (! scope.data || ! scope.data.length) return;
-      scope.getColour = typeof scope.getColour === 'function' ? scope.getColour : getRandomColour;
-      scope.colours = getColours(type, scope);
-      var cvs = elem[0], ctx = cvs.getContext('2d');
-      var data = Array.isArray(scope.data[0]) ?
-        getDataSets(scope.labels, scope.data, scope.series || [], scope.colours) :
-        getData(scope.labels, scope.data, scope.colours);
-      var options = angular.extend({}, ChartJs.getOptions(type), scope.options);
-      var chart = new ChartJs.Chart(ctx)[type](data, options);
-      scope.$emit('create', chart);
-
-      ['hover', 'click'].forEach(function (action) {
-        if (scope[action]) cvs[action === 'click' ? 'onclick' : 'onmousemove'] = getEventHandler(scope, chart, action);
-      });
-      if (scope.legend && scope.legend !== 'false') setLegend(elem, chart);
-      return chart;
     }
 
     function getEventHandler (scope, chart, action) {
@@ -306,5 +348,9 @@
         (typeof value === 'object' && ! Object.keys(value).length);
     }
 
+    function isResponsive (type, scope) {
+      var options = angular.extend({}, Chart.defaults.global, ChartJs.getOptions(type), scope.options);
+      return options.responsive;
+    }
   }
 }));

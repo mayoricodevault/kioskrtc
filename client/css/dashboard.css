@@ -1,3 +1,16 @@
+body{
+    background:#fff;
+}
+.abs-center{
+    position:absolute;
+    width:52%;
+    height:50%;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    margin:auto;
+}
 .dblabel{	
     background:none!important;
     color:#808080!important;
@@ -22,4 +35,91 @@
     background:none!important;
     color: #FF4943!important;
     font-size:6em!important;
+}
+
+.dash  .h4, .dash  .h5,.dash  .h6,.dash  h4, .dash h5,.dash  h6 {
+    border-bottom: 1px solid #4e4e4e;
+    padding:0 0 10px 0;
+}
+.footer .dash .h4,.footer .dash  .h5,.footer .dash  .h6,.footer .dash  h4,.footer .dash h5,.footer .dash  h6 {
+    border-bottom: 1px solid #FF4833;
+}
+.limit{
+	width:80%;
+	margin:auto;
+	height:100%;
+	}
+.map{
+    position: relative;
+    	height:100%;
+}
+.limit img{
+	position: absolute;
+    width: 80%;
+    left:0;
+    right: 0;
+    margin:auto;
+	}
+.position{
+	 position:absolute;	
+	display:inline-block;
+	top: 0;
+	}
+.pos-1{  
+	left: 0;
+	margin-top: 19%;
+	margin-left: 16%; 	
+	}
+.pos-2{
+	left: 0;
+	margin-top: 21%;
+	margin-left: 50%;
+}
+.pos-3{	
+	left: 0;
+	margin-top: 18%;
+	margin-right: 12%;
+}
+.pos-4{
+    right: 0;
+    margin-top:5%;
+    margin-right: 2%; 
+}
+.pos-5{
+	 left: 0;
+	 margin-top: 45%;
+	 margin-left: 35%; 
+}
+.pos-6{
+	right: 0;
+	margin-top: 46%;
+	margin-right: 27%;
+}
+.cloud{
+    padding:20px;
+    color:#FF4943;
+}
+.cloud-a{
+    background:url("../images/dashboard/cloud1.png") no-repeat;
+    background-size:cover;
+    width:200px;
+    height:100px;
+    
+}
+.cloud-b{
+    background:url("../images/dashboard/cloud2.png") no-repeat;
+    width:160px;
+    height:100px;
+}
+.cloud-c{
+    background:url("../images/dashboard/cloud3.png") no-repeat;
+    width:100px;
+    height:100px;
+    font-size:13px;
+}
+.map-footer{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
 }

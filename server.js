@@ -5,7 +5,6 @@ var http = require('http').Server(app);
 var _ = require("underscore");
 var io = require('socket.io')(http);
 var path = require('path');
-var expressJwt = require('express-jwt');
 var jwt = require('jsonwebtoken');
 var port = process.env.PORT || 3001;
 var jwtSecret = 'asesam0/3uk';
@@ -45,17 +44,16 @@ io.on('connection', function(socket) {
       fs.writeFile(data.snapname+ "-out.png", binaryData, "binary", function(err) {
           console.log(err); // writes out file without error, but it's not a valid image
       });
-      var snapFileName ='https://kiosk-mmayorivera.c9.io/'+data.snapname+"-out.png";
       var activeSession = appfire.child('sessions/'+data.snapname);
       activeSession
         .once('value', function(snap) {
-          if(snap.val()) {
              var SessionRequest = snap.val();
              SessionRequest.snapshot = data.binaryData;
              activeSession.set(SessionRequest);
-           } 
-      });
-  });
+           }) 
+   });
+   
+   
   
   socket.on('subscribed', function(data){
       console.log("---> Subscribed");
@@ -69,6 +67,7 @@ io.on('connection', function(socket) {
     io.emit('remove-device', {devicename: devicename});
   });
 });
+
 app.post("/weather", function(request, response) {
   var zipcode = request.body.zipcode;
   var weather =null;
@@ -95,7 +94,7 @@ app.post("/xively", function(request, response) {
   if(_.isUndefined(people.email) || _.isEmpty(people.email)){
     return response.status(400).json( {error: "Email Must be defined"});
   }
-  if(_.isUndefined(people.favcoffe) || _.isEmpty(people.favcoffe)) {
+  if(_.isUndefined(people.favcoffee) || _.isEmpty(people.favcoffee)) {
     return response.status(400).json( {error: "Favorite Must be defined"});
   }
   if(_.isUndefined(people.zipcode) || _.isEmpty(people.zipcode)) {
@@ -111,6 +110,19 @@ app.post("/xively", function(request, response) {
     return response.status(400).json({error: "Company Must be defined"});
   }
   
+  if (people.zonefrom == 'IoT') {
+    var fSession = appfire.child('sessions/'+people.zoneto);
+    fSession
+      .once('value', function(snap) {
+        if(snap.val()) {
+            var fSess = snap.val();
+            people.zoneto = fSess.tagId;
+        } else {
+           response.status(400).json({results: "Socket id Session Not Found.. Rejected"});
+        }
+      });
+  }
+  
   var activePeople = appfire.child('people/'+escapeEmail(people.email));
   activePeople
     .once('value', function(snap) {
@@ -121,22 +133,75 @@ app.post("/xively", function(request, response) {
          io.sockets.emit('register', people);
        }
   });
+  
+  people.dt =  moment().format();
+  requestify.request(configDB.url_controller+"/xively", {
+      method: 'POST',
+      body: people,
+      headers : {
+              'Content-Type': 'application/json'
+      },
+      dataType: 'json'        
+      }).then(function(response) {
+          // Get the response body
+          console.log(response);
+      });
+  // TODO:  Send to Server
   response.status(200).json({results: "Message Send it"});
+  
 
 });
-// ******************* ORDER ************
+/*
+ ************************ ADD NEW ORDER
+ */
 app.post("/add-order", function (req, res) {
-  var people = req.body.people;
-  var activePeople = appfire.child('orders/'+escapeEmail(people.email));
-  activePeople
-    .once('value', function(snap) {
-      if(!snap.val()) {
-         activePeople.set(people);
-       } 
+  var order = req.body.people;
+  var activeOrder = appfire.child('orders/'+ replaceAll(order.email));
+  activeOrder.once('value', function(snap) {
+      //if(!snap.val()) {
+         var obj = new Object();
+         obj.companyname = order.companyname;
+         obj.email = order.email;
+         obj.favcoffee = order.favcoffee;
+         obj.name = order.name;
+         obj.zipcode = order.zipcode;
+         obj.zonefrom = order.zonefrom;
+         obj.zoneto = order.zoneto;
+         obj.active = order.active;
+         obj.timeStamp = order.timeStamp;
+         obj.tagId = order.tagId;
+         obj.masterId = order.masterId;
+         activeOrder.set(obj);
+       //} 
+       io.emit("served", order);
   });
   res.status(200).json({results: "People Added Successfully"});
 });
-// ****************** END_ORDER
+
+app.post("/get-order", function (req, res) {
+  var order = req.body.people;
+  var activeOrder = appfire.child('orders/'+ replaceAll(order.email));
+  var obj = new Object();
+  activeOrder.once('value', function(snap) {
+      if(snap.val()) {
+         obj.companyname = order.companyname;
+         obj.email = order.email;
+         obj.tagId = order.tagId;
+         obj.masterId = order.masterId;
+         obj.zipcode = order.zipcode;
+         obj.zonefrom = order.zonefrom;
+         obj.zoneto = order.zoneto;
+         obj.active = order.active;
+         obj.timeStamp = order.timeStamp;
+         obj.tagId = order.tagId;
+         obj.masterId = order.masterId;
+       } 
+       
+  });
+  //res.status(200).json({results: "People FIND Successfully"});
+  res.status(200).json(obj);
+});
+// ************************ End Order
 app.post("/sync", function(request, response) {
   var sync = request.body;
   if(_.isUndefined(sync) || _.isEmpty(sync)) {
@@ -180,20 +245,14 @@ app.post('/subscribe', authenticate, function(req, res) {
             sess.tagId = body.tagId;
             sess.serverUrl = body.serverUrl;
             sess.ipaddr = process.env.IP;
+            sess.deviceType =body.deviceType;
             sess.stamp = moment().format();
             foundSession.set(sess);
-            res.send({
-              sessionid: body.sessionid,
-              socketid : body.socketid,
-              tagId: body.tagId,
-              deviceDesc : body.deviceName,
-              serverUrl : body.serverUrl
-            });            
+            res.send({sessionid: sess.sessionid});            
         } else {
-           res.json(200, {results: "Already in Session"});
+          res.status(200).json({results: "Already in Session"})
         }
     });
-   
 });
 app.post('/unsubscribe', unAuth, function(req, res) {
   var body =  req.body;
@@ -202,14 +261,14 @@ app.post('/unsubscribe', unAuth, function(req, res) {
       if (error) {
        res.status(400).json({results: "Synchronization failed"})
       } else {
-        res.status(200).json({results: "Session Removed"})
+        res.status(200).json({results: "Session Removed"});
       }
     });
 });
 app.post('/me', function(req, res) {
     res.send(req.user);
 });
-app.post('/ping', function(req, res) {
+app.post('/alive', function(req, res) {
     var body = req.body;
     if(_.isUndefined(body.sessionid) || _.isEmpty(body.sessionid)) {
         res.status(400).json({results: "Invalid Request!!!"});
@@ -217,8 +276,8 @@ app.post('/ping', function(req, res) {
     if(_.isUndefined(body.ts)) {
         res.status(400).json({results: "Invalid Request!!!"});
     }
-     io.sockets.emit('ping', {sessionid : body.sessionid, ts : body.ts});
-    res.status(200).end({results: "Message received and proceed to Forward"});
+    io.sockets.emit('ping', {sessionid : body.sessionid, ts : body.ts});
+    res.status(200).json({results: "Message received and proceed to Forward"});
 });
 
 // app.post('/remote', function (req, res) {
@@ -250,17 +309,20 @@ app.get('/*', function(req, res) {
 // ---> end routes <---- 
 function authenticate(req,res, next) {
   var body =  req.body;
-  if(!body.socketid) {
+  if(_.isUndefined(body.socketid)) {
     res.status(400).end("Must Have Socket Session Id");
   }
-  if(!body.deviceName) {
+  if(_.isUndefined(body.deviceName)) {
     res.status(400).end("Must Have a Device Name");
   }
-  if(!body.tagId) {
+  if(_.isUndefined(body.tagId)) {
     res.status(400).end("Must Have a Device Tag / Type");
   }
-  if(!body.serverUrl) {
+  if(_.isUndefined(body.serverUrl)) {
     res.status(400).end("Must Have a valid Sever Selected");
+  }
+  if(_.isUndefined(body.deviceType)) {
+    res.status(400).end("Must Have a valid Device Type Selected");
   }
   
   next();
@@ -279,3 +341,9 @@ function  escapeEmail(email) {
 http.listen(port, function() {
   console.log('SERVER RUNNING... PORT: ' + port);
 })
+
+function replaceAll( text){
+  while (text.toString().indexOf(".") != -1)
+      text = text.toString().replace(".",",");
+  return text;
+}

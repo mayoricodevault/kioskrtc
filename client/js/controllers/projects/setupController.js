@@ -1,56 +1,56 @@
-xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL' ,function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL){
-	$scope.isFullScreen = false;
+xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL', '$animate',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL, $animate){
 
 	$scope.DeviceTye="KIOSK";
-	
     $scope.serverSelected = "";
     $scope.devices = [];
+    $scope.formShow = false;
     Api.Device.query({}, function(data){
+   
         for(var key in data){
-            if(data[key].type=='Kiosk'){
+            // if(data[key].type=='Kiosk'){
                 $scope.devices.push(data[key]);
-            }
+            // }
+           
         }
+         $scope.formShow=$scope.devices.length > 0 ? true : false;
     });
-    Api.Server.query({}, function(data){
-    	$scope.servers=data;
-    }); 
-    
-    $scope.goFullscreen = function () {
-		console.log("ASD");
-      // Fullscreen
-      if (Fullscreen.isEnabled())
-         Fullscreen.cancel();
-      else
-         Fullscreen.all();
-
-      // Set Fullscreen to a specific element (bad practice)
-      // Fullscreen.enable( document.getElementById('img') )
-
-   };
-
-
-
-   $scope.goFullScreenViaWatcher = function() {
-      $scope.isFullScreen = !$scope.isFullScreen;
-   };
-    
-    $scope.subscribe = function(deviceName,tagId, serverUrl) {
+    $scope.subscribe = function(deviceName,tagid, serverUrl, deviceType) {
+        var typeLower = angular.lowercase(deviceType);
+        $scope.formShow = false;
 		var socket =  Socket.connect();
 		$rootScope.ioConn = socket.id;
-		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagId, serverUrl).
+		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagid, serverUrl,typeLower).
 		then(function success(response){
-			LSFactory.setData("sessionid", response.data.sessionid);
-			LSFactory.setData("socketid", response.data.socketid);
-         	LSFactory.setData("deviceName", response.data.deviceDesc);
-         	LSFactory.setData("serverUrl", response.data.serverUrl);
          	Socket.emit('subscribed', response);
-			$window.location.href = API_URL+"/splash";
+         	if (typeLower==="kiosk") {
+         	    	$window.location.href = API_URL+"/splash";
+         	}
+         	if (typeLower==="barista") {
+         	   	$window.location.href = API_URL+"/barista";
+         	}
+         	if (typeLower==="dashboard") {
+         	    	$window.location.href = API_URL+"/dashboard";
+         	}
+			
 		}, subsError);
-		
-	}
+	};
 	function subsError(response) {
 		
 		alert("error" + response.data);
 	}
-}]);
+}])
+.animation('.fade-left', function($animateCss){
+    return {
+        enter: function(element) {
+            return $animateCss(element, {
+                from : {
+                    opacity: 0
+                },
+                to : {
+                    opacity : 1
+                },
+                duration : 1.5
+            });
+        }
+    }
+});

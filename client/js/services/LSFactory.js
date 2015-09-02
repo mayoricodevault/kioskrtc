@@ -5,12 +5,31 @@ xively.factory('LSFactory', function LSFactory($window) {
       getUser: getUser,
       setData: setData,
       getSessionId:getSessionId,
-      getSocketId : getSocketId
+      getSocketId : getSocketId,
+      getTagId : getTagId,
+      getMasterId:getMasterId,
+      getFavCoffee:getFavCoffee,
+      getDeviceName:getDeviceName,
+      getDeviceType:getDeviceType,
+      getServerUrl:getServerUrl
     };
 
     function getUser() {
       return store.getItem("userId");
     }
+    
+    function getServerUrl() {
+      return store.getItem("serverUrl");
+    }
+    
+    function getDeviceName() {
+      return store.getItem("deviceName");
+    }
+    
+    function getDeviceType() {
+      return store.getItem("deviceType");
+    }
+    
     
     function getSessionId() {
       return store.getItem("sessionid");
@@ -20,9 +39,22 @@ xively.factory('LSFactory', function LSFactory($window) {
       return store.getItem("socketid");
     }
     
+    function getTagId() {
+        return store.getItem("tagid");
+    }    
+    
+    function getMasterId() {
+        return store.getItem("masterid");
+    }        
+
+    function getFavCoffee() {
+        return store.getItem("favcoffee");
+    }     
+    
     function getData(dataKey) {
         return store.getItem(dataKey);
     }
+    
     
     function setData(dataKey, dataValue) {
       if (dataValue) {
