@@ -2,6 +2,7 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
     $scope.base64 = '';
     storeService.jsonWrite('paneSelected',{id:'2'});
     Socket.on('register', function(data){
+
         if (SubscriptionFactory.isStation(data.zoneto)) {
            sharedProperties.setPerson(data);
            storeService.jsonWrite('paneSelected',{id:'1'});
@@ -10,20 +11,18 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
     });
     
     Socket.on('unknown', function(data){
-        if (LSFactory.isStation() === data.zoneto) {
+        if (SubscriptionFactory.isStation(data.zoneto)) {
             $location.path('/kiosk/register'); 
         }
     });
     
     Socket.on('ping', function(data){
-        console.log('alguien me envio ping');
         var socketid = LSFactory.getSocketId();
+
         if (LSFactory.getSessionId() === data.sessionid) {
-            SessionsService.updateSessionStatus(socketid, data.ts);
-        } else if (data.sessionid ==="All") {
-            SessionsService.updateSessionStatus(LSFactory.getSessionId() , data.ts);
+            SessionsService.updateSessionStatus(socketid, data.ts, data.isdeleted);
         } else {
-            SessionsService.updateSessionStatus(LSFactory.getSocketId() , data.ts);
+            SessionsService.updateSessionStatus(LSFactory.getSocketId() , data.ts, data.isdeleted);
         }
     });
     

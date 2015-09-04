@@ -1,0 +1,7 @@
+body{
+    background:url("../images/coffee-bar-bg3.jpg") no-repeat fixed center!important;
+    -webkit-background-size: cover!important;
+    -moz-background-size: cover!important;
+    -o-background-size: cover!important;
+    background-size: cover!important;
+}

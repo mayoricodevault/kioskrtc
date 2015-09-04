@@ -23,10 +23,39 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray','$firebase',
         });    
     };
     
+     var updateOrderStatus = function (order, active) {
+        var cleanEmail = replaceAll(order.email);
+        var syncObject =  $firebaseObject(ref.child(cleanEmail));
+        if (syncObject.email) {
+            syncObject.$loaded().then(function() {
+                syncObject.active =active;
+                syncObject.$save();
+            });
+        } else {
+            syncObject.$loaded().then(function() {
+                syncObject.companyname = order.companyname;
+                syncObject.email = order.email;
+                syncObject.favcoffee = order.favcoffee;
+                syncObject.masterId = order.masterId;
+                syncObject.name = order.name;
+                syncObject.timeStamp = order.timeStamp;
+                syncObject.tagId = order.tagId;
+                syncObject.zipcode=order.zipcode;
+                syncObject.zonefrom = order.zonefrom;
+                syncObject.zoneto = order.zoneto;
+                syncObject.active = active;
+                syncObject.$save();
+            });
+            
+        }
+    };
+    
+    
     return {
         getOrders: getOrders,
         getOrdersArray: getOrdersArray,
-        getOrder:getOrder
+        getOrder:getOrder,
+        updateOrderStatus :updateOrderStatus
     };
     
     

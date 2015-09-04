@@ -1,9 +1,10 @@
-xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL', '$animate',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL, $animate){
-
+xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL', '$animate', 'deviceDetector',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL, $animate, deviceDetector){
+    $scope.deviceDetector=deviceDetector;
 	$scope.DeviceTye="KIOSK";
     $scope.serverSelected = "";
     $scope.devices = [];
     $scope.formShow = false;
+    
     Api.Device.query({}, function(data){
    
         for(var key in data){
@@ -18,8 +19,10 @@ xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'S
         var typeLower = angular.lowercase(deviceType);
         $scope.formShow = false;
 		var socket =  Socket.connect();
+		var deviceDetected = deviceDetector.os + " "+deviceDetector.browser;
 		$rootScope.ioConn = socket.id;
-		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagid, serverUrl,typeLower).
+
+		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagid, serverUrl,typeLower, deviceDetected).
 		then(function success(response){
          	Socket.emit('subscribed', response);
          	if (typeLower==="kiosk") {

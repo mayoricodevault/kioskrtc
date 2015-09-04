@@ -84,6 +84,7 @@ app.post("/weather", function(request, response) {
 
 });
 app.post("/xively", function(request, response) {
+  console.log(request);
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.status(400).json({error: "Invalid People Card"});
@@ -116,14 +117,14 @@ app.post("/xively", function(request, response) {
       .once('value', function(snap) {
         if(snap.val()) {
             var fSess = snap.val();
-            people.zoneto = fSess.tagId;
+            //people.zoneto = fSess.tagId;  // Todo : Please Do not touch
         } else {
            response.status(400).json({results: "Socket id Session Not Found.. Rejected"});
         }
       });
   }
   
-  var activePeople = appfire.child('people/'+escapeEmail(people.email));
+  var activePeople = appfire.child('people/'+replaceAll(people.email));
   activePeople
     .once('value', function(snap) {
       if(!snap.val()) {
@@ -170,37 +171,15 @@ app.post("/add-order", function (req, res) {
          obj.active = order.active;
          obj.timeStamp = order.timeStamp;
          obj.tagId = order.tagId;
-         obj.masterId = order.masterId;
+        // obj.masterId = order.masterId;
          activeOrder.set(obj);
+         console.log("*** ORDER SAVE SUCCESSFUL!!!");
        //} 
        io.emit("served", order);
   });
   res.status(200).json({results: "People Added Successfully"});
 });
 
-app.post("/get-order", function (req, res) {
-  var order = req.body.people;
-  var activeOrder = appfire.child('orders/'+ replaceAll(order.email));
-  var obj = new Object();
-  activeOrder.once('value', function(snap) {
-      if(snap.val()) {
-         obj.companyname = order.companyname;
-         obj.email = order.email;
-         obj.tagId = order.tagId;
-         obj.masterId = order.masterId;
-         obj.zipcode = order.zipcode;
-         obj.zonefrom = order.zonefrom;
-         obj.zoneto = order.zoneto;
-         obj.active = order.active;
-         obj.timeStamp = order.timeStamp;
-         obj.tagId = order.tagId;
-         obj.masterId = order.masterId;
-       } 
-       
-  });
-  //res.status(200).json({results: "People FIND Successfully"});
-  res.status(200).json(obj);
-});
 // ************************ End Order
 app.post("/sync", function(request, response) {
   var sync = request.body;
@@ -247,6 +226,8 @@ app.post('/subscribe', authenticate, function(req, res) {
             sess.ipaddr = process.env.IP;
             sess.deviceType =body.deviceType;
             sess.stamp = moment().format();
+            sess.deviceDetected= body.deviceDetected;
+            sess.ping_dt = new Date().getTime();
             foundSession.set(sess);
             res.send({sessionid: sess.sessionid});            
         } else {
@@ -276,25 +257,13 @@ app.post('/alive', function(req, res) {
     if(_.isUndefined(body.ts)) {
         res.status(400).json({results: "Invalid Request!!!"});
     }
-    io.sockets.emit('ping', {sessionid : body.sessionid, ts : body.ts});
-    res.status(200).json({results: "Message received and proceed to Forward"});
+    if(_.isUndefined(body.isdeleted)) {
+        res.status(400).json({results: "Invalid Request!!!"});
+    }
+    io.sockets.emit('ping', {sessionid : body.sessionid, ts : body.ts, isdeleted: body.isdeleted});
+    res.status(200).send("Message received and proceed to Forward");
 });
 
-// app.post('/remote', function (req, res) {
-//     requestify.request('https://rtc-mmayorivera.c9.io/xively', {
-//     method: 'POST',
-//     body: req.body,
-//     headers : {
-//             'Content-Type': 'application/json'
-//     },
-//     dataType: 'json'        
-//     }).then(function(response) {
-//         // Get the response body
-//         console.log(response);
-//     });
-//     res.json(200, {results: "Message received and proceed to Forward"});
-// });
-// ---> routes <---- 
 app.get('/', function(req, res) {
   res.render('index.ejs');
 });
@@ -334,13 +303,9 @@ function unAuth(req,res, next) {
   }
   next();
 }
-
-function  escapeEmail(email) {
-    return (email || '').replace('.', ',');
-}
 http.listen(port, function() {
   console.log('SERVER RUNNING... PORT: ' + port);
-})
+});
 
 function replaceAll( text){
   while (text.toString().indexOf(".") != -1)

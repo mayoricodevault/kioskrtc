@@ -1,14 +1,12 @@
-xively.controller('baristaController', ['$scope','$location','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', '$firebaseObject',function ($scope, $location,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, $firebaseObject) {
+xively.controller('baristaController', ['$scope','$location','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', function ($scope, $location,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS) {
     
     $scope.currentPerson;
+    $scope.serveOrders=[];
+    $scope.orders=[];
+    $scope.totalOrders=0;
+    $scope.totalOrdersActive=0;
     $scope.currentIndex;
-    $scope.serveOrders = [];
-    $scope.orders = [];
-    $scope.totalOrders = 0;
-    $scope.totalOrdersActive = 0;
     $scope.currentfavcoffee;
-    $scope.baristaTagID;
-    
     Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbBind");
     $scope.$watch('fbBind', function() {
         refreshFb();
@@ -20,19 +18,14 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
     var currentIndexOld=localStorageService.get('currentIndex');
     $scope.currentIndex=currentIndexOld || 0;
     
-    var baristaTagOld=LSFactory.getTagId();
-    $scope.baristaTagID=baristaTagOld;
-    
     $scope.$watch('currentPerson',function(){
-        if($scope.currentPerson){
-            console.log($scope.currentPerson);
-            $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.getPlace($scope.currentPerson))
+        $scope.zip ={"zipcode":$scope.currentPerson.zipcode};
+        $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.zip)
         	.success(function(data){
         		$scope.weather=data.query.results.channel;
-            });
-            $scope.coffee($scope.currentPerson.favcoffee);
-            localStorageService.set('currentPerson',$scope.currentPerson);
-        }
+        });
+        $scope.coffee($scope.currentPerson.favcoffee);
+        localStorageService.set('currentPerson',$scope.currentPerson);
     },true);
     $scope.$watch('currentIndex',function(){
         localStorageService.set('currentIndex',$scope.currentIndex);
@@ -40,10 +33,23 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
 
     $scope.served=function(){
         var people=$scope.currentPerson;
+// 		people.active="0";
 		people.zonefrom = LSFactory.getSessionId();
-		OrdersService.updateOrderStatus(people, 0);
+		var syncObject = $scope.fbBind.child(replaceAll(people.email));
+        if (syncObject.email) {
+             syncObject.$loaded().then(function() {
+                syncObject.active =0;
+                syncObject.$save();
+            });
+        }
+		
+        $http.post(API_URL + '/add-order', {people:people}).
+            then(function(response) {
+        }, function(response) {
+        }); 
         $scope.orders.sort(compare);
         for(var i=0;i<$scope.orders.length;i++){
+            console.log(i+$scope.orders[i].name);
             $scope.currentIndex=i;
             $scope.currentPerson=$scope.orders[i];
             if($scope.orders[i].active==1)
@@ -78,14 +84,13 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
 	
 	function refreshFb(){
 	    var total = 0;
-	    $scope.totalOrdersActive=0;
 		$scope.orders = [];
 		angular.forEach($scope.fbBind, function(order){
 			if (!order || !order.name) {
 				return;
 			}
 	        $scope.orders.push(order);
-	        if (order.active==1 &&  $scope.baristaTagID==order.masterId ) {
+	        if (order.active==1) {
 	            $scope.totalOrdersActive++;
 	        }
         	total++;
@@ -93,6 +98,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
 		$scope.totalOrders = total;
 		$scope.orders.sort(compare);
 		if($scope.totalOrdersActive==1 ){
+		    console.log("Asdas");
 		    for(var i=0;i<$scope.totalOrders;i++){
 		        if($scope.orders[i].active==1){
 		            $scope.currentIndex=i;
@@ -130,9 +136,5 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
           text = text.toString().replace(".",",");
       return text;
     }
-    $scope.getPlace=function(person){
-         $scope.place ={"city":person.city,"state":person.state};
-         return $scope.place;
-    };
     
 }]);

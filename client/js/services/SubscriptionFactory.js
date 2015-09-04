@@ -1,26 +1,29 @@
 xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '$q', "LSFactory", function($http, API_URL, AuthTokenFactory, $q, LSFactory){
+    
+    
     return {
         subscribe : subscribe,
         unsubscribe: unsubscribe,
         getSession : getSession,
         isStation:isStation
     };
-    function subscribe(socketid, deviceName,tagid, serverUrl, deviceType) {
+    function subscribe(socketid, deviceName,tagid, serverUrl, deviceType, deviceDetected) {
       return $http.post( API_URL + '/subscribe', {
           socketid : socketid,
           deviceName: deviceName,
           tagId : tagid,
           serverUrl : serverUrl,
-          deviceType : deviceType
+          deviceType : deviceType,
+          deviceDetected :deviceDetected
       }).then(function success(response) {
-
             AuthTokenFactory.setToken(response.data.sessionid);
             LSFactory.setData("sessionid", response.data.sessionid);
             LSFactory.setData("socketid", socketid);
             LSFactory.setData("deviceName", deviceName);
             LSFactory.setData("serverUrl", serverUrl);
             LSFactory.setData("tagid", tagid);
-            LSFactory.setData("deviceType", deviceType);         
+            LSFactory.setData("deviceType", deviceType);   
+            LSFactory.setData('deviceDetected', deviceDetected);
             return response;
       });
     }
@@ -34,13 +37,14 @@ xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '
             LSFactory.setData("deviceName");
             LSFactory.setData("serverUrl");
             LSFactory.setData("tagid");
-            LSFactory.setData("deviceType");                
+            LSFactory.setData("deviceType");    
+            LSFactory.setData("deviceDetected");   
             return response;
           });
     }
     
-    function isStation(tagid) {
-         if (LSFactory.getTagId() === tagid) {
+    function isStation(socketid) {
+         if (LSFactory.getSocketId() == socketid) {
              return true;
          }
          return false;

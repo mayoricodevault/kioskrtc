@@ -43,6 +43,9 @@ body {
   display: table-cell;
   vertical-align: middle;
 }
+.site-wrapper .weather{
+  position:absolute!important;
+}
 .cover-container {
   margin-right: auto;
   margin-left: auto;

@@ -44,6 +44,14 @@ position: relative;
 width: 100%;
 z-index:1;
 }
+.text-upper{
+  text-transform:uppercase;
+}
+.top-bar{
+      position: relative;
+    top: 60px;
+        margin-bottom: 50px;
+}
 /* #Site Styles
 ================================================== */
 .h4, .h5, .h6, h4, h5, h6 {
@@ -78,6 +86,10 @@ z-index:1;
 }
 .h3, h3 {
     font-size: 2em;
+
+}
+.h4, h4 {
+    font-size: 1.5em;
 
 }
  .h2 span, h2  span{  
@@ -304,6 +316,14 @@ z-index:1;
 .dropdown-menu>.active>a:focus, 
 .dropdown-menu>.active>a:hover {
     background-color: #FF4943;
+}
+.search-box{
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #4e4e4e;
+    padding: 5px 10px;
+    color:#4e4e4e;
+    outline:0;
 }
 /* #NavBar Header
 ================================================== */

@@ -11,7 +11,8 @@ xively.factory('LSFactory', function LSFactory($window) {
       getFavCoffee:getFavCoffee,
       getDeviceName:getDeviceName,
       getDeviceType:getDeviceType,
-      getServerUrl:getServerUrl
+      getServerUrl:getServerUrl,
+      getDeviceDetected:getDeviceDetected
     };
 
     function getUser() {
@@ -24,6 +25,10 @@ xively.factory('LSFactory', function LSFactory($window) {
     
     function getDeviceName() {
       return store.getItem("deviceName");
+    }
+    
+    function getDeviceDetected() {
+      return store.getItem("deviceDetected");
     }
     
     function getDeviceType() {

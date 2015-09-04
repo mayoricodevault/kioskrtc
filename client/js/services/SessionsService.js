@@ -4,28 +4,28 @@ xively.factory('SessionsService', ['$firebaseObject', 'FIREBASE_URI_ROOT', 'LSFa
     var getSessions = function () {
         return activeSessions;
     };
-    
-    var updateSessionStatus = function (socketid, ts) {
+    var updateSessionStatus = function (socketid, ts, isdeleted) {
         var syncObject =  $firebaseObject(ref.child(socketid));
-        if (syncObject.deviceName) {
             syncObject.$loaded().then(function() {
-                syncObject.ping_dt =ts;
-                syncObject.$save();
+                 if (syncObject.deviceName) {
+                    syncObject.ping_dt =ts;
+                    syncObject.isdeleted = isdeleted;
+                    syncObject.$save();
+                 } else {
+                    syncObject.socketid = LSFactory.getSocketId();
+                    syncObject.sessionid = LSFactory.getSessionId();
+                    syncObject.deviceName = LSFactory.getDeviceName();
+                    syncObject.deviceType = LSFactory.getDeviceType();
+                    syncObject.serverUrl = LSFactory.getServerUrl();
+                    syncObject.deviceDetected = LSFactory.getDeviceDetected();
+                    syncObject.tagId =LSFactory.getTagId();
+                    syncObject.ipaddr;
+                    syncObject.ping_dt = ts;
+                    syncObject.isdeleted = isdeleted;
+                    syncObject.$save();
+                 }
             });
-        } else {
-            syncObject.$loaded().then(function() {
-                syncObject.socketid = LSFactory.getSocketId();
-                syncObject.sessionid = LSFactory.getSessionId();
-                syncObject.deviceName = LSFactory.getDeviceName();
-                syncObject.deviceType = LSFactory.getDeviceType();
-                syncObject.serverUrl = LSFactory.getServerUrl();
-                syncObject.tagId =LSFactory.getTagId();
-                syncObject.ipaddr;
-                syncObject.ping_dt = ts;
-                syncObject.$save();
-            });
-            
-        }
+        
     };
     
     
