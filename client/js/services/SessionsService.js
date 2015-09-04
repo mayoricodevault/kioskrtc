@@ -19,7 +19,8 @@ xively.factory('SessionsService', ['$firebaseObject', 'FIREBASE_URI_ROOT', 'LSFa
                     syncObject.serverUrl = LSFactory.getServerUrl();
                     syncObject.deviceDetected = LSFactory.getDeviceDetected();
                     syncObject.tagId =LSFactory.getTagId();
-                    syncObject.ipaddr;
+                    syncObject.masterid =LSFactory.getMasterId();
+                    syncObject.ipaddr="0.0.0.0";
                     syncObject.ping_dt = ts;
                     syncObject.isdeleted = isdeleted;
                     syncObject.$save();

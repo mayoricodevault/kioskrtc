@@ -15,14 +15,14 @@ xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'S
         }
          $scope.formShow=$scope.devices.length > 0 ? true : false;
     });
-    $scope.subscribe = function(deviceName,tagid, serverUrl, deviceType) {
+    $scope.subscribe = function(deviceName,tagid, serverUrl, deviceType, masterid) {
         var typeLower = angular.lowercase(deviceType);
         $scope.formShow = false;
 		var socket =  Socket.connect();
 		var deviceDetected = deviceDetector.os + " "+deviceDetector.browser;
 		$rootScope.ioConn = socket.id;
-
-		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagid, serverUrl,typeLower, deviceDetected).
+        if (!masterid) masterid=""; 
+		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagid, serverUrl, typeLower, deviceDetected, masterid).
 		then(function success(response){
          	Socket.emit('subscribed', response);
          	if (typeLower==="kiosk") {

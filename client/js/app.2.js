@@ -19,8 +19,7 @@ var xively = angular.module('xively', ['ng.deviceDetector',
         
         $routeProvider.when('/settings', {
                 templateUrl: '/partials/setup.html', 
-                controller: 'setupController',
-                resolve: {isauthenticate: isauthenticate}
+                controller: 'setupController'
                 // resolve: {
                 //     app: function($q) {
                 //         var  defer = $q.defer();
@@ -33,36 +32,38 @@ var xively = angular.module('xively', ['ng.deviceDetector',
         
         $routeProvider.when('/splash', {
                 templateUrl: '/partials/splash.html', 
-                controller: 'splashController',
-                resolve: {authenticate: authenticate}
+                controller: 'splashController'
             
         });
         
         $routeProvider.when('/barista', {
                 templateUrl: '/partials/barista/select.html', 
-                controller: 'baristaController',
-                resolve: {authenticate: authenticate}
+                controller: 'baristaController'
             
         });
         
         
           $routeProvider.when('/dashboard', {
                 templateUrl: '/partials/dashboard/dashboard.html', 
-                controller: 'dashboardController',
-                resolve: {authenticate: authenticate}
+                controller: 'dashboardController'
+         
             
         });
         $routeProvider.when('/welcome', {
-            templateUrl: '/partials/welcome/welcome.html', 
-            resolve: {authenticate: authenticate} 
+            templateUrl: '/partials/welcome/welcome.html'
+           
             
         });
 
-        $routeProvider.when('/barista/menu', {templateUrl: '/partials/barista/menu.html', controller: 'menuController', resolve: {authenticate: authenticate}});
-        $routeProvider.when('/barista/register', {templateUrl: '/partials/barista/register.html', controller: 'registerController', resolve: {authenticate: authenticate}});
-        $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController', resolve: {authenticate: authenticate}});
-        $routeProvider.when('/kiosk/register', {templateUrl: '/partials/kiosk/register.html', controller: 'registerController', resolve: {authenticate: authenticate}});
-        $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController', resolve: {authenticate: authenticate} });
+        $routeProvider.when('/barista/menu', {templateUrl: '/partials/barista/menu.html', controller: 'menuController'});
+        $routeProvider.when('/barista/register', {templateUrl: '/partials/barista/register.html', controller: 'registerController'});
+        $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController'});
+        $routeProvider.when('/kiosk/register', {templateUrl: '/partials/kiosk/register.html', controller: 'registerController'});
+        $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController' });
+        
+        
+       
+     
         //if no valid routes are found, redirect to /home
         $routeProvider.otherwise({redirectTo: '/settings'});
 
@@ -85,10 +86,15 @@ var xively = angular.module('xively', ['ng.deviceDetector',
                     } 
                     if (devType=="kiosk" && $.inArray(path, kioskRoutes) != -1) {
                         return $q.when();
-                    } 
+                    } else {
+                        
+                    }
                     if (devType=="barista" && $.inArray(path, baristaRoutes) != -1) {
                         return $q.when();
-                    } 
+                    } else {
+                         $location.path('/barista');
+                         return $q.when();
+                    }
                     return $q.reject();
               } else {
                 $timeout(function() {

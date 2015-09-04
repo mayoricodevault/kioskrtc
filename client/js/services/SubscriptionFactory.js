@@ -7,14 +7,15 @@ xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '
         getSession : getSession,
         isStation:isStation
     };
-    function subscribe(socketid, deviceName,tagid, serverUrl, deviceType, deviceDetected) {
+    function subscribe(socketid, deviceName,tagid, serverUrl, deviceType, deviceDetected, masterid) {
       return $http.post( API_URL + '/subscribe', {
           socketid : socketid,
           deviceName: deviceName,
           tagId : tagid,
           serverUrl : serverUrl,
           deviceType : deviceType,
-          deviceDetected :deviceDetected
+          deviceDetected :deviceDetected,
+          masterid:masterid
       }).then(function success(response) {
             AuthTokenFactory.setToken(response.data.sessionid);
             LSFactory.setData("sessionid", response.data.sessionid);
@@ -24,6 +25,7 @@ xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '
             LSFactory.setData("tagid", tagid);
             LSFactory.setData("deviceType", deviceType);   
             LSFactory.setData('deviceDetected', deviceDetected);
+            LSFactory.setData('masterid', masterid);
             return response;
       });
     }
@@ -39,6 +41,7 @@ xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '
             LSFactory.setData("tagid");
             LSFactory.setData("deviceType");    
             LSFactory.setData("deviceDetected");   
+            LSFactory.setData("masterid");  
             return response;
           });
     }

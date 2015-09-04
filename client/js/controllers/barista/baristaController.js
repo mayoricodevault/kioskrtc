@@ -1,4 +1,4 @@
-xively.controller('baristaController', ['$scope','$location','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', '$firebaseObject',function ($scope, $location,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, $firebaseObject) {
+xively.controller('baristaController', ['$scope','$location','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', 'SessionsService','SubscriptionFactory', function ($scope, $location,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, SessionsService, SubscriptionFactory) {
     
     $scope.currentPerson;
     $scope.currentIndex;
@@ -46,7 +46,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
         for(var i=0;i<$scope.orders.length;i++){
             $scope.currentIndex=i;
             $scope.currentPerson=$scope.orders[i];
-            if($scope.orders[i].active==1)
+            if($scope.orders[i].active==1 && $scope.orders[i].masterId==$scope.baristaTagID)
                 break;
         }
         $scope.totalOrdersActive--;
@@ -59,11 +59,10 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
         return false;
     };
     
-    $scope.isActive=function(index){
- 	    if(index==$scope.currentIndex && $scope.totalOrdersActive>0){
+    $scope.isActive=function(email){
+ 	    if(email===$scope.currentPerson.email && $scope.totalOrdersActive>0){
  	        return true;
  	    }
- 	        
  	    return false;
  	};
     
@@ -71,6 +70,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
          $scope.currentPerson=person;
          $scope.currentIndex=index;
         $scope.coffee($scope.currentPerson.favcoffee);
+        $scope.userSearch.name="";        
          
     };
 
@@ -85,7 +85,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
 				return;
 			}
 	        $scope.orders.push(order);
-	        if (order.active==1 &&  $scope.baristaTagID==order.masterId ) {
+	        if (order.active==1 && order.masterId==$scope.baristaTagID) {
 	            $scope.totalOrdersActive++;
 	        }
         	total++;
@@ -94,7 +94,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
 		$scope.orders.sort(compare);
 		if($scope.totalOrdersActive==1 ){
 		    for(var i=0;i<$scope.totalOrders;i++){
-		        if($scope.orders[i].active==1){
+		        if($scope.orders[i].active==1 && $scope.orders[i].masterId==$scope.baristaTagID){
 		            $scope.currentIndex=i;
 		            $scope.currentPerson=$scope.orders[i];
 		        }
@@ -116,6 +116,49 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
         if(coffee==="Americano")
             $scope.currentfavcoffee="amer";
     };
+    
+    Socket.on('ping', function(data){
+        console.log(data);
+        var socketid = LSFactory.getSocketId();
+        if (LSFactory.getSessionId() === data.sessionid) {
+            console.log(data);
+            SessionsService.updateSessionStatus(socketid, data.ts, data.isdeleted);
+        } else {
+            if (data.sessionid=="All") {
+                SessionsService.updateSessionStatus(socketid, 0 , false);
+            }
+        }
+    });
+    
+    Socket.on('sync', function(data){
+        if (LSFactory.getSessionId() === data.sessionid) {
+            if (data.action === 'reset') {
+                SubscriptionFactory.unsubscribe(data.socketid).
+            		then(function success(response){
+                        Socket.disconnect(true);
+            			$window.location.href = API_URL+"/settings";
+            		}, subsError);
+            }
+            if (data.action === 'snap') {
+                $scope.base64 = '';
+                $('#snap').html("");
+                html2canvas(document.body, {
+                  onrendered: function(canvas) {
+                    var binaryData = canvas.toDataURL();  
+                    $scope.base64  = binaryData.replace(/^data:image\/png;base64,/,"");
+                    $('#snap').html('<img id="imgscreen" src="'+ $scope.base64 +'" />');
+                    var snapname = LSFactory.getSocketId();
+                    Socket.emit('snap',  {snapname :snapname, binaryData :  $scope.base64 });
+                    $scope.base64= '';
+                  }
+                });
+            }
+        }
+    });
+  
+    function subsError(response) {
+        console.log("Error");
+    }    
     
     function compare(a,b) {
         if (a.timeStamp < b.timeStamp)

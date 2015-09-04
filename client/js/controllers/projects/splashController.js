@@ -18,11 +18,13 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
     
     Socket.on('ping', function(data){
         var socketid = LSFactory.getSocketId();
-
         if (LSFactory.getSessionId() === data.sessionid) {
+            console.log(data);
             SessionsService.updateSessionStatus(socketid, data.ts, data.isdeleted);
         } else {
-            SessionsService.updateSessionStatus(LSFactory.getSocketId() , data.ts, data.isdeleted);
+            if (data.sessionid=="All") {
+                SessionsService.updateSessionStatus(socketid, 0 , false);
+            }
         }
     });
     
@@ -53,6 +55,6 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
     });
   
     function subsError(response) {
-        alert("error" + response.data);
+        console.log("Error");
     }
 }])

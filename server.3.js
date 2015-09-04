@@ -84,23 +84,6 @@ app.post("/weather", function(request, response) {
     });
 
 });
-
-app.post("/dashboard", function(request, response) {
-  console.log(request);
-  var totals = request.body;
-  if(_.isUndefined(totals) || _.isEmpty(totals)) {
-    return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
-  }
-  if(_.isUndefined(totals.zonefrom) || _.isEmpty(totals.zonefrom)) {
-    return response.status(400).json( {error: "Zone Must be defined"});
-  }
-  if(_.isUndefined(totals.zoneto) || _.isEmpty(totals.zoneto)) {
-    return response.status(400).json({error: "Zone Must be defined"});
-  }
-  io.sockets.emit('dashboard', totals);
-  
-});
-
 app.post("/xively", function(request, response) {
   console.log(request);
   var people = request.body;
@@ -246,7 +229,6 @@ app.post('/subscribe', authenticate, function(req, res) {
             sess.deviceType =body.deviceType;
             sess.stamp = moment().format();
             sess.deviceDetected= body.deviceDetected;
-            sess.masterid = body.masterid;
             sess.ping_dt = new Date().getTime();
             foundSession.set(sess);
             res.send({sessionid: sess.sessionid});            

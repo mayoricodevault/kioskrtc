@@ -194,7 +194,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     $scope.onzas = 0;
     $scope.totalDrinksServed = 0;
     Socket.on('dashboard', function(data) {
-        console.log(data);
       //  var Json = {"onzas":24616, "drinksServed":{"esp":34,"amer":20,"reg":44,"dcaf":6,"cap":24,"tea":18},
       // "regions":{"west":21,"midwest":5,"neMidAtlantic":6,"neNewEngland":60,"sWestSouthCentral":6,"sSouthAtlanticESCentral":2}};
         $scope.drinksServed.amer = data.drinksServed.amer;

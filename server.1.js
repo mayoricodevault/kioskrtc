@@ -171,7 +171,7 @@ app.post("/add-order", function (req, res) {
          obj.active = order.active;
          obj.timeStamp = order.timeStamp;
          obj.tagId = order.tagId;
-        // obj.masterId = order.masterId;
+        obj.masterId = order.masterId;
          activeOrder.set(obj);
          console.log("*** ORDER SAVE SUCCESSFUL!!!");
        //} 

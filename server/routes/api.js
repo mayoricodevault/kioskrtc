@@ -16,7 +16,6 @@ module.exports = function(router, socket){
             });
     });
     router.get('/devices/', function(req, res){
-        console.info(">>> FIND DEVICES ");
          requestify.request(configDB.url_controller + '/deviceslist', {
                 method: 'GET',
                 body: req.body,
@@ -26,33 +25,11 @@ module.exports = function(router, socket){
                 dataType: 'json'        
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
-                    console.log("*****************************************");
-                    console.log(">>>>> RESULTADOS DE DEVICES "+result);
-                    console.log(">>>> response.body "+response.body);
-                    console.log(">>>>> result.devices "+result.devices);
-                    console.log("|||||||||||||||||||||||||||||||||||||||||||");
                     res.status(200).json(result.devices);
             });
         
    
     });
-    /*
-    router.get('/devices/', function(req, res){
-         requestify.request(configDB.url_controller + '/deviceslist', {
-                method: 'GET',
-                body: req.body,
-                headers : {
-                        'Content-Type': 'application/json'
-                },
-                dataType: 'json'        
-                }).then(function(response) {
-                    var result = JSON.parse(response.body);
-                    res.status(200).json(result.devices )
-            });
-        
-   
-    });    
-    */
     router.get('/products/', function(req, res){
          requestify.request(configDB.url_controller + '/productslist', {
                 method: 'GET',
@@ -63,7 +40,7 @@ module.exports = function(router, socket){
                 dataType: 'json'        
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
-                    res.status(200).json(result.devices )
+                    res.status(200).json(result.products )
             });
         
    

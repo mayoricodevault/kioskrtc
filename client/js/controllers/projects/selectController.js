@@ -11,18 +11,22 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.currentPerson=sharedProperties.getPerson();
     $scope.oldFavorite=$scope.currentPerson;
     $scope.people;
+    var coffee;
 
     var oldPeople=localStorageService.get('people');
     $scope.people=oldPeople || [];
     
     $scope.$watch('currentPerson',function(){
         if($scope.currentPerson){
-            $scope.coffee($scope.currentPerson.favcoffee);
+            
+            $scope.favcoffee=$scope.currentPerson.favcoffee;
+            $scope.coffee($scope.favcoffee);
+            
             $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.getPlace($scope.currentPerson))
             .success(function(data){
             	$scope.weather=data.query.results.channel;
             });
-            localStorageService.set('currentPerson',$scope.currentPerson);    
+           // localStorageService.set('currentPerson',$scope.currentPerson);    
         }
     },true);
     
@@ -35,48 +39,80 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     },true);
     
     Socket.on('sync', function(data){
-    if (LSFactory.getSessionId() === data.sessionid) {
-        if (data.action === 'reset') {
-            SubscriptionFactory.unsubscribe(data.socketid).
-        		then(function success(response){
-                    LSFactory.setData("sessionid");
-                    LSFactory.setData("socketid");
-                    LSFactory.setData("serverUrl");
-                    LSFactory.setData("deviceName");
-                    $rootScope.user = null;
-                    $rootScope.socketidSession = null;
-                    Socket.disconnect(true);
-        			$window.location.href = API_URL+"/splash";
-        		}, subsError);
-        }
-        if (data.action === 'snap') {
-            $scope.base64 = '';
-            $('#snap').html("");
-            html2canvas(document.body, {
-              onrendered: function(canvas) {
-                var binaryData = canvas.toDataURL();  
-                $scope.base64  = binaryData.replace(/^data:image\/png;base64,/,"");
-                $('#snap').html('<img id="imgscreen" src="'+ $scope.base64 +'" />');
-                var snapname = LSFactory.getSocketId();
-                Socket.emit('snap',  {snapname :snapname, binaryData :  $scope.base64 });
-                $scope.base64= '';
-              }
-            });
-        }
+        if (LSFactory.getSessionId() === data.sessionid) {
+            if (data.action === 'snap') {
+                $scope.base64 = '';
+                $('#snap').html("");
+                html2canvas(document.body, {
+                  onrendered: function(canvas) {
+                    var binaryData = canvas.toDataURL();  
+                    $scope.base64  = binaryData.replace(/^data:image\/png;base64,/,"");
+                    $('#snap').html('<img id="imgscreen" src="'+ $scope.base64 +'" />');
+                    var snapname = LSFactory.getSocketId();
+                    Socket.emit('snap',  {snapname :snapname, binaryData :  $scope.base64 });
+                    $scope.base64= '';
+                  }
+                });
+            }
         }
     });
+  
     
     Socket.on('ping', function(data){
         var socketid = LSFactory.getSocketId();
         if (LSFactory.getSessionId() === data.sessionid) {
-            SessionsService.updateSessionStatus(socketid, data.ts);
+            SessionsService.updateSessionStatus(socketid, data.ts, data.isdeleted);
         } else {
-            SessionsService.updateSessionStatus(LSFactory.getSocketId() , data.ts);
+            if (data.sessionid=="All") {
+                SessionsService.updateSessionStatus(socketid, 0 , false);
+            }
         }
     });
-    
+
     $scope.menuBar=function(){
        $scope.isFavorite=true;
+       var people=$scope.currentPerson;
+       var orders=[];
+         orders=OrdersService.getOrdersArray();  
+          var favcoffeeOld=getFavCoffee(orders,people);
+        var favorite = {Espresso:1, Cappuccino:2, Americano:3,
+                        Regular_Coffee:4, Decaf_Coffee:5, Tea:6};
+         if(favcoffeeOld!=""){
+            var outCoffee=favorite[favcoffeeOld];
+         }else{
+              outCoffee=favorite[$scope.currentPerson.favcoffee.replace(" ","_")];
+         }
+        LSFactory.setData("favcoffee",outCoffee);    
+        
+        
+        // *************  init beverages
+       // var currCoffee=LSFactory.getFavCoffee();
+       var currCoffee=outCoffee;
+        if(currCoffee!="null"){
+          $scope.selectCoffee(currCoffee);
+        }//end if
+        
+        
+        $scope.activeGlass = function(coffee){
+             $scope.selectCoffee (coffee);
+        };    
+        function getFavCoffee(orders,obj) {
+            var coffee="";
+    		orders.forEach(function (order) {
+    		   var active = parseInt(order.active);
+    			if (order.email === obj.email && active===1) {
+    			    if(order.favcoffee==="Regular Coffee"){
+    			        order.favcoffee="Regular_Coffee";
+    			    }
+    			     if(order.favcoffee==="Decaf Coffee"){
+    			        order.favcoffee="Decaf_Coffee";
+    			    }
+    				coffee=order.favcoffee; 
+    				return coffee;
+    			}
+    		});
+    		return coffee;
+        }
        $scope.paneSelected = {id:'3'};
        storeService.jsonWrite('paneSelected',$scope.paneSelected);
     };
@@ -93,7 +129,6 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     
 
     $scope.selectUser = function(){
-        console.info("*** CLICK SELECT USER ***");
         $scope.isFavorite=false;
         if($scope.selected===undefined) {
             ngToast.create('a toast message...');
@@ -110,104 +145,52 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             $scope.trySelect=true;
             return false;
         }
+        
         $scope.paneSelected = {id:'3'};
         $scope.currentPerson = $scope.selected;
-        storeService.jsonWrite('paneSelected',$scope.paneSelected);
+       // storeService.jsonWrite('paneSelected',$scope.paneSelected);
     
-        // *** looking for favorite coffee    
-        var people=$scope.currentPerson;
-        var orders=[];
-         orders=OrdersService.getOrdersArray();        
-         
-        var favcoffeeOld=getFavCoffee(orders,people);
+        //**find orders or putting favorite coffee
+        
         var favorite = {Espresso:1, Cappuccino:2, Americano:3,
                         Regular_Coffee:4, Decaf_Coffee:5, Tea:6};
-        console.log("***** favcoffeeOld:"+favcoffeeOld);                        
-        console.log("$scope.currentPerson.favcoffee "+$scope.currentPerson.favcoffee);
-         if(favcoffeeOld!=""){
-            var outCoffee=favorite[favcoffeeOld];
+                        
+        // Get Orders
+        var orders=[];
+        orders=OrdersService.getOrdersArray();        
+         //find favorite coffee of seleted person
+         
+        var orderCoffeeOld=getOrderCoffee(orders,$scope.currentPerson);
+        var outCoffee="";
+         if(orderCoffeeOld!=""){
+             console.info("*** NO ES VACIO" +orderCoffeeOld+"value");
+             outCoffee=favorite[orderCoffeeOld];
          }else{
-             var outCoffee=favorite[$scope.currentPerson.favcoffee.replace(" ","_")];
+             console.info("*** SI ES VACIO");
+            // console.info("FAVOTITE VIDEO "+getFavCoffeePerson($scope.selected));
+             $scope.currentPerson.favcoffee=getFavCoffeePerson($scope.selected);            
+             outCoffee=favorite[$scope.currentPerson.favcoffee.replace(" ","_")];
          }
+        console.info(">>>> FAV COFFEE "+ outCoffee); 
         LSFactory.setData("favcoffee",outCoffee);    
-        
         
         // *************  init beverages
         var currCoffee=LSFactory.getFavCoffee();
-        if(currCoffee!="null"){
-            selectCoffee (currCoffee);
-        }//end if
+        //console.info(">>>> ARIEL COFFEE "+currCoffee);
+        //if(currCoffee!="null"){
+          $scope.selectCoffee(currCoffee);
+        //}//end if
         
-        
-        $scope.activeGlass = function(coffee){
-              selectCoffee (coffee);
-        };    
-    
-        function selectCoffee(coffee){
-            var cof = parseInt(coffee)
-            console.info("ARIe:"+coffee);
-            $scope.esp=false;
-            $scope.cap=false;
-            $scope.ame=false;
-            $scope.reg=false;
-            $scope.dec=false;
-            $scope.tea=false;
-              switch (cof) {
-                case 1: 
-                    $scope.esp=true;
-                    $scope.favcoffee="Espresso";
-                    break;
-                case 2: 
-                    $scope.cap=true;
-                    $scope.favcoffee="Cappuccino";
-                    break;
-                case 3: 
-                    $scope.ame=true;
-                    $scope.favcoffee="Americano";
-                    break;
-                case 4: 
-                    $scope.reg=true;
-                    $scope.favcoffee="Regular Coffee";
-                    break;
-                case 5: 
-                    $scope.dec=true;
-                    $scope.favcoffee="Decaf Coffee";
-                    break;
-                case 6: 
-                    $scope.tea=true;
-                    $scope.favcoffee="Tea";
-                    break;                
-                default: 
-                   $scope.esp=true;
-                   $scope.favcoffee="Espresso";
-                } // end switch 
-                
-        } // end selecCoffee        
-        
-        function getFavCoffee(orders,obj) {
-            var coffee="";
-            //console.info("FOR EACH ");
-    		orders.forEach(function (order) {
-    		    console.info(" order.email "+order.email +" coffee "+ order.favcoffee+" active "+order.active);
-    		    console.info(" obj.email "+obj.email+" coffee "+ obj.favcoffee+" active "+obj.active);
-    		    var active = parseInt(order.active);
-    			if (order.email === obj.email && active===1) {
-    			    if(obj.favcoffee==="Regular Coffee"){
-    			        obj.favcoffee="Regular_Coffee";
-    			    }
-    			     if(obj.favcoffee==="Decaf Coffee"){
-    			        obj.favcoffee="Decaf_Coffee";
-    			    }
-    				coffee=obj.favcoffee;
-    				return coffee;
-    			}
-    		});
-    		return coffee;
-        } // end function           
-        // END  looking for favorite coffee
     
         return true;
     }; // end function select
+    
+    
+    //select coffee button
+    $scope.activeGlass = function(coffee){
+              $scope.selectCoffee(coffee);
+    };    
+    
     
     $scope.trySelectFun=function() {
         return $scope.trySelect;
@@ -234,7 +217,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
      *************************
     */
     $scope.order=function(){
-        console.info("*** CLICK ORDER ****");
+        console.log($scope.currentPerson);
         var people=$scope.currentPerson;	
         var timeStamp = Math.floor(Date.now() / 1000);
         people.active="1";
@@ -242,13 +225,17 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         var tagId=LSFactory.getTagId();
         people.tagId=tagId;
         people.favcoffee=$scope.favcoffee;
-    /*
+        
+        people.zoneto="";
+        people.zonefrom="";
+    
         //Find devices
-        console.info("^^^^ FIND DEVICES ");
+        /*
         Api.Device.query({}, function(data){
             for(var key in data){
                 if(data[key].tagid===tagId){
                     people.masterId=data[key].master;
+                    LSFactory.setData('masterid', people.masterId);
                     break;
                 }else
                     people.masterId="";
@@ -258,22 +245,26 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             $timeout(function(){
                 $http.post(API_URL + '/add-order', { people: people }).
                     then(function(response) {
+                        console.log(people.email);
                         console.info("SAVE ORDER SUCCESSFUL!!!");
                     }, function(response) {
                         console.info("ERROR SAVE ORDER");
                 },1000);                
             });
         });// end Find 
-      */  
-        $timeout(function(){
-            $http.post(API_URL + '/add-order', { people: people }).
-                then(function(response) {
-                    console.info("SAVE ORDER SUCCESSFUL!!!");
-                }, function(response) {
-                    console.info("ERROR SAVE ORDER");
-            },1000);                
-        });
+        */
         
+        people.masterId=LSFactory.getMasterId();
+            //Save Order
+            $timeout(function(){
+                $http.post(API_URL + '/add-order', { people: people }).
+                    then(function(response) {
+                        console.log(people.email);
+                        console.info("SAVE ORDER SUCCESSFUL!!!");
+                    }, function(response) {
+                        console.info("ERROR SAVE ORDER");
+                },1000);                
+            });        
         
         $scope.people.push($scope.currentPerson);
         $scope.hideMsg();   
@@ -290,44 +281,135 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     };
     
     $scope.coffee= function(coffee){
-        $scope.black = false;
-        $scope.mocha = false;
-        $scope.iced = false;
-        $scope.latte = false;
-        $scope.cappuccino = false;
-        $scope.other = false;
         if(coffee==="Espresso"){
             $scope.currentfavcoffee="esp";
-            $scope.black = true;
         }
             
         if(coffee==="Cappuccino"){
-            $scope.mocha = true;
             $scope.currentfavcoffee="cap";
         }
         if(coffee==="Regular Coffee"){
-            $scope.latte = true;
             $scope.currentfavcoffee="reg";
         }
             
         if(coffee==="Tea"){
-            $scope.other = true;
             $scope.currentfavcoffee="tea";
         }
         if(coffee==="Decaf Coffee"){
-            $scope.cappuccino = true;
             $scope.currentfavcoffee="dec";
         }
         if(coffee==="Americano"){
-            $scope.iced = true;
             $scope.currentfavcoffee="amer";
         }
-        
+    };
+    
+    $scope.selectCoffee=function(coffee){
+        var cof = parseInt(coffee)
+        $scope.esp=false;
+        $scope.cap=false;
+        $scope.ame=false;
+        $scope.reg=false;
+        $scope.dec=false;
+        $scope.tea=false;
+      switch (cof) {
+        case 1: 
+            $scope.esp=true;
+            $scope.favcoffee="Espresso";
+            break;
+        case 2: 
+            $scope.cap=true;
+            $scope.favcoffee="Cappuccino";
+            break;
+        case 3: 
+            $scope.ame=true;
+            $scope.favcoffee="Americano";
+            break;
+        case 4: 
+            $scope.reg=true;
+            $scope.favcoffee="Regular Coffee";
+            break;
+        case 5: 
+            $scope.dec=true;
+            $scope.favcoffee="Decaf Coffee";
+            break;
+        case 6: 
+            $scope.tea=true;
+            $scope.favcoffee="Tea";
+            break;                
+        default: 
+           $scope.esp=true;
+           $scope.favcoffee="Espresso";
+        }
     };
     
     $scope.getPlace=function(person){
          $scope.place ={"city":person.city,"state":person.state};
          return $scope.place;
     };
+    
+    
+    function getFavCoffeePerson(personSelected){
+        var peopleTbl=VisitorsService.getVisitors();
+        var favoriteCoffee="";
+        
+        var arrayLength = peopleTbl.length;
+        for (var i = 0; i < arrayLength; i++) {
+            console.info("**********************");
+            console.info(JSON.stringify(peopleTbl[i]));
+            console.info(" >>AA: "+peopleTbl[i].email);
+            console.info(" >>BB:"+personSelected.email);
+            console.info(" >>COFF"+peopleTbl[i].favcoffee);
+            console.info("**********************");
+            if(peopleTbl[i].email===personSelected.email){
+                
+                favoriteCoffee =peopleTbl[i].favcoffee;
+                console.log("SI "+favoriteCoffee);
+                break;
+            }    
+            //Do something
+        }
+        /*
+        peopleTbl.forEach(function(p){
+            if(p.email===personSelected.email){
+                console.info("** IGUAL COFFE FOR "+p.favcoffee+" NEW "+ personSelected.favcoffee);
+                favoriteCoffee = p.favcoffee;
+                console.log("FAVORITE COFFEEAA "+favoriteCoffee);
+                return favoriteCoffee;
+            }
+        });*/
+        console.log("FAVORITE COFFEE "+favoriteCoffee);
+        return favoriteCoffee;
+    } // end function getFavCoffeePerson
+    
+    
+     function getOrderCoffee(orders,obj) {
+            var coffee="";
+    		orders.forEach(function (order) {
+    		   var active = parseInt(order.active);
+    			if (order.email === obj.email && active===1) {
+    			    if(order.favcoffee==="Regular Coffee"){
+    			        order.favcoffee="Regular_Coffee";
+    			    }
+    			     if(order.favcoffee==="Decaf Coffee"){
+    			        order.favcoffee="Decaf_Coffee";
+    			    }
+    				coffee=order.favcoffee; 
+    				return coffee;
+    			}
+    		});
+    		/*
+    		if(coffee===""){
+    		    console.log("NOT ENCONTRADO");
+			    if(obj.favcoffee==="Regular Coffee"){
+			        obj.favcoffee="Regular_Coffee";
+			    }
+			     if(obj.favcoffee==="Decaf Coffee"){
+			        obj.favcoffee="Decaf_Coffee";
+			    }    		    
+    		    coffee=obj.favcoffee;
+    		}*/
+    		console.info(">> RETURN "+coffee +"<<");
+    		return coffee;
+        } // end function 
     
 }]);
