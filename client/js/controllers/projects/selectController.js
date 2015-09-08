@@ -129,19 +129,28 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     
 
     $scope.selectUser = function(){
-        $scope.isFavorite=false;
+       $scope.isFavorite=false;
         if($scope.selected===undefined) {
-            ngToast.create('a toast message...');
+            ngToast.create({
+            className: 'danger',
+            content: 'Select full name.'
+            });
             $scope.trySelect=true;
             return false;
         }
         if($scope.selected==="") {
-            ngToast.create('a toast message...');
+            ngToast.create({
+            className: 'danger',
+            content: 'Select full name.'
+            });
             $scope.trySelect=true;
             return false;
         }
         if(typeof $scope.selected!=='object') {
-            ngToast.create('a toast message...');
+            ngToast.create({
+            className: 'danger',
+            content: 'Full name incorrect.'
+            });
             $scope.trySelect=true;
             return false;
         }
@@ -163,20 +172,16 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         var orderCoffeeOld=getOrderCoffee(orders,$scope.currentPerson);
         var outCoffee="";
          if(orderCoffeeOld!=""){
-             console.info("*** NO ES VACIO" +orderCoffeeOld+"value");
              outCoffee=favorite[orderCoffeeOld];
          }else{
-             console.info("*** SI ES VACIO");
             // console.info("FAVOTITE VIDEO "+getFavCoffeePerson($scope.selected));
              $scope.currentPerson.favcoffee=getFavCoffeePerson($scope.selected);            
              outCoffee=favorite[$scope.currentPerson.favcoffee.replace(" ","_")];
          }
-        console.info(">>>> FAV COFFEE "+ outCoffee); 
         LSFactory.setData("favcoffee",outCoffee);    
         
         // *************  init beverages
         var currCoffee=LSFactory.getFavCoffee();
-        //console.info(">>>> ARIEL COFFEE "+currCoffee);
         //if(currCoffee!="null"){
           $scope.selectCoffee(currCoffee);
         //}//end if
@@ -188,7 +193,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     
     //select coffee button
     $scope.activeGlass = function(coffee){
-              $scope.selectCoffee(coffee);
+        $scope.selectCoffee(coffee);
     };    
     
     
@@ -217,7 +222,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
      *************************
     */
     $scope.order=function(){
-        console.log($scope.currentPerson);
+
         var people=$scope.currentPerson;	
         var timeStamp = Math.floor(Date.now() / 1000);
         people.active="1";
@@ -228,41 +233,13 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         
         people.zoneto="";
         people.zonefrom="";
-    
-        //Find devices
-        /*
-        Api.Device.query({}, function(data){
-            for(var key in data){
-                if(data[key].tagid===tagId){
-                    people.masterId=data[key].master;
-                    LSFactory.setData('masterid', people.masterId);
-                    break;
-                }else
-                    people.masterId="";
-            }
-            console.info(">>>>> SAVE ORDER ");
-            //Save Order
-            $timeout(function(){
-                $http.post(API_URL + '/add-order', { people: people }).
-                    then(function(response) {
-                        console.log(people.email);
-                        console.info("SAVE ORDER SUCCESSFUL!!!");
-                    }, function(response) {
-                        console.info("ERROR SAVE ORDER");
-                },1000);                
-            });
-        });// end Find 
-        */
         
         people.masterId=LSFactory.getMasterId();
             //Save Order
             $timeout(function(){
                 $http.post(API_URL + '/add-order', { people: people }).
                     then(function(response) {
-                        console.log(people.email);
-                        console.info("SAVE ORDER SUCCESSFUL!!!");
                     }, function(response) {
-                        console.info("ERROR SAVE ORDER");
                 },1000);                
             });        
         
@@ -354,30 +331,13 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         
         var arrayLength = peopleTbl.length;
         for (var i = 0; i < arrayLength; i++) {
-            console.info("**********************");
-            console.info(JSON.stringify(peopleTbl[i]));
-            console.info(" >>AA: "+peopleTbl[i].email);
-            console.info(" >>BB:"+personSelected.email);
-            console.info(" >>COFF"+peopleTbl[i].favcoffee);
-            console.info("**********************");
             if(peopleTbl[i].email===personSelected.email){
-                
                 favoriteCoffee =peopleTbl[i].favcoffee;
-                console.log("SI "+favoriteCoffee);
                 break;
             }    
             //Do something
         }
-        /*
-        peopleTbl.forEach(function(p){
-            if(p.email===personSelected.email){
-                console.info("** IGUAL COFFE FOR "+p.favcoffee+" NEW "+ personSelected.favcoffee);
-                favoriteCoffee = p.favcoffee;
-                console.log("FAVORITE COFFEEAA "+favoriteCoffee);
-                return favoriteCoffee;
-            }
-        });*/
-        console.log("FAVORITE COFFEE "+favoriteCoffee);
+
         return favoriteCoffee;
     } // end function getFavCoffeePerson
     
@@ -397,18 +357,6 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     				return coffee;
     			}
     		});
-    		/*
-    		if(coffee===""){
-    		    console.log("NOT ENCONTRADO");
-			    if(obj.favcoffee==="Regular Coffee"){
-			        obj.favcoffee="Regular_Coffee";
-			    }
-			     if(obj.favcoffee==="Decaf Coffee"){
-			        obj.favcoffee="Decaf_Coffee";
-			    }    		    
-    		    coffee=obj.favcoffee;
-    		}*/
-    		console.info(">> RETURN "+coffee +"<<");
     		return coffee;
         } // end function 
     

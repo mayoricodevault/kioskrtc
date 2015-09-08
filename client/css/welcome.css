@@ -5,3 +5,60 @@ body{
     -o-background-size: cover!important;
     background-size: cover!important;
 }
+
+
+.hello-circle{
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background: #FF4943;
+    border:5px solid #fff;
+    color:#fff;
+  
+ }
+.hello-circle-lg{
+    width: 460px;
+    height: 460px;  
+    margin: auto;   
+ }
+.hello-circle-md{
+    width: 360px;
+    height: 360px;  
+    margin: auto;   
+ }
+ 
+.hello-circle-sm{
+    width: 300px;
+    height: 300px;  
+    margin: auto;   
+}
+
+.row-circle-lg{
+    display: inline-block;
+    display: inherit;
+    padding: 105px 15px;
+    margin: auto;
+    text-align: center;
+ }
+.row-circle-md{
+    display: inline-block;
+    padding: 91px 15px;
+    display: inherit;
+    margin: auto;
+    text-align: center;
+ }
+.hello-circle p {
+    font-size: 35px;
+    line-height: 14px;
+}
+.hello-circle-md p {
+    font-size: 25px;
+    line-height: 14px;
+}
+
+.show{
+    display:'';
+}
+.hide{
+    display:'none';
+}

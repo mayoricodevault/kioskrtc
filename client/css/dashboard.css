@@ -3,7 +3,7 @@ body{
 }
 .abs-center{
     position:absolute;
-    width:52%;
+    width:60%;
     height:50%;
     left:0;
     right:0;
@@ -19,10 +19,8 @@ body{
 }
 
 .dbsmall{	
-    background:none!important;
-    color:#FFF!important;
-    font-size:2em!important;
-    font-family: "DINCondensed_Bold"!important;
+    font-size:13px;
+    font-weight:normal;
 }
 
 .dbdrinks {
@@ -67,33 +65,51 @@ body{
 	}
 .pos-1{  
 	left: 0;
-	margin-top: 19%;
+	margin-top: 15%;
 	margin-left: 16%; 	
 	}
 .pos-2{
 	left: 0;
-	margin-top: 21%;
+	margin-top: 15%;
 	margin-left: 50%;
 }
 .pos-3{	
-	left: 0;
-	margin-top: 18%;
-	margin-right: 12%;
+	right: 0;
+	margin-top: 15%;
+	margin-right: 13%;
 }
 .pos-4{
     right: 0;
     margin-top:5%;
-    margin-right: 2%; 
+    margin-right: 4%; 
 }
 .pos-5{
 	 left: 0;
-	 margin-top: 45%;
-	 margin-left: 35%; 
+	 margin-top: 40%;
+	 margin-left: 30%; 
 }
 .pos-6{
 	right: 0;
-	margin-top: 46%;
-	margin-right: 27%;
+	margin-top: 39%;
+	margin-right: 30%;
+}
+.pos-station1 {
+    position:absolute;
+    left: 0;
+	margin-top: 10%;
+	margin-left: 50%;
+}
+.pos-station2 {
+    position:absolute;
+    left: 0;
+	margin-top: 25%;
+	margin-left: 10%;
+}
+.pos-station3 {
+    position:absolute;
+    left: 0;
+	margin-top: 40%;
+	margin-left: 40%;
 }
 .cloud{
     padding:20px;
@@ -104,22 +120,59 @@ body{
     background-size:cover;
     width:200px;
     height:100px;
-    
+    font-weight: bold;
+    font-size:20px;
+    color:#FF4943;
 }
 .cloud-b{
-    background:url("../images/dashboard/cloud2.png") no-repeat;
+    background:url("../images/dashboard/cloud1.png") no-repeat;
+    background-size:100% auto;
     width:160px;
     height:100px;
+    font-weight: bold;
+    font-size:16px;
+    color:#FF4943;
 }
 .cloud-c{
     background:url("../images/dashboard/cloud3.png") no-repeat;
-    width:100px;
+    background-size:100% auto;
+    width:110px;
     height:100px;
+    font-weight: bold;
     font-size:13px;
 }
 .map-footer{
     position:absolute;
-    bottom:0;
+    bottom:-80px;
     left:0;
     right:0;
+}
+.doughnut-text {
+    position:absolute;
+    left: 0;
+    color: #FF4943!important;
+	margin-top: 12%;
+	margin-left: 45%;
+	font-size:30px;
+}
+.barDataLabels {
+    position:absolute;
+    right: 0;
+    top:50px;
+	margin-top: 0;
+	margin-right: 0;
+	width:30px;
+	height:100%;
+	text-align:right;
+	line-height:21px;
+}
+.barDataCover {
+    position:absolute;
+    left: 0;
+    bottom: 0;
+	margin-top: 0;
+	margin-right: 0;
+	width:100%;
+	height:30px;
+	background-color:white;
 }

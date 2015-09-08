@@ -1,5 +1,5 @@
 xively.controller("doughnutCtrl", function ($scope) {
-  $scope.labels = ["Served", "Don't like free coffee"];
-  $scope.data = [80, 20];
+  $scope.doughnutLabels = ["Served", "Don't like free coffee"];
+  //.data = [80, 20];
 });
       

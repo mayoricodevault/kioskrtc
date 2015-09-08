@@ -1,4 +1,4 @@
-xively.controller('baristaController', ['$scope','$location','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', 'SessionsService','SubscriptionFactory', function ($scope, $location,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, SessionsService, SubscriptionFactory) {
+xively.controller('baristaController', ['$scope','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', 'SessionsService','SubscriptionFactory', function ($scope,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, SessionsService, SubscriptionFactory) {
     
     $scope.currentPerson;
     $scope.currentIndex;
@@ -8,14 +8,19 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
     $scope.totalOrdersActive = 0;
     $scope.currentfavcoffee;
     $scope.baristaTagID;
+    $scope.isFavorite=false;
     
+    $scope.$watch('isFavorite',function(){
+        localStorageService.set('isFavorite',$scope.isFavorite);
+    },true);
+
     Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbBind");
     $scope.$watch('fbBind', function() {
         refreshFb();
     });    
     
     var currentPersonOld=localStorageService.get('currentPerson');
-    $scope.currentPerson=currentPersonOld || [];
+    $scope.currentPerson=currentPersonOld;
     
     var currentIndexOld=localStorageService.get('currentIndex');
     $scope.currentIndex=currentIndexOld || 0;
@@ -25,7 +30,6 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
     
     $scope.$watch('currentPerson',function(){
         if($scope.currentPerson){
-            console.log($scope.currentPerson);
             $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.getPlace($scope.currentPerson))
         	.success(function(data){
         		$scope.weather=data.query.results.channel;
@@ -39,21 +43,15 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
     },true);
 
     $scope.served=function(){
-        var people=$scope.currentPerson;
-		people.zonefrom = LSFactory.getSessionId();
-		OrdersService.updateOrderStatus(people, 0);
-        $scope.orders.sort(compare);
-        for(var i=0;i<$scope.orders.length;i++){
-            $scope.currentIndex=i;
-            $scope.currentPerson=$scope.orders[i];
-            if($scope.orders[i].active==1 && $scope.orders[i].masterId==$scope.baristaTagID)
-                break;
-        }
-        $scope.totalOrdersActive--;
+        var person=$scope.currentPerson;
+        $scope.currentPerson=undefined;
+		person.zonefrom = LSFactory.getSessionId();
+		OrdersService.updateOrderStatus(person, 0);
+		Socket.emit("served", person);
+		
     };
     
-    $scope.isActiveOrder=function(active)
-    {
+    $scope.isActiveOrder=function(active){
         if(active==1)
             return true;
         return false;
@@ -66,6 +64,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
  	    return false;
  	};
     
+    $scope.userSearch={'name':''};  
     $scope.active=function(person,index) {
          $scope.currentPerson=person;
          $scope.currentIndex=index;
@@ -77,29 +76,28 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
    
 	
 	function refreshFb(){
-	    var total = 0;
 	    $scope.totalOrdersActive=0;
 		$scope.orders = [];
 		angular.forEach($scope.fbBind, function(order){
 			if (!order || !order.name) {
 				return;
 			}
-	        $scope.orders.push(order);
 	        if (order.active==1 && order.masterId==$scope.baristaTagID) {
+	            $scope.orders.push(order);
 	            $scope.totalOrdersActive++;
 	        }
-        	total++;
 		}); 
-		$scope.totalOrders = total;
 		$scope.orders.sort(compare);
-		if($scope.totalOrdersActive==1 ){
-		    for(var i=0;i<$scope.totalOrders;i++){
+		if($scope.currentPerson==undefined){
+		    for(var i=0;i<$scope.totalOrdersActive;i++){
 		        if($scope.orders[i].active==1 && $scope.orders[i].masterId==$scope.baristaTagID){
 		            $scope.currentIndex=i;
 		            $scope.currentPerson=$scope.orders[i];
+		            break;
 		        }
 		    }
 		}
+		    
 	}
     $scope.coffee= function(coffee){
    
@@ -118,10 +116,8 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
     };
     
     Socket.on('ping', function(data){
-        console.log(data);
         var socketid = LSFactory.getSocketId();
         if (LSFactory.getSessionId() === data.sessionid) {
-            console.log(data);
             SessionsService.updateSessionStatus(socketid, data.ts, data.isdeleted);
         } else {
             if (data.sessionid=="All") {
@@ -177,5 +173,7 @@ xively.controller('baristaController', ['$scope','$location','localStorageServic
          $scope.place ={"city":person.city,"state":person.state};
          return $scope.place;
     };
-    
+    $scope.Favorite = function(){
+        $scope.isFavorite=true;
+    };
 }]);

@@ -78,15 +78,9 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
       $scope.people.shift();
     }
     
-    // Socket.on('register', function(data){
-    //     sharedProperties.setPerson(data);
-    //     storeService.jsonWrite('paneSelected',{id:'1'});
-    //     $location.path('/kiosk/select'); 
-    // });
-    
     $scope.redirectSplash=function(){
          $timeout(function() {
-        location.reload();
+        location.reload();  
          $location.path('/splash'); 
          
         }, 5000);

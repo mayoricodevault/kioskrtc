@@ -1,9 +1,15 @@
-xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL){
+xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL', 'Messages', 'FIREBASE_URI_MSGS', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL, Messages, FIREBASE_URI_MSGS){
     // 
     var outwidget=[];
     var visited=[false,false,false,false,false,false,false,false];
     var nWidgets=6;
     var totalWidgets = 8;
+    
+    Messages(FIREBASE_URI_MSGS).$bindTo($scope, "fbMBind");
+    $scope.$watch('fbMBind', function() {
+        refreshFbM();
+    });    
+    
     function makeArrayOf(value, length) {
         var arr = [], i = length;
         while (i--) {

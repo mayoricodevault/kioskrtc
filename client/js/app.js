@@ -13,6 +13,13 @@ var xively = angular.module('xively', ['ng.deviceDetector',
     'ngToast',
     'luegg.directives'
     ])
+    .config(['ngToastProvider', function(ngToast) {
+    ngToast.configure({
+      verticalPosition: 'top',
+      horizontalPosition: 'center',
+      maxNumber: 1
+    });
+    }])
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider){
         
         //typical routes... when someone navigates to a given directory, load the partial, and use the controller
@@ -54,6 +61,7 @@ var xively = angular.module('xively', ['ng.deviceDetector',
         });
         $routeProvider.when('/welcome', {
             templateUrl: '/partials/welcome/welcome.html', 
+            controller: 'welcomeController',
             resolve: {authenticate: authenticate} 
             
         });
@@ -130,6 +138,7 @@ var xively = angular.module('xively', ['ng.deviceDetector',
    
     .constant('FIREBASE_URI', 'https://kxively.firebaseio.com/people')
     .constant('FIREBASE_URI_ORDERS', 'https://kxively.firebaseio.com/orders')
+    .constant('FIREBASE_URI_MSGS', 'https://kxively.firebaseio.com/messages')
     .constant('FIREBASE_URI_ROOT', 'https://kxively.firebaseio.com')
     .constant("API_URL", 'https://kiosk-mmayorivera.c9.io');
     

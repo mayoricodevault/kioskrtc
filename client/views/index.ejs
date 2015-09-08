@@ -39,10 +39,19 @@
     <link rel="stylesheet" href="libs/ngtoast/dist/ngToast.min.css"/>
     <link rel="stylesheet" href="libs/angular-chart.js/angular-chart.css" />
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link href="../css/welcome.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript">
+  function preventBack() { window.history.forward(); }
+  setTimeout("preventBack()", 0);
+  window.onunload = function() { null };
+</script>
+
 
   </head>
 
-  <body ng-cloak>
+<body ng-cloak onpageshow="if (event.persisted) noBack();">
+
     <div ng-model="snap" style="display:none;"></div>
     <div class="container-fluid" >
       <!-- Main component for a primary marketing message or call to action -->
@@ -80,6 +89,7 @@
      <script src="https://cdn.rawgit.com/Luegg/angularjs-scroll-glue/master/src/scrollglue.js"></script>
      <!-- Install library chart-->
     <script src="libs/chartjs/Chart.js"></script>
+     <script src="libs/Chart.HorizontalBar.js/Chart.HorizontalBar.js"></script>
     <script type="text/javascript" src="libs/angular-chart.js/angular-chart.js"></script>
         <!--Odometer-->
     <script type="text/javascript" src="libs/odometer/odometer.js"></script>
@@ -101,6 +111,7 @@
     <script type="text/javascript" src="js/services/SessionsService.js"></script>
     <script type="text/javascript" src="js/services/OrdersService.js"></script>
     <script type="text/javascript" src="js/services/Orders.js"></script>
+    <script type="text/javascript" src="js/services/Messages.js"></script>
     <script type="text/javascript" src="js/services/storeService.js"></script>
     <script type="text/javascript" src="js/services/sharedProperties.js"></script>    
     <script type="text/javascript" src="js/services/LSFactory.js"></script>
@@ -123,11 +134,15 @@
     <script type="text/javascript" src="js/controllers/dashboard/wi4Controller.js"></script>
     <script type="text/javascript" src="js/controllers/dashboard/wi5Controller.js"></script>
     <script type="text/javascript" src="js/controllers/dashboard/doughnutCtrl.js"></script>
+    
+    <script type="text/javascript" src="js/controllers/welcome/welcomeController.js"></script>
 
     <!--Tools-->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
     
     <script src="https://cdn.rawgit.com/Luegg/angularjs-scroll-glue/master/src/scrollglue.js"></script>
+
+
 
   </body>
 </html>

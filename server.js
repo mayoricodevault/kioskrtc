@@ -38,7 +38,7 @@ io.on('connection', function(socket) {
   numberofusers = io.sockets.server.eio.clientsCount;
   console.log("Number of Users : " + numberofusers);
   console.log("A Device has Connected!" + socket.id);
-  // console.log(io.sockets.connected)
+
   socket.on('snap', function(data){
       var binaryData = new Buffer(data.binaryData, 'base64').toString('binary');
       fs.writeFile("./public/"+data.snapname+ "-out.png", binaryData, "binary", function(err) {
@@ -53,18 +53,32 @@ io.on('connection', function(socket) {
            }) ;
    });
    
-   
+  socket.on("served", function(data) {
+    requestify.request(configDB.url_controller+"/xively", {
+      method: 'POST',
+      body: data,
+      headers : {
+              'Content-Type': 'application/json'
+      },
+      dataType: 'json'        
+      }).then(function(response) {
+      });
+  });
   
   socket.on('subscribed', function(data){
-      console.log("---> Subscribed");
-      console.log(data);
-      console.log("---> end Subscribed");
-      //Todo: Send Message to Admin
+      requestify.request(configDB.url_controller+"/xively", {
+        method: 'POST',
+        body: data,
+        headers : {
+                'Content-Type': 'application/json'
+        },
+        dataType: 'json'        
+      }).then(function(response) {
+      });
   });
   
   socket.on('disconnect', function(data){
     console.log(data + ' has Disconnected!');
-    io.emit('remove-device', {devicename: devicename});
   });
 });
 
@@ -86,7 +100,6 @@ app.post("/weather", function(request, response) {
 });
 
 app.post("/dashboard", function(request, response) {
-  console.log(request);
   var totals = request.body;
   if(_.isUndefined(totals) || _.isEmpty(totals)) {
     return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
@@ -100,6 +113,74 @@ app.post("/dashboard", function(request, response) {
   io.sockets.emit('dashboard', totals);
   
 });
+
+app.post("/welcome", function(request, response) {
+  console.log(request);
+  var people = request.body;
+  if(_.isUndefined(people) || _.isEmpty(people)) {
+    return response.status(400).json({error: "Invalid People Card"});
+  }
+  if(_.isUndefined(people.name) || _.isEmpty(people.name)) {
+    return response.status(400).json({error: "Name is invalid"});
+  }
+  if(_.isUndefined(people.email) || _.isEmpty(people.email)){
+    return response.status(400).json( {error: "Email Must be defined"});
+  }
+  if(_.isUndefined(people.favcoffee) || _.isEmpty(people.favcoffee)) {
+    return response.status(400).json( {error: "Favorite Must be defined"});
+  }
+  if(_.isUndefined(people.zipcode) || _.isEmpty(people.zipcode)) {
+    return response.status(400).json( {error: "Zip Code Must be defined"});
+  }
+  if(_.isUndefined(people.zonefrom) || _.isEmpty(people.zonefrom)) {
+    return response.status(400).json( {error: "Zone Must be defined"});
+  }
+  if(_.isUndefined(people.zoneto) || _.isEmpty(people.zoneto)) {
+    return response.status(400).json({error: "Zone Must be defined"});
+  }
+  if(_.isUndefined(people.companyname) || _.isEmpty(people.companyname) ){
+    return response.status(400).json({error: "Company Must be defined"});
+  }
+  
+  if (people.zonefrom == 'IoT') {
+    var fSession = appfire.child('sessions/'+people.zoneto);
+    fSession
+      .once('value', function(snap) {
+        if(snap.val()) {
+            var fSess = snap.val();
+            //people.zoneto = fSess.tagId;  // Todo : Please Do not touch
+        } else {
+           response.status(400).json({results: "Socket id Session Not Found.. Rejected"});
+        }
+      });
+  }
+  
+  var activePeople = appfire.child('people/'+replaceAll(people.email));
+  activePeople
+    .once('value', function(snap) {
+      if(snap.val()) {
+         io.sockets.emit('welcome', people);
+       }
+  });
+  
+  people.dt =  moment().format();
+  requestify.request(configDB.url_controller+"/xively", {
+      method: 'POST',
+      body: people,
+      headers : {
+              'Content-Type': 'application/json'
+      },
+      dataType: 'json'        
+      }).then(function(response) {
+          // Get the response body
+          console.log(response);
+      });
+  // TODO:  Send to Server
+  response.status(200).json({results: "Message Send it"});
+  
+
+});
+
 
 app.post("/xively", function(request, response) {
   console.log(request);
@@ -170,9 +251,6 @@ app.post("/xively", function(request, response) {
   
 
 });
-/*
- ************************ ADD NEW ORDER
- */
 app.post("/add-order", function (req, res) {
   var order = req.body.people;
   var activeOrder = appfire.child('orders/'+ replaceAll(order.email));
@@ -198,8 +276,6 @@ app.post("/add-order", function (req, res) {
   });
   res.status(200).json({results: "People Added Successfully"});
 });
-
-// ************************ End Order
 app.post("/sync", function(request, response) {
   var sync = request.body;
   if(_.isUndefined(sync) || _.isEmpty(sync)) {
