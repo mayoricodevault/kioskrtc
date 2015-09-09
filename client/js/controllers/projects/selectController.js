@@ -217,6 +217,9 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     };
     
     
+        var $body = $('body');
+    $("body").css({"background-color": "yellow"});
+    
     /*
      *************************
      *  click Order
