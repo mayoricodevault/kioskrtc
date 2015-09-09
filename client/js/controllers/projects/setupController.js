@@ -34,7 +34,9 @@ xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'S
          	if (typeLower==="dashboard") {
          	    	$window.location.href = API_URL+"/dashboard";
          	}
-			
+			if (typeLower==="welcome") {
+         	    	$window.location.href = API_URL+"/welcome";
+         	}
 		}, subsError);
 	};
 	function subsError(response) {

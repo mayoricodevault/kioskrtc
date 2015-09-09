@@ -1,4 +1,4 @@
-xively.controller('thankyouController', ['$scope', 'Socket','localStorageService','sharedProperties','$location','storeService','$timeout','LSFactory','SessionsService', 'Orders', 'FIREBASE_URI_ORDERS' ,function($scope, Socket,localStorageService,sharedProperties, $location,storeService,$timeout, LSFactory, SessionsService,Orders, FIREBASE_URI_ORDERS){
+xively.controller('thankyouController', ['$scope', 'Socket','localStorageService','sharedProperties','$location','storeService','$timeout','LSFactory','SessionsService', 'Orders', 'FIREBASE_URI_ORDERS','$route' ,function($scope, Socket,localStorageService,sharedProperties, $location,storeService,$timeout, LSFactory, SessionsService,Orders, FIREBASE_URI_ORDERS,$route){
     
     
     $scope.currentPerson;
@@ -80,10 +80,17 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
     
     $scope.redirectSplash=function(){
          $timeout(function() {
-        location.reload();  
-         $location.path('/splash'); 
-         
-        }, 5000);
+             
+        
+        $timeout(function() {
+        location.reload();    
+        },500);
+        $location.path("/splash");
+        }, 15000);
+        
+        
+        
+        
     };
     
     function compare(a,b) {

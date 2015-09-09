@@ -1,7 +1,16 @@
 body{
-    background:url("../images/coffee-bar-bg4.jpg") no-repeat fixed center!important;
+    background:url("../images/coffee-bar-bg4-1600.jpg") no-repeat fixed center;
     -webkit-background-size: cover!important;
     -moz-background-size: cover!important;
     -o-background-size: cover!important;
     background-size: cover!important;
+}
+@media (max-width: 1024px){
+    body{
+    background:url("../images/coffee-bar-bg4.jpg") no-repeat fixed center;
+    -webkit-background-size: cover!important;
+    -moz-background-size: cover!important;
+    -o-background-size: cover!important;
+    background-size: cover!important;
+}
 }

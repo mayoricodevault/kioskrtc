@@ -1,12 +1,22 @@
-xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localStorageService','$location','sharedProperties','storeService', 'SubscriptionFactory', 'LSFactory' , '$window', 'API_URL', 'SessionsService',function($scope, $rootScope, Socket,localStorageService, $location,sharedProperties,storeService, SubscriptionFactory, LSFactory,$window, API_URL, SessionsService){
+xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localStorageService','$location','sharedProperties','storeService', 'SubscriptionFactory', 'LSFactory' , '$window', 'API_URL', 'SessionsService','OrdersService',function($scope, $rootScope, Socket,localStorageService, $location,sharedProperties,storeService, SubscriptionFactory, LSFactory,$window, API_URL, SessionsService,OrdersService){
     $scope.base64 = '';
     storeService.jsonWrite('paneSelected',{id:'2'});
     Socket.on('register', function(data){
 
         if (SubscriptionFactory.isStation(data.zoneto)) {
            sharedProperties.setPerson(data);
-           storeService.jsonWrite('paneSelected',{id:'1'});
+           var orders=[];
+           orders=OrdersService.getOrdersArray();   
+           if(getOrderCoffee(orders,data)){
+                 storeService.jsonWrite('paneSelected',{id:'3'});
+           }
+               
+            else
+            {
+             storeService.jsonWrite('paneSelected',{id:'1'});
+            }
            $location.path('/kiosk/select'); 
+           
         }
     });
     
@@ -57,4 +67,18 @@ xively.controller('splashController', ['$scope', '$rootScope', 'Socket','localSt
     function subsError(response) {
         console.log("Error");
     }
+    
+        
+     function getOrderCoffee(orders,obj) {
+    	    var isOrder=false;
+    		orders.forEach(function (order) {
+    		   var active = parseInt(order.active);
+    		
+    			if (order.email === obj.email && active === 1) {
+    			   isOrder=true;
+    			}
+    		});
+    		return isOrder;
+        } // end function 
+    
 }])

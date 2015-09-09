@@ -18,10 +18,10 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     
     $scope.$watch('currentPerson',function(){
         if($scope.currentPerson){
-            
             $scope.favcoffee=$scope.currentPerson.favcoffee;
             $scope.coffee($scope.favcoffee);
-            
+            if($scope.paneSelected===3)
+            $scope.menuBar();
             $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.getPlace($scope.currentPerson))
             .success(function(data){
             	$scope.weather=data.query.results.channel;
@@ -161,6 +161,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     
         //**find orders or putting favorite coffee
         
+        
         var favorite = {Espresso:1, Cappuccino:2, Americano:3,
                         Regular_Coffee:4, Decaf_Coffee:5, Tea:6};
                         
@@ -215,7 +216,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.blacks = true; 
     };
     
-
+    
     /*
      *************************
      *  click Order

@@ -66,6 +66,12 @@ body {
     border-bottom: 2px solid #E8DF6B;
     border-top: 2px solid #E8DF6B;
 	}
+.redactive{
+	color: #4e4e4e;
+    background-color: rgba(240,78,58,0.2);
+    border-bottom: 2px solid #F7A29C;
+    border-top: 2px solid #F7A29C;
+	}
 /* Sidebar navigation */
 
 .nav-sidebar {
@@ -77,6 +83,8 @@ body {
 .nav-sidebar > li > a {
   padding-right: 20px;
   padding-left: 20px;
+   padding-top: 3px;
+  padding-bottom: 3px;
   color: #4e4e4e;
     border-bottom: 2px solid transparent;
     border-top: 2px solid transparent;

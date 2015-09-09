@@ -1,5 +1,5 @@
 body{
-    background:url("../images/welcome.jpg") no-repeat fixed center!important;
+    background:url("../images/welcome-1600.jpg") no-repeat fixed center!important;
     -webkit-background-size: cover!important;
     -moz-background-size: cover!important;
     -o-background-size: cover!important;
@@ -17,8 +17,8 @@ body{
   
  }
 .hello-circle-lg{
-    width: 460px;
-    height: 460px;  
+    width: 450px;
+    height: 450px;  
     margin: auto;   
  }
 .hello-circle-md{
@@ -47,13 +47,25 @@ body{
     margin: auto;
     text-align: center;
  }
-.hello-circle p {
-    font-size: 35px;
-    line-height: 14px;
+.row-circle-sm{
+    display: inline-block;
+    padding: 78px 15px;
+    display: inherit;
+    margin: auto;
+    text-align: center;
+ }
+.hello-circleText-lg{
+    font-size: 38px;
+    line-height: 33px;
 }
-.hello-circle-md p {
-    font-size: 25px;
-    line-height: 14px;
+.hello-circleText-md{
+    font-size: 30px;
+    line-height: 27px;
+}
+
+.hello-circleText-sm{
+    font-size: 26px;
+    line-height: 24px;
 }
 
 .show{
@@ -61,4 +73,23 @@ body{
 }
 .hide{
     display:'none';
+}
+
+.messagebox-sm{
+    margin-top: 15px;
+}
+.messagebox-md{
+    margin-top: 20px;
+}
+.messagebox-lg{
+    margin-top: 25px;
+}
+@media (max-width: 1025px){
+    body{
+    background:url("../images/welcome.jpg") no-repeat fixed center!important;
+    -webkit-background-size: cover!important;
+    -moz-background-size: cover!important;
+    -o-background-size: cover!important;
+    background-size: cover!important;
+}
 }

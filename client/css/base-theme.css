@@ -10,7 +10,16 @@ body {
 	margin-bottom: 0;
 }
 body{
-    background:#f6f6f6 url("../images/coffee-bar-bg.jpg") fixed center no-repeat;
+    background-color:#F5F5F5;
+    background:#f6f6f6 url("../images/coffee-bar-bg-1600.jpg") fixed center no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+body1{
+    background-color:#F5F5F5;
+    background:#f6f6f6 url("../images/coffee-bar-bg-1600.jpg");
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -48,9 +57,12 @@ z-index:1;
   text-transform:uppercase;
 }
 .top-bar{
-      position: relative;
-    top: 60px;
-        margin-bottom: 50px;
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-top: 50px;
+    margin-left: 20px;
+    margin-bottom: 10px;
 }
 /* #Site Styles
 ================================================== */
@@ -222,7 +234,7 @@ z-index:1;
 }
 .dropdown-box{
     width: auto;
-    margin: auto;
+    margin: -110px auto auto auto;
 }
 .dropdown-menu {
   right:0;
@@ -241,10 +253,12 @@ z-index:1;
 .input-box:focus {
   border-left: 1px solid transparent;
 }
-
+.circle-panel{
+      margin-top: -172px!important
+}
 .circle {
-    width: 450px;
-    height: 450px;
+    width: 430px;
+    height: 430px;
     padding: 60px 10px;
     vertical-align: middle;
     color: #fff;
@@ -325,9 +339,21 @@ z-index:1;
     color:#4e4e4e;
     outline:0;
 }
+.margin-box-top{
+  margin-top: -202px;
+}
 /* #NavBar Header
 ================================================== */
-
+.logo{
+  position:absolute;
+  bottom:0;
+  right:0;
+  margin-bottom:30px;
+  margin-right:30px;
+}
+.x15-img{
+  width:50px;
+}
 .navbar ul.log-out{
   margin:0;
 }
@@ -384,7 +410,7 @@ z-index:1;
 	
 .user p {
     font-family:"ProximaNovaBold";
-    font-size: 27px;
+    font-size: 0.8em;
     margin: 0;
     color: #848484;
     position: relative;
@@ -397,7 +423,7 @@ z-index:1;
 
 	}
 .h4, h4 {
-    font-size: 1.5em;
+    font-size: 1.2em;
 }
 .chart-box img{
 	margin-top:10px;
@@ -465,12 +491,16 @@ margin-top:20px;
       width: 250px;
     margin: auto;
 }
+.panel-align{
+ width: 70%;
+    margin: auto;
+}
 .menu-panel {
     position: relative;
     overflow: hidden;
-    padding: 25px 20px;
+    padding: 15px 20px;
     margin-bottom: 10px;
-	height: 222px;
+	/*height: 222px;*/
     color: #fff;
 }
 .icon-beverage{
@@ -652,14 +682,14 @@ iframe{
 
 .btn{
     font-family: "ProximaNovaRegular";
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    text-transform:initial;
+    text-transform: initial;
     line-height: 1;
-    padding: 10px 35px;
+    padding: 12px 55px!important;
     -webkit-transition: all 0.2s ease-in-out;
     transition: all 0.2s ease-in-out;
-    cursor:pointer;
+    cursor: pointer;
     border-radius: 4px;
 }
 
@@ -877,7 +907,7 @@ color:#42210B!important;
 .flipcard {
   position: relative;
   /*width: 220px;*/
-  height: 215px;
+  height: 35%;
   perspective: 500px;
 }
 .flipcard.v:hover .front, .flipcard.v.flip .front{
@@ -1049,7 +1079,19 @@ color:#42210B!important;
 .font-lg{
 	font-size:5.5em!important;
 	}
-	}
+	
+
+ body{
+    background:url("../images/coffee-bar-bg.jpg") no-repeat fixed center!important;
+    -webkit-background-size: cover!important;
+    -moz-background-size: cover!important;
+    -o-background-size: cover!important;
+    background-size: cover!important;
+    }
+
+  
+}
+	
 .margin-bottom {
     margin-bottom:15px;
 }

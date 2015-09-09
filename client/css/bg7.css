@@ -1,14 +1,13 @@
 body{
-    background:url("../images/coffee-bar-bg2-1600.jpg") no-repeat fixed center!important;
+    background:url("../images/coffee-bar-bg7bar-1600.jpg") no-repeat fixed center;
     -webkit-background-size: cover!important;
     -moz-background-size: cover!important;
     -o-background-size: cover!important;
     background-size: cover!important;
 }
-
-@media (max-width: 1025px){
+@media (max-width: 1024px){
     body{
-    background:url("../images/coffee-bar-bg2.jpg") no-repeat fixed center!important;
+    background:url("../images/coffee-bar-bg7bar.jpg") no-repeat fixed center!important;
     -webkit-background-size: cover!important;
     -moz-background-size: cover!important;
     -o-background-size: cover!important;

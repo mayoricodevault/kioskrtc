@@ -1,8 +1,24 @@
 
+
+body{
+    background:url("../images/coffee-bar-bg-1600.jpg") no-repeat fixed center!important;
+    -webkit-background-size: cover!important;
+    -moz-background-size: cover!important;
+    -o-background-size: cover!important;
+    background-size: cover!important;
+}
+
 .btn-green {
     background: #26a79d;
     border: #26a79d;
     color:#fff!important;
+}
+.splash-logo{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    margin-bottom:100px;
 }
 .site-wrapper {
     display: table;
@@ -29,9 +45,26 @@
     margin-top: 5px;
     margin-bottom: 30px;
 }
-p{
- font-size:16px;
+.splash-img{
+    width:646px;
 }
-@media (max-width: 768px) {
-
+p{
+ font-size:62px;
+  margin-top: -78px;
+}
+@media (max-width: 1025px){
+    body{
+    background:url("../images/coffee-bar-bg.jpg") no-repeat fixed center!important;
+    -webkit-background-size: cover!important;
+    -moz-background-size: cover!important;
+    -o-background-size: cover!important;
+    background-size: cover!important;
+}
+.splash-img{
+    width:300px;
+}
+p{
+ font-size:36px;
+  margin-top: -78px;
+}
 }

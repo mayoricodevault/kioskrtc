@@ -6,7 +6,7 @@ var _ = require("underscore");
 var io = require('socket.io')(http);
 var path = require('path');
 var jwt = require('jsonwebtoken');
-var port = process.env.PORT || 3001;
+var port = process.env.PORT || 3010;
 var jwtSecret = 'asesam0/3uk';
 var session = require("express-session")({secret: jwtSecret,resave: true,saveUninitialized: true});
 var sharedsession = require("express-socket.io-session");
@@ -115,33 +115,10 @@ app.post("/dashboard", function(request, response) {
 });
 
 app.post("/welcome", function(request, response) {
-  console.log(request);
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.status(400).json({error: "Invalid People Card"});
   }
-  if(_.isUndefined(people.name) || _.isEmpty(people.name)) {
-    return response.status(400).json({error: "Name is invalid"});
-  }
-  if(_.isUndefined(people.email) || _.isEmpty(people.email)){
-    return response.status(400).json( {error: "Email Must be defined"});
-  }
-  if(_.isUndefined(people.favcoffee) || _.isEmpty(people.favcoffee)) {
-    return response.status(400).json( {error: "Favorite Must be defined"});
-  }
-  if(_.isUndefined(people.zipcode) || _.isEmpty(people.zipcode)) {
-    return response.status(400).json( {error: "Zip Code Must be defined"});
-  }
-  if(_.isUndefined(people.zonefrom) || _.isEmpty(people.zonefrom)) {
-    return response.status(400).json( {error: "Zone Must be defined"});
-  }
-  if(_.isUndefined(people.zoneto) || _.isEmpty(people.zoneto)) {
-    return response.status(400).json({error: "Zone Must be defined"});
-  }
-  if(_.isUndefined(people.companyname) || _.isEmpty(people.companyname) ){
-    return response.status(400).json({error: "Company Must be defined"});
-  }
-  
   if (people.zonefrom == 'IoT') {
     var fSession = appfire.child('sessions/'+people.zoneto);
     fSession
@@ -154,15 +131,16 @@ app.post("/welcome", function(request, response) {
         }
       });
   }
+  // var activePeople = appfire.child('people/'+replaceAll(people.email));
+  // activePeople
+  //   .once('value', function(snap) {
+  //     if(snap.val()) {
+  //       io.sockets.emit('welcome', people);
+  //     }
+  // });
   
-  var activePeople = appfire.child('people/'+replaceAll(people.email));
-  activePeople
-    .once('value', function(snap) {
-      if(snap.val()) {
-         io.sockets.emit('welcome', people);
-       }
-  });
-  
+  io.sockets.emit('welcome', people);
+
   people.dt =  moment().format();
   requestify.request(configDB.url_controller+"/xively", {
       method: 'POST',
@@ -175,7 +153,7 @@ app.post("/welcome", function(request, response) {
           // Get the response body
           console.log(response);
       });
-  // TODO:  Send to Server
+  // // TODO:  Send to Server
   response.status(200).json({results: "Message Send it"});
   
 
@@ -183,7 +161,6 @@ app.post("/welcome", function(request, response) {
 
 
 app.post("/xively", function(request, response) {
-  console.log(request);
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.status(400).json({error: "Invalid People Card"});
@@ -196,9 +173,6 @@ app.post("/xively", function(request, response) {
   }
   if(_.isUndefined(people.favcoffee) || _.isEmpty(people.favcoffee)) {
     return response.status(400).json( {error: "Favorite Must be defined"});
-  }
-  if(_.isUndefined(people.zipcode) || _.isEmpty(people.zipcode)) {
-    return response.status(400).json( {error: "Zip Code Must be defined"});
   }
   if(_.isUndefined(people.zonefrom) || _.isEmpty(people.zonefrom)) {
     return response.status(400).json( {error: "Zone Must be defined"});
@@ -261,7 +235,6 @@ app.post("/add-order", function (req, res) {
          obj.email = order.email;
          obj.favcoffee = order.favcoffee;
          obj.name = order.name;
-         obj.zipcode = order.zipcode;
          obj.zonefrom = order.zonefrom;
          obj.zoneto = order.zoneto;
          obj.active = order.active;

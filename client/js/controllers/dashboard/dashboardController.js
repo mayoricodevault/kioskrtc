@@ -1,10 +1,13 @@
 xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL','Messages', 'FIREBASE_URI_MSGS', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL,  Messages, FIREBASE_URI_MSGS){
+    $scope.doughnutData = [45,85];
     // 
     var outwidget=[];
     $scope.msgs = [];
     var visited=[false,false,false,false,false,false,false,false];
     var nWidgets=6;
     var totalWidgets = 8;
+    //$scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
+    //$scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
     
     Messages(FIREBASE_URI_MSGS).$bindTo($scope, "fbMBind");
     $scope.$watch('fbMBind', function() {
@@ -214,6 +217,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     Socket.on('dashboard', function(data) {
       //  var Json = {"onzas":24616, "drinksServed":{"esp":34,"amer":20,"reg":44,"dcaf":6,"cap":24,"tea":18},
       // "regions":{"west":21,"midwest":5,"neMidAtlantic":6,"neNewEngland":60,"sWestSouthCentral":6,"sSouthAtlanticESCentral":2}};
+      //console.log(data);
         $scope.drinksServed.amer = data.drinksServed.amer;
         $scope.drinksServed.cap = data.drinksServed.cap;
         $scope.drinksServed.dcaf = data.drinksServed.dcaf;
@@ -235,12 +239,13 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         $scope.state5 = $scope.regions.reg5;
         $scope.state6 = $scope.regions.reg6
         
-        // Cambiar data.regions.regX por data.stations.stationX
-        $scope.station1 = $scope.regions.reg1;
-        $scope.station2 = $scope.regions.reg2;
-        $scope.station3 = $scope.regions.reg3;
+        // Stations
+        $scope.station1 = data.stations.station1;
+        $scope.station2 = data.stations.station2;
+        $scope.station3 = data.stations.station3;
         
         $scope.onzas = numberWithCommas(data.onzas);
+        $scope.totVisitors = data.totVisitors;
         $scope.totalDrinksServed = numberWithCommas($scope.regions.reg1+
                                     $scope.regions.reg2+
                                     $scope.regions.reg3+
@@ -271,10 +276,25 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightStroke: 'rgba(47, 132, 71, 0.8)',
             tooltipFillColor:'rgba(255, 72, 51, 0.8)'
         }];
+        $scope.colorsdoghnut = [{
+            fillColor: 'rgba(255, 72, 51, 0.8)',
+            strokeColor: 'rgba(255, 72, 51, 0.8)',
+            highlightFill: 'rgba(47, 132, 71, 0.8)',
+            highlightStroke: 'rgba(47, 132, 71, 0.8)',
+            tooltipFillColor:'rgba(255, 72, 51, 0.8)'
+        },{
+            fillColor: 'rgba(194, 194, 194, 0.8)',
+            strokeColor: 'rgba(194, 194, 194, 0.8)',
+            highlightFill: 'rgba(194, 194, 194, 0.8)',
+            highlightStroke: 'rgba(194, 194, 194, 0.8)',
+            tooltipFillColor:'rgba(194, 194, 194, 0.9)'
+        }];
         // Doughnut chart
-        $scope.doughnutData = [$scope.totalCoffeeServed,$scope.drinksServed.tea];
-        $scope.doughnutPercent = Math.floor($scope.totalCoffeeServed*100/($scope.totalCoffeeServed+$scope.drinksServed.tea));
-        
+        $scope.doughnutData = [$scope.totalCoffeeServed,$scope.totVisitors-$scope.totalCoffeeServed];
+        $scope.doughnutPercent = Math.floor($scope.totalCoffeeServed*100/($scope.totVisitors));
+        // Sum Drinks
+        $scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
+                         $scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
     });
     
     Socket.on('ping', function(data){
@@ -364,7 +384,10 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                     (dNow == dMsg) && (dateNow < dateMsg)) {
                     $scope.msgStart = $scope.msgs[msgIndexActual].start;
                     $scope.msgEnd = $scope.msgs[msgIndexActual].end;
-                    $scope.msgText = $scope.msgs[msgIndexActual].text;
+                    if ($scope.msgs[msgIndexActual].text.length>=240)
+                        $scope.msgText = $scope.msgs[msgIndexActual].text;
+                    else
+                        $scope.msgText = $scope.msgs[msgIndexActual].text.substr(0,240)+"...";
                     $scope.msgExpositor = $scope.msgs[msgIndexActual].expositor;
                 }
                 msgIndexActual++;
@@ -402,7 +425,10 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 var dMsg = new Date($scope.msgs[msgOtherIndexActual].end).getDay();
                 if (($scope.msgs[msgOtherIndexActual].expositor.toLowerCase() == "xively") && 
                     (dNow == dMsg) && (dateNow < dateMsg)) {
-                    $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text;
+                    if ($scope.msgs[msgOtherIndexActual].text.length<=115)
+                        $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text;
+                    else
+                        $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text.substr(0,115)+"...";
                 }
                 msgOtherIndexActual++;
                 if (msgOtherIndexActual>=$scope.msgs.length) {
