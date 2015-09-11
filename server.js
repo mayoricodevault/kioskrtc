@@ -30,7 +30,6 @@ app.use(express.static(path.resolve(__dirname, 'client')));
 io.use(sharedsession(session));
 io.set('heartbeat timeout',10000);
 io.set('heartbeat interval',9000);
-var devices = [];
 var numberofusers = 0;
 //Socket io Events Handling
 io.on('connection', function(socket) {
@@ -161,7 +160,9 @@ app.post("/welcome", function(request, response) {
 
 
 app.post("/xively", function(request, response) {
+  
   var people = request.body;
+  console.log(people);
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.status(400).json({error: "Invalid People Card"});
   }
@@ -247,7 +248,7 @@ app.post("/add-order", function (req, res) {
        //} 
        io.emit("served", order);
   });
-  res.status(200).json({results: "People Added Successfully"});
+  res.status(200).json({results: "People Served Successfully"});
 });
 app.post("/sync", function(request, response) {
   var sync = request.body;

@@ -27,6 +27,8 @@ xively.factory('SubscriptionFactory', ['$http', 'API_URL', 'AuthTokenFactory', '
             LSFactory.setData('deviceDetected', deviceDetected);
             LSFactory.setData('masterid', masterid);
             return response;
+      }, function(response){
+          return response;
       });
     }
     function unsubscribe(socketid) {

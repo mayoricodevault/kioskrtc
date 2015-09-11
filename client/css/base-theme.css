@@ -47,7 +47,9 @@ html{
     -webkit-transform: rotate(7deg); /* Chrome, Safari, Opera */
     transform: rotate(7deg);
 	}
-
+.top-buffer-big{
+  margin-top:60px;
+}
 .alert {
 position: relative;
 width: 100%;
@@ -932,7 +934,7 @@ color:#42210B!important;
 .flipcard .front, .flipcard .back
 {
   position:absolute;
-  width: 100%;
+  width: 80%;
   height: 100%;
   box-sizing: border-box;
   transition: all 0.5s ease-in;

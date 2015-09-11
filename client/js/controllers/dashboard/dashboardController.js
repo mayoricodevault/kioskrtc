@@ -1,5 +1,21 @@
 xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL','Messages', 'FIREBASE_URI_MSGS', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL,  Messages, FIREBASE_URI_MSGS){
-    $scope.doughnutData = [45,85];
+    // Doughnut chart
+    $scope.colorsdoghnut = [{
+            fillColor: 'rgba(255, 72, 51, 0.8)',
+            strokeColor: 'rgba(255, 72, 51, 0.8)',
+            highlightFill: 'rgba(47, 132, 71, 0.8)',
+            highlightStroke: 'rgba(47, 132, 71, 0.8)',
+            tooltipFillColor:'rgba(255, 72, 51, 0.8)'
+        },{
+            fillColor: 'rgba(194, 194, 194, 0.8)',
+            strokeColor: 'rgba(194, 194, 194, 0.8)',
+            highlightFill: 'rgba(194, 194, 194, 0.8)',
+            highlightStroke: 'rgba(194, 194, 194, 0.8)',
+            tooltipFillColor:'rgba(194, 194, 194, 0.9)'
+        }];
+    // Doughnut initial data
+    $scope.doughnutData = [0, 100];
+    $scope.doughnutPercent = 0;
     // 
     var outwidget=[];
     $scope.msgs = [];
@@ -276,19 +292,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightStroke: 'rgba(47, 132, 71, 0.8)',
             tooltipFillColor:'rgba(255, 72, 51, 0.8)'
         }];
-        $scope.colorsdoghnut = [{
-            fillColor: 'rgba(255, 72, 51, 0.8)',
-            strokeColor: 'rgba(255, 72, 51, 0.8)',
-            highlightFill: 'rgba(47, 132, 71, 0.8)',
-            highlightStroke: 'rgba(47, 132, 71, 0.8)',
-            tooltipFillColor:'rgba(255, 72, 51, 0.8)'
-        },{
-            fillColor: 'rgba(194, 194, 194, 0.8)',
-            strokeColor: 'rgba(194, 194, 194, 0.8)',
-            highlightFill: 'rgba(194, 194, 194, 0.8)',
-            highlightStroke: 'rgba(194, 194, 194, 0.8)',
-            tooltipFillColor:'rgba(194, 194, 194, 0.9)'
-        }];
+        
         // Doughnut chart
         $scope.doughnutData = [$scope.totalCoffeeServed,$scope.totVisitors-$scope.totalCoffeeServed];
         $scope.doughnutPercent = Math.floor($scope.totalCoffeeServed*100/($scope.totVisitors));
@@ -375,6 +379,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     }
     $scope.showMsgs = function(){
         $timeout(function() {
+            console.log("Messages: "+$scope.msgs);
             if (($scope.msgs.length > 0) && thereAreMsgs()) {
                 var dateNow = new Date().getTime();
                 var dateMsg = new Date($scope.msgs[msgIndexActual].end).getTime();
@@ -410,7 +415,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             var dNow = new Date().getDay();
             var dMsg = new Date($scope.msgs[i].end).getDay();
             if (($scope.msgs[i].expositor.toLowerCase() == "Xively".toLowerCase()) &&(dNow == dMsg) && (dateNow < dateMsg)) {
-                msgOtherIndexInitial = i;
+                //msgOtherIndexInitial = i;
                 return true;
             }
         }
@@ -425,7 +430,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 var dMsg = new Date($scope.msgs[msgOtherIndexActual].end).getDay();
                 if (($scope.msgs[msgOtherIndexActual].expositor.toLowerCase() == "xively") && 
                     (dNow == dMsg) && (dateNow < dateMsg)) {
-                    if ($scope.msgs[msgOtherIndexActual].text.length<=115)
+                    if ($scope.msgs[msgOtherIndexActual].text.length<=140)
                         $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text;
                     else
                         $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text.substr(0,115)+"...";

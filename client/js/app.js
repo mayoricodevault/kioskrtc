@@ -18,7 +18,8 @@ var xively = angular.module('xively', ['ng.deviceDetector',
     ngToast.configure({
       verticalPosition: 'top',
       horizontalPosition: 'center',
-      maxNumber: 1
+      maxNumber: 2,
+      additionalClasses: 'xively-animation'
     });
     }])
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider){
@@ -113,15 +114,18 @@ var xively = angular.module('xively', ['ng.deviceDetector',
                   var devType = LSFactory.getDeviceType();
                   if (devType=="dashboard") {
                       $location.path('/dashboard');
+                      return $q.when();
                   }
                   if (devType=="kiosk") {
                       $location.path('/splash');
+                      return $q.when();
                   }
                   if (devType=="barista") {
                       $location.path('/barista');
                   }
                    if (devType=="welcome") {
                       $location.path('/welcome');
+                      return $q.when();
                   }
                   return $q.reject();
               } else {

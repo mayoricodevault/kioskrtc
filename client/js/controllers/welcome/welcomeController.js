@@ -9,7 +9,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 	var queueCallBack = function(item) {
                 //$scope.person = item;
                 showWelcome(item);
-                console.log("item --> ",item);
             },
             options = {
                 delay: 1000, //delay 2 seconds between processing items
@@ -22,7 +21,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 	function populateQueue(person){
 		
 		myQueue.add(person);
-		console.log("size queue: ",myQueue.size());
 	}
 	//populateQueue();
 	 
@@ -69,7 +67,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
     Socket.on('welcome', function(data){
         //$scope.person = data;
         //if($scope.person.zonefrom){
-        console.log("data-----------------> ",data);
         populateQueue(data);
             //showWelcome();
         /*}else{
@@ -78,7 +75,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
     });
     
     function explode(pos){
-    	//console.log("EXPLODE ...",pos);
 		$('#'+arr_wName[pos]).removeClass('show').addClass('hide');
 		arr_occupied[pos]=0;
 	}
@@ -88,7 +84,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 		
 		    arr_occupied[pos]=1;
 		    $scope.person = item;
-		    console.log("NEW PERSON --> ",$scope.person);
 			
 		    if (!$scope.person.msg1) {
 		    	$scope.person.msg1 = "Missing Text";
@@ -114,8 +109,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 		    rowCircle+=size;
 		    messagebox+=size;
 		    
-		    console.log("bubleSize",bubleSize);
-		    
 		    $('#welcome'+pos).children().addClass(circleText);
 		    $('#welcome'+pos).children().addClass(bubleSize);
 		    $('#welcome'+pos).children().children().addClass(rowCircle);
@@ -128,7 +121,7 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 			 	.addClass('show')
 			 	.fadeIn(600)
 			 	.animate({opacity:0}
-			 	,4000,'easeInExpo',
+			 	,10000,'easeInExpo',
 			 	function(){
 			 		$('#welcome'+pos).css({'opacity':'1'});
 			 	

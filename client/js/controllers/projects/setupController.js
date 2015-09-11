@@ -1,48 +1,37 @@
-xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL', '$animate', 'deviceDetector',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL, $animate, deviceDetector){
+xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL', '$animate', 'deviceDetector', 'ngToast','$location',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL, $animate, deviceDetector, ngToast, $location){
     $scope.deviceDetector=deviceDetector;
 	$scope.DeviceTye="KIOSK";
     $scope.serverSelected = "";
     $scope.devices = [];
-    $scope.formShow = false;
-    
+    $scope.formShow = true;
     Api.Device.query({}, function(data){
-   
         for(var key in data){
-            // if(data[key].type=='Kiosk'){
                 $scope.devices.push(data[key]);
-            // }
-           
         }
-         $scope.formShow=$scope.devices.length > 0 ? true : false;
+        $scope.formShow=$scope.devices.length > 0 ? true : false;
     });
     $scope.subscribe = function(deviceName,tagid, serverUrl, deviceType, masterid) {
-        var typeLower = angular.lowercase(deviceType);
         $scope.formShow = false;
+        var typeLower = angular.lowercase(deviceType);
 		var socket =  Socket.connect();
 		var deviceDetected = deviceDetector.os + " "+deviceDetector.browser;
 		$rootScope.ioConn = socket.id;
         if (!masterid) masterid=""; 
 		SubscriptionFactory.subscribe($rootScope.ioConn, deviceName, tagid, serverUrl, typeLower, deviceDetected, masterid).
 		then(function success(response){
-         	Socket.emit('subscribed', response);
-         	if (typeLower==="kiosk") {
-         	    	$window.location.href = API_URL+"/splash";
-         	}
-         	if (typeLower==="barista") {
-         	   	$window.location.href = API_URL+"/barista";
-         	}
-         	if (typeLower==="dashboard") {
-         	    	$window.location.href = API_URL+"/dashboard";
-         	}
-			if (typeLower==="welcome") {
-         	    	$window.location.href = API_URL+"/welcome";
-         	}
-		}, subsError);
+		    if (response.status == 200) {
+             	Socket.emit('subscribed', response);
+             	if (typeLower==="kiosk") {typeLower="splash"}
+             	$location.path('/'+typeLower);
+		    } else {
+		        $scope.formShow = true;
+		        ngToast.create({
+                  className: 'warning',
+                  content: response.data
+                });
+		    }
+		});
 	};
-	function subsError(response) {
-		
-		alert("error" + response.data);
-	}
 }])
 .animation('.fade-left', function($animateCss){
     return {

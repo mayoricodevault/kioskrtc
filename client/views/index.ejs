@@ -24,18 +24,11 @@
     <link href="css/scroll-glue.css" rel="stylesheet" type="text/css"/>
     <link href="css/effects.css" rel="stylesheet" type="text/css"/>
     <link href="css/effectsBeverages.css" rel="stylesheet" type="text/css"/>
-
-    <!-- <link rel="stylesheet" href="bootstrap/css/bootstrap.css"> -->
     <link href="css/float-sidebar.css" rel="stylesheet"/>
     <link href="css/base-theme.css" rel="stylesheet"/>
-
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.3.0/animate.min.css" type="text/css" />
     <link rel="stylesheet" href="css/custom.css" type="text/css" />
-    
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    
-    <link rel="stylesheet" href="libs/odometer/themes/odometer-theme-digital.css"/>
-    <link type="text/css" rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="libs/ngtoast/dist/ngToast.min.css"/>
     <link rel="stylesheet" href="libs/angular-chart.js/angular-chart.css" />
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -50,13 +43,13 @@
 
   </head>
 
-<body ng-cloak onpageshow="if (event.persisted) noBack();">
-
+<body ng-cloak onpageshow="if (event.persisted) noBack();" >
+    <toast></toast>
     <div ng-model="snap" style="display:none;"></div>
     <div class="container-fluid" >
       <!-- Main component for a primary marketing message or call to action -->
-      <div class="container-fluid">
-        <div ng-view></div>
+      <div class="container-fluid" id="bodys">
+        <div ng-view id="vista"></div>
       </div>
 
     </div> <!-- /container -->
@@ -136,12 +129,10 @@
     <script type="text/javascript" src="js/controllers/dashboard/doughnutCtrl.js"></script>
     
     <script type="text/javascript" src="libs/angular-queue.js"></script>
-    
     <script type="text/javascript" src="js/controllers/welcome/welcomeController.js"></script>
 
     <!--Tools-->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
-    
     <script src="https://cdn.rawgit.com/Luegg/angularjs-scroll-glue/master/src/scrollglue.js"></script>
 
 

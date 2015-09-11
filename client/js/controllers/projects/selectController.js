@@ -20,8 +20,11 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         if($scope.currentPerson){
             $scope.favcoffee=$scope.currentPerson.favcoffee;
             $scope.coffee($scope.favcoffee);
-            if($scope.paneSelected===3)
-            $scope.menuBar();
+            if($scope.paneSelected.id==="3"){
+                $scope.menuBar();
+                
+            }
+                
             $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.getPlace($scope.currentPerson))
             .success(function(data){
             	$scope.weather=data.query.results.channel;
@@ -84,6 +87,10 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
          }
         LSFactory.setData("favcoffee",outCoffee);    
         
+                
+        //$('#vista').css('background-image', 'url(../images/coffee-bar-bg4.jpg)');
+        //$('#vista').css('background-image', 'url(../images/coffee-bar-bg4-1600.jpg)');
+        $('body').css('background-image', 'url(../images/coffee-bar-bg4-1600.jpg)');
         
         // *************  init beverages
        // var currCoffee=LSFactory.getFavCoffee();
@@ -128,7 +135,19 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     }
     
 
+    /*var $body = $('body');
+    $("body").css({"background-color": "red"});
+    */
+    
+    
+    
     $scope.selectUser = function(){
+        console.info("*** SELECT USER ]]");
+   // document.body.style.backgroundImage = "url('../images/coffee-bar-bg4-1600.jpg')";    
+ //$('body').css('background-image', 'url(../images/coffee-bar-bg4-1600.jpg)');
+      //$('#vista').css('background-image', 'url(../images/coffee-bar-bg4-1600.jpg)');
+     // $('#bodys').css('background-image', 'url(../images/coffee-bar-bg4-1600.jpg)');
+      
        $scope.isFavorite=false;
         if($scope.selected===undefined) {
             ngToast.create({
@@ -217,9 +236,6 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     };
     
     
-        var $body = $('body');
-    $("body").css({"background-color": "yellow"});
-    
     /*
      *************************
      *  click Order
@@ -233,7 +249,8 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         people.timeStamp=timeStamp;
         var tagId=LSFactory.getTagId();
         people.tagId=tagId;
-        people.favcoffee=$scope.favcoffee;
+        if($scope.paneSelected.id==="3")
+            people.favcoffee=$scope.favcoffee;
         
         people.zoneto="";
         people.zonefrom="";
@@ -321,6 +338,7 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
            $scope.esp=true;
            $scope.favcoffee="Espresso";
         }
+        
     };
     
     $scope.getPlace=function(person){

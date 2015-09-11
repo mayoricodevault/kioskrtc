@@ -14,6 +14,7 @@ body{
     background: #FF4943;
     border:5px solid #fff;
     color:#fff;
+    font-family: "ProximaNovaLight";
   
  }
 .hello-circle-lg{
@@ -21,18 +22,28 @@ body{
     height: 450px;  
     margin: auto;   
  }
+ .hello-circle-lg b{
+      font-size: 40px; 
+      font-family: "ProximaNovaBold";
+ }
 .hello-circle-md{
     width: 360px;
     height: 360px;  
     margin: auto;   
  }
- 
+  .hello-circle-md b{
+      font-size: 32px; 
+      font-family: "ProximaNovaBold";
+ }
 .hello-circle-sm{
     width: 300px;
     height: 300px;  
     margin: auto;   
 }
-
+  .hello-circle-sm b{
+      font-size: 28px;
+      font-family: "ProximaNovaBold";
+ }
 .row-circle-lg{
     display: inline-block;
     display: inherit;

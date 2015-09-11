@@ -1,5 +1,4 @@
 var requestify = require('requestify');
-var stringify = require('json-stringify');
 var configDB = require('../config/config.js');
 module.exports = function(router, socket){
     router.get('/servers/', function(req, res){
@@ -12,7 +11,7 @@ module.exports = function(router, socket){
                 dataType: 'json'        
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
-                    res.status(200).json(result.servers )
+                    res.status(200).json(result.servers );
             });
     });
     router.get('/devices/', function(req, res){
@@ -40,9 +39,9 @@ module.exports = function(router, socket){
                 dataType: 'json'        
                 }).then(function(response) {
                     var result = JSON.parse(response.body);
-                    res.status(200).json(result.products )
+                    res.status(200).json(result.products );
             });
         
    
     }); 
-}
+};

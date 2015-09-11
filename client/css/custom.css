@@ -457,3 +457,15 @@ ul {
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
 }
+
+.xively-animation.ng-enter {
+  -webkit-animation: flipInY 1s;
+  -moz-animation: flipInY 1s;
+  animation: flipInY 1s;
+}
+
+.xively-animation.ng-leave {
+  -webkit-animation: flipOutY 1s;
+  -moz-animation: flipOutY 1s;
+  animation: flipOutY 1s;
+}
