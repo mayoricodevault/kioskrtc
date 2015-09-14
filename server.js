@@ -162,7 +162,7 @@ app.post("/welcome", function(request, response) {
 app.post("/xively", function(request, response) {
   
   var people = request.body;
-  console.log(people);
+
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.status(400).json({error: "Invalid People Card"});
   }
@@ -185,16 +185,16 @@ app.post("/xively", function(request, response) {
     return response.status(400).json({error: "Company Must be defined"});
   }
   
+   var fsessType = 'xternal';
+   
   if (people.zonefrom == 'IoT') {
+    console.log("---");
     var fSession = appfire.child('sessions/'+people.zoneto);
     fSession
       .once('value', function(snap) {
         if(snap.val()) {
             var fSess = snap.val();
-            //people.zoneto = fSess.tagId;  // Todo : Please Do not touch
-        } else {
-           response.status(400).json({results: "Socket id Session Not Found.. Rejected"});
-        }
+        } 
       });
   }
   
@@ -210,6 +210,7 @@ app.post("/xively", function(request, response) {
   });
   
   people.dt =  moment().format();
+  people.deviceType =fsessType;
   requestify.request(configDB.url_controller+"/xively", {
       method: 'POST',
       body: people,
