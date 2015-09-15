@@ -1,6 +1,23 @@
-xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL', 'Messages', 'FIREBASE_URI_MSGS', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL, Messages, FIREBASE_URI_MSGS){
-    // 
-    var outwidget=[];
+xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL','Messages', 'FIREBASE_URI_MSGS', '$queue', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL,  Messages, FIREBASE_URI_MSGS, $queue){
+    // Doughnut chart
+    $scope.colorsdoghnut = [{
+            fillColor: 'rgba(255, 72, 51, 0.8)',
+            strokeColor: 'rgba(255, 72, 51, 0.8)',
+            highlightFill: 'rgba(47, 132, 71, 0.8)',
+            highlightStroke: 'rgba(47, 132, 71, 0.8)',
+            tooltipFillColor:'rgba(255, 72, 51, 0.8)'
+        },{
+            fillColor: 'rgba(194, 194, 194, 0.8)',
+            strokeColor: 'rgba(194, 194, 194, 0.8)',
+            highlightFill: 'rgba(194, 194, 194, 0.8)',
+            highlightStroke: 'rgba(194, 194, 194, 0.8)',
+            tooltipFillColor:'rgba(194, 194, 194, 0.9)'
+        }];
+    // Doughnut initial data
+    $scope.doughnutData = [0, 100];
+    $scope.doughnutPercent = 0;
+    //
+    $scope.msgs = [];
     var visited=[false,false,false,false,false,false,false,false];
     var nWidgets=6;
     var totalWidgets = 8;
@@ -9,6 +26,63 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     $scope.$watch('fbMBind', function() {
         refreshFbM();
     });    
+  
+    
+    //$scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
+    //$scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
+    
+    // Queue structure
+    var queueCallBack = function(item) {
+                //$scope.person = item;
+                showValues(item);
+            },
+            options = {
+                delay: 1000, //delay 2 seconds between processing items
+                paused: true, //start out paused
+                complete: function() { console.log('complete!'); }
+            };
+    
+    var bodyQueueCallBack = function(msg) {
+        if (msg.text.length<=140)
+            $scope.msgOtherText = msg.text;
+        else
+            $scope.msgOtherText = msg.text.substr(0,140)+"...";
+    }, bodyMsgsOptions = {
+        delay: 4000,
+        paused: true,
+        complete: function() {
+            $scope.msgOtherText = "";
+            addMsgsToQueue();
+        }
+    };
+    
+    var footerQueueCallBack = function(msg) {
+        $scope.msgStart = msg.start;
+        $scope.msgEnd = msg.end;
+        if (msg.text.length>=240)
+            $scope.msgText = msg.text;
+        else
+            $scope.msgText = msg.text.substr(0,240)+"...";
+        $scope.msgExpositor = msg.expositor;
+    }, footerMsgsOptions = {
+        delay: 4000,
+        paused: true,
+        complete: function() {
+            $scope.msgExpositor = "";
+            addMsgsToQueue();
+        }
+    };
+    
+	var dbQueue = $queue.queue(queueCallBack, options);
+	dbQueue.start();
+	
+	var dbQueueBodyMsg = $queue.queue(bodyQueueCallBack, bodyMsgsOptions);
+	dbQueueBodyMsg.start();
+	
+	var dbQueueFooterMsg = $queue.queue(footerQueueCallBack, footerMsgsOptions);
+	dbQueueFooterMsg.start();
+    
+   
     
     function makeArrayOf(value, length) {
         var arr = [], i = length;
@@ -127,7 +201,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     };
     
     $scope.forever = function(){
-        console.log("inForever function");
         $timeout(function() {
             var numRan=Math.floor(Math.random() * 3)+1;
             for(var k=0; k < numRan; k++){
@@ -148,9 +221,9 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     
     //$scope.forever();
     // Initial Widgets
-    for (var k = 0; k < nWidgets; k++) {
+    // for (var k = 0; k < nWidgets; k++) {
        // $scope.pushContent(k+1, displaywidget[k]);
-    }
+    // }
     
     function flipcard(value) {
         switch (value) {
@@ -197,11 +270,21 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         reg5:0,
         reg6:0
     };
+    $scope.station1 = 0;
+    $scope.station2 = 0;
+    $scope.station3 = 0;
     $scope.onzas = 0;
     $scope.totalDrinksServed = 0;
-    Socket.on('dashboard', function(data) {
-      //  var Json = {"onzas":24616, "drinksServed":{"esp":34,"amer":20,"reg":44,"dcaf":6,"cap":24,"tea":18},
-      // "regions":{"west":21,"midwest":5,"neMidAtlantic":6,"neNewEngland":60,"sWestSouthCentral":6,"sSouthAtlanticESCentral":2}};
+    
+    function numberWithCommas(x) {
+        x = x.toString();
+        var pattern = /(-?\d+)(\d{3})/;
+        while (pattern.test(x))
+            x = x.replace(pattern, "$1,$2");
+        return x;
+    }
+
+    function showValues(data) {
         $scope.drinksServed.amer = data.drinksServed.amer;
         $scope.drinksServed.cap = data.drinksServed.cap;
         $scope.drinksServed.dcaf = data.drinksServed.dcaf;
@@ -216,13 +299,63 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         $scope.regions.reg5 = data.regions.sWestSouthCentral;
         $scope.regions.reg6 = data.regions.sSouthAtlanticESCentral;
         
-        $scope.onzas = data.onzas;
-        $scope.totalDrinksServed = $scope.regions.reg1+
+        $scope.state1 = $scope.regions.reg1;
+        $scope.state2 = $scope.regions.reg2;
+        $scope.state3 = $scope.regions.reg3;
+        $scope.state4 = $scope.regions.reg4;
+        $scope.state5 = $scope.regions.reg5;
+        $scope.state6 = $scope.regions.reg6
+        
+        // Stations
+        $scope.station1 = data.stations.station1;
+        $scope.station2 = data.stations.station2;
+        $scope.station3 = data.stations.station3;
+        
+        $scope.onzas = numberWithCommas(data.onzas);
+        $scope.totVisitors = data.totVisitors;
+        $scope.totalDrinksServed = numberWithCommas($scope.regions.reg1+
                                     $scope.regions.reg2+
                                     $scope.regions.reg3+
                                     $scope.regions.reg4+
                                     $scope.regions.reg5+
-                                    $scope.regions.reg6;
+                                    $scope.regions.reg6);
+        $scope.totalCoffeeServed = $scope.drinksServed.amer+
+                                $scope.drinksServed.cap +
+                                $scope.drinksServed.dcaf +
+                                $scope.drinksServed.esp +
+                                $scope.drinksServed.reg;
+        
+        // Bar chart
+        $scope.barData = [$scope.drinksServed];
+        $scope.barData = [[
+            $scope.drinksServed.tea,
+            $scope.drinksServed.cap,
+            $scope.drinksServed.dcaf,
+            $scope.drinksServed.reg,
+            $scope.drinksServed.amer,
+            $scope.drinksServed.esp,
+        ]];
+        
+        $scope.colorsxively = [{
+            fillColor: 'rgba(255, 72, 51, 0.8)',
+            strokeColor: 'rgba(255, 72, 51, 0.8)',
+            highlightFill: 'rgba(47, 132, 71, 0.8)',
+            highlightStroke: 'rgba(47, 132, 71, 0.8)',
+            tooltipFillColor:'rgba(255, 72, 51, 0.8)'
+        }];
+        
+        // Doughnut chart
+        $scope.doughnutData = [$scope.totalCoffeeServed,$scope.totVisitors-$scope.totalCoffeeServed];
+        $scope.doughnutPercent = Math.floor($scope.totalCoffeeServed*100/($scope.totVisitors));
+        // Sum Drinks
+        $scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
+                         $scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
+    }
+    Socket.on('dashboard', function(data) {
+      //  var Json = {"onzas":24616, "drinksServed":{"esp":34,"amer":20,"reg":44,"dcaf":6,"cap":24,"tea":18},
+      // "regions":{"west":21,"midwest":5,"neMidAtlantic":6,"neNewEngland":60,"sWestSouthCentral":6,"sSouthAtlanticESCentral":2}};
+      //console.log(data);
+        dbQueue.add(data);
     });
     
     Socket.on('ping', function(data){
@@ -262,7 +395,130 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             }
         }
     });
+    
+    function addMsgsToQueue() {
+        for (var i = 0; i<$scope.msgs.length; i++) {
+            var dateNow = new Date().getTime();
+            var dateMsg = new Date($scope.msgs[i].end).getTime();
+            var dNow = new Date().getDay();
+            var dMsg = new Date($scope.msgs[i].end).getDay();
+            if ((dNow == dMsg) && (dateNow < dateMsg)) {
+                if ($scope.msgs[i].expositor.toLowerCase() == "xively")
+                    dbQueueBodyMsg.add($scope.msgs[i]);
+                else
+                    dbQueueFooterMsg.add($scope.msgs[i]);
+            }
+        }
+   }
+    
+    // Messages
+  function refreshFbM(){
+	    $scope.totalMsgsActive=0;
+		$scope.msgs = [];
+		angular.forEach($scope.fbMBind, function(msg){
+			if (!msg || !msg.text) {
+				return;
+			}
+            $scope.msgs.push(msg);
+            $scope.totalMsgsActive++;
+		}); 
+		$scope.msgs.sort(compare);
+		addMsgsToQueue();
+		console.log("Msgs Added...");
+	}
   
+   function compare(a,b) {
+        if (a.end < b.end)
+            return -1;
+        if (a.end > b.end)
+            return 1;
+    return 0;
+    }
+    
+    // Showing messages
+    var msgIndexActual = 0;
+    var msgIndexInitial = 0;
+    function thereAreMsgs() {
+        for (var i = 0; i < $scope.msgs.length; i++) {
+            var dateNow = new Date().getTime();
+            var dateMsg = new Date($scope.msgs[i].end).getTime();
+            var dNow = new Date().getDay();
+            var dMsg = new Date($scope.msgs[i].end).getDay();
+            if (($scope.msgs[i].expositor.toLowerCase() != "Xively".toLowerCase()) &&(dNow == dMsg) && (dateNow < dateMsg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    $scope.showMsgs = function(){
+        $timeout(function() {
+            console.log("Messages: "+$scope.msgs);
+            if (($scope.msgs.length > 0) && thereAreMsgs()) {
+                var dateNow = new Date().getTime();
+                var dateMsg = new Date($scope.msgs[msgIndexActual].end).getTime();
+                var dNow = new Date().getDay();
+                var dMsg = new Date($scope.msgs[msgIndexActual].end).getDay();
+                if (($scope.msgs[msgIndexActual].expositor.toLowerCase() != "xively") && 
+                    (dNow == dMsg) && (dateNow < dateMsg)) {
+                    $scope.msgStart = $scope.msgs[msgIndexActual].start;
+                    $scope.msgEnd = $scope.msgs[msgIndexActual].end;
+                    if ($scope.msgs[msgIndexActual].text.length>=240)
+                        $scope.msgText = $scope.msgs[msgIndexActual].text;
+                    else
+                        $scope.msgText = $scope.msgs[msgIndexActual].text.substr(0,240)+"...";
+                    $scope.msgExpositor = $scope.msgs[msgIndexActual].expositor;
+                }
+                msgIndexActual++;
+                if (msgIndexActual>=$scope.msgs.length) {
+                    msgIndexActual = msgIndexInitial;
+                }
+            } else $scope.msgExpositor = "";
+            $scope.showMsgs();
+        }, 1000);
+    };
+    //$scope.showMsgs();
+    
+    // Showing Other messages
+    var msgOtherIndexActual = 0;
+    var msgOtherIndexInitial = 0;
+    function thereAreOtherMsgs() {
+        for (var i = 0; i < $scope.msgs.length; i++) {
+            var dateNow = new Date().getTime();
+            var dateMsg = new Date($scope.msgs[i].end).getTime();
+            var dNow = new Date().getDay();
+            var dMsg = new Date($scope.msgs[i].end).getDay();
+            if (($scope.msgs[i].expositor.toLowerCase() == "Xively".toLowerCase()) &&(dNow == dMsg) && (dateNow < dateMsg)) {
+                //msgOtherIndexInitial = i;
+                return true;
+            }
+        }
+        return false;
+    }
+    function showOtherMsgs(){
+        var soMsgs = function() {
+            if (($scope.msgs.length > 0) && thereAreOtherMsgs()) {
+                var dateNow = new Date().getTime();
+                var dateMsg = new Date($scope.msgs[msgOtherIndexActual].end).getTime();
+                var dNow = new Date().getDay();
+                var dMsg = new Date($scope.msgs[msgOtherIndexActual].end).getDay();
+                if (($scope.msgs[msgOtherIndexActual].expositor.toLowerCase() == "xively") && 
+                    (dNow == dMsg) && (dateNow < dateMsg)) {
+                    if ($scope.msgs[msgOtherIndexActual].text.length<=140)
+                        $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text;
+                    else
+                        $scope.msgOtherText = $scope.msgs[msgOtherIndexActual].text.substr(0,115)+"...";
+                }
+                msgOtherIndexActual++;
+                if (msgOtherIndexActual>=$scope.msgs.length) {
+                    msgOtherIndexActual = msgOtherIndexInitial;
+                }
+            } else $scope.msgOtherText = "";
+            $timeout(soMsgs, 3000);
+        };
+        $timeout(soMsgs, 3000);
+    };
+    //showOtherMsgs();
+    
     function subsError(response) {
         console.log("Error");
     }

@@ -16,12 +16,19 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     // Doughnut initial data
     $scope.doughnutData = [0, 100];
     $scope.doughnutPercent = 0;
-    // 
-    var outwidget=[];
+    //
     $scope.msgs = [];
     var visited=[false,false,false,false,false,false,false,false];
     var nWidgets=6;
     var totalWidgets = 8;
+    
+    Messages(FIREBASE_URI_MSGS).$bindTo($scope, "fbMBind");
+    $scope.$watch('fbMBind', function() {
+
+        refreshFbM();
+    });    
+  
+    
     //$scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
     //$scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
     
@@ -34,7 +41,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 delay: 1000, //delay 2 seconds between processing items
                 paused: true, //start out paused
                 complete: function() { console.log('complete!'); }
-            };
+    };
     
     var bodyQueueCallBack = function(msg) {
         if (msg.text.length<=140)
@@ -76,10 +83,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
 	var dbQueueFooterMsg = $queue.queue(footerQueueCallBack, footerMsgsOptions);
 	dbQueueFooterMsg.start();
     
-    Messages(FIREBASE_URI_MSGS).$bindTo($scope, "fbMBind");
-    $scope.$watch('fbMBind', function() {
-        refreshFbM();
-    });    
+   
     
     function makeArrayOf(value, length) {
         var arr = [], i = length;
@@ -218,9 +222,9 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     
     //$scope.forever();
     // Initial Widgets
-    for (var k = 0; k < nWidgets; k++) {
+    // for (var k = 0; k < nWidgets; k++) {
        // $scope.pushContent(k+1, displaywidget[k]);
-    }
+    // }
     
     function flipcard(value) {
         switch (value) {
@@ -393,26 +397,14 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         }
     });
     
-    function addMsgsToQueue() {
-        for (var i = 0; i<$scope.msgs.length; i++) {
-            var dateNow = new Date().getTime();
-            var dateMsg = new Date($scope.msgs[i].end).getTime();
-            var dNow = new Date().getDay();
-            var dMsg = new Date($scope.msgs[i].end).getDay();
-            if ((dNow == dMsg) && (dateNow < dateMsg)) {
-                if ($scope.msgs[i].expositor.toLowerCase() == "xively")
-                    dbQueueBodyMsg.add($scope.msgs[i]);
-                else
-                    dbQueueFooterMsg.add($scope.msgs[i]);
-            }
-        }
-    }
+    
     
     // Messages
   function refreshFbM(){
 	    $scope.totalMsgsActive=0;
 		$scope.msgs = [];
 		angular.forEach($scope.fbMBind, function(msg){
+		  
 			if (!msg || !msg.text) {
 				return;
 			}
@@ -420,9 +412,28 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             $scope.totalMsgsActive++;
 		}); 
 		$scope.msgs.sort(compare);
+	
 		addMsgsToQueue();
-		console.log("Msgs Added...");
 	}
+  
+  function addMsgsToQueue() {
+        for (var i = 0; i<$scope.msgs.length; i++) {
+            var dateNow = new Date().getTime();
+            var dateMsg = new Date($scope.msgs[i].end).getTime();
+            console.log("messages --> ",moment($scope.msgs[i].start).hour());
+            console.log("messages --> ",moment($scope.msgs[i].start).minute());
+            var dNow = new Date().getDay();
+            var dMsg = new Date($scope.msgs[i].end).getDay();
+            if ((dNow == dMsg) && (dateNow >= dateMsg)) {
+                
+                if ($scope.msgs[i].expositor.toLowerCase() == "xively") 
+                    	
+                    dbQueueBodyMsg.add($scope.msgs[i]);
+                else
+                    dbQueueFooterMsg.add($scope.msgs[i]);
+            }
+        }
+   }
   
    function compare(a,b) {
         if (a.end < b.end)

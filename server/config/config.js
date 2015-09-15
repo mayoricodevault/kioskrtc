@@ -1,5 +1,5 @@
 module.exports = {
-    'url': 'http://iottemplate-mmayorivera.c9.io',
-    'firebase' : 'http://kxively.firebaseio.com',
-    'url_controller' : 'http://iottemplate-mmayorivera.c9.io'
+    'url': 'https://iottemplate-mmayorivera.c9.io',
+    'firebase' : 'https://kxively.firebaseio.com',
+    'url_controller' : 'https://iottemplate-mmayorivera.c9.io'
 };

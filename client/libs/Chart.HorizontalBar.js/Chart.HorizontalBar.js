@@ -11,7 +11,7 @@
 		scaleBeginAtZero : true,
 
 		//Boolean - Whether grid lines are shown across the chart
-		scaleShowGridLines : false,
+		scaleShowGridLines : true,
 
 		//String - Colour of the grid lines
 		scaleGridLineColor : "rgba(0,0,0,.05)",
@@ -29,10 +29,10 @@
 		barShowStroke : true,
 
 		//Number - Pixel width of the bar stroke
-		barStrokeWidth : 1,
+		barStrokeWidth : 2,
 
 		//Number - Spacing between each of the X value sets
-		barValueSpacing : 2,
+		barValueSpacing : 5,
 
 		//Number - Spacing between data sets within X values
 		barDatasetSpacing : 1,
