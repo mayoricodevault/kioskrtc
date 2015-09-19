@@ -19,10 +19,12 @@ var Firebase = require('firebase');
 var appfire = new Firebase(configDB.firebase);
 var moment = require('moment');
 var fs = require('fs');
+// var urlencodedParser = bodyParser.urlencoded({ extended: false })
 app.use(session);
 app.use(cors());
 app.use(favicon(__dirname + '/client/img/favicon.ico'));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride());
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, 'client', 'views'));
@@ -37,7 +39,6 @@ io.on('connection', function(socket) {
   numberofusers = io.sockets.server.eio.clientsCount;
   console.log("Number of Users : " + numberofusers);
   console.log("A Device has Connected!" + socket.id);
-
   socket.on('snap', function(data){
       var binaryData = new Buffer(data.binaryData, 'base64').toString('binary');
       fs.writeFile("./public/"+data.snapname+ "-out.png", binaryData, "binary", function(err) {
@@ -98,6 +99,51 @@ app.post("/weather", function(request, response) {
 
 });
 
+
+app.post("/xdashboard", function(request, response) {
+  var totals = JSON.stringify(request.body);
+  var toJsonTotals = JSON.parse(totals);
+  var toJsonBody = JSON.parse(toJsonTotals.body);
+    // console.log(toJsonBody.triggering_datastream);
+  // console.log(toJsonBody.id);
+
+  if(_.isUndefined(toJsonBody) || _.isEmpty(toJsonBody)) {
+    return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
+  }
+  if(_.isUndefined(toJsonBody.triggering_datastream) || _.isEmpty(toJsonBody.triggering_datastream)) {
+    return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
+  }
+  var data = toJsonBody.triggering_datastream;
+  if(_.isUndefined(data.id) || _.isEmpty(data.id)) {
+    return response.status(400).json({error: "Invalid Id Data for Dashboard -- Totals"});
+  }
+  var drinksServedObj = new Object();
+  if (data.id == 'drinksServed_esp') {
+    drinksServedObj.esp = data.value.value;
+  }
+  if (data.id == 'drinksServed_amer') {
+    drinksServedObj.amer = data.value.value;
+  }
+  if (data.id == 'drinksServed_cap') {
+    drinksServedObj.cap = data.value.value;
+  }
+  if (data.id == 'drinksServed_dcaf') {
+    drinksServedObj.dcaf = data.value.value;
+  }
+  if (data.id == 'drinksServed_reg') {
+    drinksServedObj.reg = data.value.value;
+  }
+
+  var datafinal = new Object();
+  datafinal.drinksServed = drinksServedObj;
+  datafinal.zoneto ="kiosk";
+  datafinal.zonefrom ="dashboard";
+  // toDo : More
+   io.sockets.emit('dashboard', datafinal);
+   response.status(200).json({results: "Message Send"});
+});
+
+
 app.post("/dashboard", function(request, response) {
   var totals = request.body;
   if(_.isUndefined(totals) || _.isEmpty(totals)) {
@@ -110,8 +156,10 @@ app.post("/dashboard", function(request, response) {
     return response.status(400).json({error: "Zone Must be defined"});
   }
   io.sockets.emit('dashboard', totals);
-  
+   response.status(200).json({results: "Message Send"});
 });
+
+
 
 app.post("/welcome", function(request, response) {
   var people = request.body;
@@ -153,7 +201,7 @@ app.post("/welcome", function(request, response) {
           console.log(response);
       });
   // // TODO:  Send to Server
-  response.status(200).json({results: "Message Send it"});
+  response.status(200).json({results: "Message Send"});
   
 
 });
@@ -223,7 +271,7 @@ app.post("/xively", function(request, response) {
           console.log(response);
       });
   // TODO:  Send to Server
-  response.status(200).json({results: "Message Send it"});
+  response.status(200).json({results: "Message Send"});
   
 
 });
