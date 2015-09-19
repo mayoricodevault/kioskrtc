@@ -66,6 +66,9 @@ z-index:1;
     margin-left: 20px;
     margin-bottom: 10px;
 }
+b, strong {
+    font-family: "ProximaNovaBold";
+}
 /* #Site Styles
 ================================================== */
 .h4, .h5, .h6, h4, h5, h6 {
@@ -276,7 +279,7 @@ z-index:1;
        font-size: 22px;
 }
 .circle-b {
-    padding: 7px 10px;
+    padding: 10px 10px;
     vertical-align: middle;
     color: #fff;
     -moz-border-radius: 50%;
@@ -336,10 +339,22 @@ z-index:1;
 .search-box{
     width: 100%;
     border-radius: 5px;
-    border: 1px solid #4e4e4e;
-    padding: 5px 10px;
-    color:#4e4e4e;
-    outline:0;
+    border: 1px solid #eee;
+    border-left: 1px solid #333;
+    border-radius: 0;
+    padding: 3px 10px;
+    color: #4e4e4e;
+    font-size: 13px;
+    outline: 0;
+    font-family: "ProximaNovalight";
+    margin-bottom: 12px;
+    background:#eee;
+}
+.search-box:focus{
+  border-left: 1px solid transparent;
+  background:#fff;
+  color: #333;
+}
 }
 .margin-box-top{
   margin-top: -202px;

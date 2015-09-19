@@ -286,19 +286,36 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     }
 
     function showValues(data) {
-        $scope.drinksServed.amer = data.drinksServed.amer;
-        $scope.drinksServed.cap = data.drinksServed.cap;
-        $scope.drinksServed.dcaf = data.drinksServed.dcaf;
-        $scope.drinksServed.esp = data.drinksServed.esp;
-        $scope.drinksServed.reg = data.drinksServed.reg;
-        $scope.drinksServed.tea = data.drinksServed.tea;
+        console.log(data);
+        if (!_.isUndefined(data.drinksServed)){
+            if (!_.isUndefined(data.drinksServed.amer) && (data.drinksServed.amer>0))
+                $scope.drinksServed.amer = data.drinksServed.amer;
+            if (!_.isUndefined(data.drinksServed.cap)&&(data.drinksServed.cap!=null) && (data.drinksServed.cap>0))
+                $scope.drinksServed.cap = data.drinksServed.cap;
+            if (!_.isUndefined(data.drinksServed.dcaf)&&(data.drinksServed.dcaf!=null) && (data.drinksServed.dcaf>0))
+                $scope.drinksServed.dcaf = data.drinksServed.dcaf;
+            if (!_.isUndefined(data.drinksServed.esp)&&(data.drinksServed.esp!=null) && (data.drinksServed.esp>0))
+                $scope.drinksServed.esp = data.drinksServed.esp;
+            if (!_.isUndefined(data.drinksServed.reg)&&(data.drinksServed.reg!=null) && (data.drinksServed.reg>0))
+                $scope.drinksServed.reg = data.drinksServed.reg;
+            if (!_.isUndefined(data.drinksServed.tea)&&(data.drinksServed.tea!=null) && (data.drinksServed.tea>0))
+                $scope.drinksServed.tea = data.drinksServed.tea;
+        }
         
-        $scope.regions.reg1 = data.regions.west;
-        $scope.regions.reg2 = data.regions.midwest;
-        $scope.regions.reg3 = data.regions.neMidAtlantic;
-        $scope.regions.reg4 = data.regions.neNewEngland;
-        $scope.regions.reg5 = data.regions.sWestSouthCentral;
-        $scope.regions.reg6 = data.regions.sSouthAtlanticESCentral;
+        if (!_.isUndefined(data.regions)) {
+            if (!_.isUndefined(data.regions.west) && (data.regions.west!=null) && (data.regions.west>0))
+                $scope.regions.reg1 = data.regions.west;
+            if (!_.isUndefined(data.regions.midwest) && (data.regions.midwest!=null) && (data.regions.midwest>0))
+                $scope.regions.reg2 = data.regions.midwest;
+            if (!_.isUndefined(data.regions.neMidAtlantic) && (data.regions.neMidAtlantic!=null) && (data.regions.neMidAtlantic>0))
+                $scope.regions.reg3 = data.regions.neMidAtlantic;
+            if (!_.isUndefined(data.regions.neNewEngland) && (data.regions.neNewEngland!=null) && (data.regions.neNewEngland>0))
+                $scope.regions.reg4 = data.regions.neNewEngland;
+            if (!_.isUndefined(data.regions.sWestSouthCentral) && (data.regions.sWestSouthCentral!=null) && (data.regions.sWestSouthCentral>0))
+                $scope.regions.reg5 = data.regions.sWestSouthCentral;
+            if (!_.isUndefined(data.regions.sSouthAtlanticESCentral) && (data.regions.sSouthAtlanticESCentral!=null) && (data.regions.sSouthAtlanticESCentral>0))
+                $scope.regions.reg6 = data.regions.sSouthAtlanticESCentral;
+        }
         
         $scope.state1 = $scope.regions.reg1;
         $scope.state2 = $scope.regions.reg2;
@@ -308,26 +325,35 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         $scope.state6 = $scope.regions.reg6
         
         // Stations
-        $scope.station1 = data.stations.station1;
-        $scope.station2 = data.stations.station2;
-        $scope.station3 = data.stations.station3;
+        if (!_.isUndefined(data.stations)) {
+            if (!_.isUndefined(data.stations.station1) && (data.stations.station1!=null) && (data.stations.station1>0))
+                $scope.station1 = data.stations.station1;
+            if (!_.isUndefined(data.stations.station2) && (data.stations.station2!=null) && (data.stations.station2>0))
+                $scope.station2 = data.stations.station2;
+            if (!_.isUndefined(data.stations.station3) && (data.stations.station3!=null) && (data.stations.station3>0))
+                $scope.station3 = data.stations.station3;
+        }
         
-        $scope.onzas = numberWithCommas(data.onzas);
-        $scope.totVisitors = data.totVisitors;
+        if (!_.isUndefined(data.onzas) && (data.onzas!=null) && (data.onzas>0))
+            $scope.onzas = numberWithCommas(data.onzas);
+        if (!_.isUndefined(data.totVisitors) && (data.totVisitors!=null) && (data.totVisitors>0))
+            $scope.totVisitors = data.totVisitors;
         $scope.totalDrinksServed = numberWithCommas($scope.regions.reg1+
                                     $scope.regions.reg2+
                                     $scope.regions.reg3+
                                     $scope.regions.reg4+
                                     $scope.regions.reg5+
                                     $scope.regions.reg6);
+                                    
         $scope.totalCoffeeServed = $scope.drinksServed.amer+
                                 $scope.drinksServed.cap +
                                 $scope.drinksServed.dcaf +
                                 $scope.drinksServed.esp +
-                                $scope.drinksServed.reg;
+                                $scope.drinksServed.reg +
+                                $scope.drinksServed.tea;
         
         // Bar chart
-        $scope.barData = [$scope.drinksServed];
+        //$scope.barData = [$scope.drinksServed];
         $scope.barData = [[
             $scope.drinksServed.tea,
             $scope.drinksServed.cap,
@@ -336,6 +362,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             $scope.drinksServed.amer,
             $scope.drinksServed.esp,
         ]];
+        
         
         $scope.colorsxively = [{
             fillColor: 'rgba(255, 72, 51, 0.8)',
@@ -418,13 +445,19 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
   
   function addMsgsToQueue() {
         for (var i = 0; i<$scope.msgs.length; i++) {
-            var dateNow = new Date().getTime();
-            var dateMsg = new Date($scope.msgs[i].end).getTime();
-            console.log("messages --> ",moment($scope.msgs[i].start).hour());
-            console.log("messages --> ",moment($scope.msgs[i].start).minute());
+            //var dateNow = new Date().getTime();
+            var dateNow = moment().valueOf();
+            //var dateMsg = new Date($scope.msgs[i].end).getTime();
+            var dateMsg = moment($scope.msgs[i].end).valueOf();
+            //console.log("dateMsg: ",dateMsg);
+            //console.log("messages --> ",moment($scope.msgs[i].start).hour(),":",moment($scope.msgs[i].start).minute());
+            
             var dNow = new Date().getDay();
             var dMsg = new Date($scope.msgs[i].end).getDay();
-            if ((dNow == dMsg) && (dateNow >= dateMsg)) {
+            //var dMsg = moment($scope.msgs[i].end).valueOf();
+            //console.log("dMsg: ",dMsg);
+            //console.log(dNow," ==", dMsg ,"&&", dateNow," >=",dateMsg);
+            if ((dNow == dMsg) && (dateMsg >= dateNow)) {
                 
                 if ($scope.msgs[i].expositor.toLowerCase() == "xively") 
                     	
@@ -444,7 +477,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     }
     
     // Showing messages
-    var msgIndexActual = 0;
+    /*var msgIndexActual = 0;
     var msgIndexInitial = 0;
     function thereAreMsgs() {
         for (var i = 0; i < $scope.msgs.length; i++) {
@@ -524,7 +557,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             $timeout(soMsgs, 3000);
         };
         $timeout(soMsgs, 3000);
-    };
+    };*/
     //showOtherMsgs();
     
     function subsError(response) {

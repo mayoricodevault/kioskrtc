@@ -1,7 +1,7 @@
 xively.controller('wi4Controller', ['$scope','$timeout', function($scope, $timeout){
     var totals = [0, 0, 0, 0, 0, 0, 0];
     var nStates = 7;
-    var percentLimits=[0.8,0.5,0.01];
+    var percentLimits=[0.8,0.34,0.01];
     var percentClasses=["circle-40","circle-30","circle-20"];
     
     function getMax() {

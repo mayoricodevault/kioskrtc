@@ -11,7 +11,7 @@ var xively = angular.module('xively', ['ng.deviceDetector',
     'LocalStorageModule',
     'firebase',
     'ngToast',
-    'ngQueue'
+    'ngQueue',
     ])
     .config(['ngToastProvider', function(ngToast) {
     ngToast.configure({

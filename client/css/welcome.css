@@ -21,6 +21,7 @@ body{
     width: 450px;
     height: 450px;  
     margin: auto;   
+    display: table;
  }
  .hello-circle-lg b{
       font-size: 40px; 
@@ -29,7 +30,8 @@ body{
 .hello-circle-md{
     width: 360px;
     height: 360px;  
-    margin: auto;   
+    margin: auto;
+    display: table;
  }
   .hello-circle-md b{
       font-size: 32px; 
@@ -37,8 +39,9 @@ body{
  }
 .hello-circle-sm{
     width: 300px;
-    height: 300px;  
-    margin: auto;   
+    height: 300px;
+    margin: auto;
+    display: table;
 }
   .hello-circle-sm b{
       font-size: 28px;
@@ -46,24 +49,30 @@ body{
  }
 .row-circle-lg{
     display: inline-block;
-    display: inherit;
+    /*display: inherit;*/
     padding: 105px 15px;
     margin: auto;
     text-align: center;
+    display: table-cell;
+    vertical-align: middle;
  }
 .row-circle-md{
     display: inline-block;
     padding: 91px 15px;
-    display: inherit;
+    /*display: inherit;*/
     margin: auto;
     text-align: center;
+    display: table-cell;
+    vertical-align: middle;
  }
 .row-circle-sm{
     display: inline-block;
     padding: 78px 15px;
-    display: inherit;
+    /*display: inherit;*/
     margin: auto;
     text-align: center;
+    display: table-cell;
+    vertical-align: middle;
  }
 .hello-circleText-lg{
     font-size: 38px;
@@ -94,6 +103,10 @@ body{
 }
 .messagebox-lg{
     margin-top: 25px;
+}
+
+.message-center{
+    margin-top:25px;
 }
 @media (max-width: 1025px){
     body{

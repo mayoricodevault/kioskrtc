@@ -6,13 +6,13 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightFill: 'rgba(47, 132, 71, 0.8)',
             highlightStroke: 'rgba(47, 132, 71, 0.8)',
             tooltipFillColor:'rgba(255, 72, 51, 0.8)'
-        },{
+    },{
             fillColor: 'rgba(194, 194, 194, 0.8)',
             strokeColor: 'rgba(194, 194, 194, 0.8)',
             highlightFill: 'rgba(194, 194, 194, 0.8)',
             highlightStroke: 'rgba(194, 194, 194, 0.8)',
             tooltipFillColor:'rgba(194, 194, 194, 0.9)'
-        }];
+    }];
     // Doughnut initial data
     $scope.doughnutData = [0, 100];
     $scope.doughnutPercent = 0;
