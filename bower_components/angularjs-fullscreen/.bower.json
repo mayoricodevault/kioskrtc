@@ -1,0 +1,29 @@
+{
+  "author": "demisx demisxbar@gmail.com",
+  "name": "angularjs-fullscreen",
+  "version": "0.0.1",
+  "main": "dist/angularjs-fullscreen.js",
+  "ignore": [
+    "src",
+    "spec",
+    ".gitignore",
+    "bower.json",
+    "package.json",
+    "gulpfile.js",
+    "README.md"
+  ],
+  "dependencies": {
+    "angular": "~1.2.15"
+  },
+  "homepage": "https://github.com/demisx/angularjs-fullscreen",
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.1",
+    "commit": "91bc15977e2ce2397fb670164284427211e96d02"
+  },
+  "_source": "git://github.com/demisx/angularjs-fullscreen.git",
+  "_target": "~0.0.1",
+  "_originalSource": "angularjs-fullscreen",
+  "_direct": true
+}
