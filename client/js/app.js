@@ -70,7 +70,6 @@ var xively = angular.module('xively', ['ng.deviceDetector',
         $routeProvider.when('/barista/menu', {templateUrl: '/partials/barista/menu.html', controller: 'menuController', resolve: {authenticate: authenticate}});
         $routeProvider.when('/barista/register', {templateUrl: '/partials/barista/register.html', controller: 'registerController', resolve: {authenticate: authenticate}});
         $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController', resolve: {authenticate: authenticate}});
-        $routeProvider.when('/kiosk/register', {templateUrl: '/partials/kiosk/register.html', controller: 'registerController', resolve: {authenticate: authenticate}});
         $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController', resolve: {authenticate: authenticate} });
         //if no valid routes are found, redirect to /home
         $routeProvider.otherwise({redirectTo: '/settings'});
@@ -139,10 +138,13 @@ var xively = angular.module('xively', ['ng.deviceDetector',
             return data.slice(start);
         };
     })
-   
+    .run(function($rootScope){
+        $rootScope.currentPerson;
+    })
     .constant('FIREBASE_URI', 'https://kxively.firebaseio.com/people')
     .constant('FIREBASE_URI_ORDERS', 'https://kxively.firebaseio.com/orders')
     .constant('FIREBASE_URI_MSGS', 'https://kxively.firebaseio.com/messages')
     .constant('FIREBASE_URI_ROOT', 'https://kxively.firebaseio.com')
+    .constant('FIREBASE_URI_SESSIONS', 'https://kxively.firebaseio.com/sessions')
     .constant("API_URL", 'https://kiosk-mmayorivera.c9.io');
     

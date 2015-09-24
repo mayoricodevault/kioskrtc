@@ -60,7 +60,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     var footerQueueCallBack = function(msg) {
         $scope.msgStart = msg.start;
         $scope.msgEnd = msg.end;
-        if (msg.text.length>=240)
+        if (msg.text.length<=240)
             $scope.msgText = msg.text;
         else
             $scope.msgText = msg.text.substr(0,240)+"...";
@@ -274,7 +274,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     $scope.station1 = 0;
     $scope.station2 = 0;
     $scope.station3 = 0;
-    $scope.onzas = 0;
+    $scope.totalounces = 0;
     $scope.totalDrinksServed = 0;
     
     function numberWithCommas(x) {
@@ -290,16 +290,17 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         if (!_.isUndefined(data.drinksServed)){
             if (!_.isUndefined(data.drinksServed.amer) && (data.drinksServed.amer>0))
                 $scope.drinksServed.amer = data.drinksServed.amer;
-            if (!_.isUndefined(data.drinksServed.cap)&&(data.drinksServed.cap!=null) && (data.drinksServed.cap>0))
+            if (!_.isUndefined(data.drinksServed.cap) && (data.drinksServed.cap>0))
                 $scope.drinksServed.cap = data.drinksServed.cap;
-            if (!_.isUndefined(data.drinksServed.dcaf)&&(data.drinksServed.dcaf!=null) && (data.drinksServed.dcaf>0))
+            if (!_.isUndefined(data.drinksServed.dcaf) && (data.drinksServed.dcaf>0))
                 $scope.drinksServed.dcaf = data.drinksServed.dcaf;
-            if (!_.isUndefined(data.drinksServed.esp)&&(data.drinksServed.esp!=null) && (data.drinksServed.esp>0))
+            if (!_.isUndefined(data.drinksServed.esp) && (data.drinksServed.esp>0))
                 $scope.drinksServed.esp = data.drinksServed.esp;
-            if (!_.isUndefined(data.drinksServed.reg)&&(data.drinksServed.reg!=null) && (data.drinksServed.reg>0))
+            if (!_.isUndefined(data.drinksServed.reg) && (data.drinksServed.reg>0))
                 $scope.drinksServed.reg = data.drinksServed.reg;
-            if (!_.isUndefined(data.drinksServed.tea)&&(data.drinksServed.tea!=null) && (data.drinksServed.tea>0))
+            if (!_.isUndefined(data.drinksServed.tea) && (data.drinksServed.tea>0))
                 $scope.drinksServed.tea = data.drinksServed.tea;
+        
         }
         
         if (!_.isUndefined(data.regions)) {
@@ -334,9 +335,9 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 $scope.station3 = data.stations.station3;
         }
         
-        if (!_.isUndefined(data.onzas) && (data.onzas!=null) && (data.onzas>0))
-            $scope.onzas = numberWithCommas(data.onzas);
-        if (!_.isUndefined(data.totVisitors) && (data.totVisitors!=null) && (data.totVisitors>0))
+        if (!_.isUndefined(data.totalounces) && (data.totalounces!=null) && (data.totalounces>0))
+            $scope.totalounces = numberWithCommas(data.totalounces);
+        if ((data.totVisitors) && (data.totVisitors!=null) && (data.totVisitors>0))
             $scope.totVisitors = data.totVisitors;
         $scope.totalDrinksServed = numberWithCommas($scope.regions.reg1+
                                     $scope.regions.reg2+
@@ -345,12 +346,12 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                                     $scope.regions.reg5+
                                     $scope.regions.reg6);
                                     
-        $scope.totalCoffeeServed = $scope.drinksServed.amer+
-                                $scope.drinksServed.cap +
-                                $scope.drinksServed.dcaf +
-                                $scope.drinksServed.esp +
-                                $scope.drinksServed.reg +
-                                $scope.drinksServed.tea;
+        $scope.totalCoffeeServed = parseInt($scope.drinksServed.amer)+
+                                parseInt($scope.drinksServed.cap) +
+                                parseInt($scope.drinksServed.dcaf) +
+                                parseInt($scope.drinksServed.esp) +
+                                parseInt($scope.drinksServed.reg) +
+                                parseInt($scope.drinksServed.tea);
         
         // Bar chart
         //$scope.barData = [$scope.drinksServed];
@@ -371,16 +372,18 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightStroke: 'rgba(47, 132, 71, 0.8)',
             tooltipFillColor:'rgba(255, 72, 51, 0.8)'
         }];
-        
+        console.log("totalCoffeeServed:"+$scope.totalCoffeeServed+"totVisitors:"+$scope.totVisitors);
         // Doughnut chart
-        $scope.doughnutData = [$scope.totalCoffeeServed,$scope.totVisitors-$scope.totalCoffeeServed];
+        var difference = $scope.totVisitors-$scope.totalCoffeeServed;
+        if (difference<0) difference = 0;
+        $scope.doughnutData = [$scope.totalCoffeeServed,difference];
         $scope.doughnutPercent = Math.floor($scope.totalCoffeeServed*100/($scope.totVisitors));
         // Sum Drinks
         $scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
                          $scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
     }
     Socket.on('dashboard', function(data) {
-      //  var Json = {"onzas":24616, "drinksServed":{"esp":34,"amer":20,"reg":44,"dcaf":6,"cap":24,"tea":18},
+      //  var Json = {"totalounces":24616, "drinksServed":{"esp":34,"amer":20,"reg":44,"dcaf":6,"cap":24,"tea":18},
       // "regions":{"west":21,"midwest":5,"neMidAtlantic":6,"neNewEngland":60,"sWestSouthCentral":6,"sSouthAtlanticESCentral":2}};
       //console.log(data);
         dbQueue.add(data);

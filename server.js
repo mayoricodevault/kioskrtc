@@ -19,12 +19,12 @@ var Firebase = require('firebase');
 var appfire = new Firebase(configDB.firebase);
 var moment = require('moment');
 var fs = require('fs');
-// var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 app.use(session);
 app.use(cors());
 app.use(favicon(__dirname + '/client/img/favicon.ico'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride());
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, 'client', 'views'));
@@ -98,14 +98,10 @@ app.post("/weather", function(request, response) {
     });
 
 });
-
-
 app.post("/xdashboard", function(request, response) {
   var totals = JSON.stringify(request.body);
   var toJsonTotals = JSON.parse(totals);
   var toJsonBody = JSON.parse(toJsonTotals.body);
-    // console.log(toJsonBody.triggering_datastream);
-  // console.log(toJsonBody.id);
 
   if(_.isUndefined(toJsonBody) || _.isEmpty(toJsonBody)) {
     return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
@@ -114,36 +110,90 @@ app.post("/xdashboard", function(request, response) {
     return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
   }
   var data = toJsonBody.triggering_datastream;
+
   if(_.isUndefined(data.id) || _.isEmpty(data.id)) {
     return response.status(400).json({error: "Invalid Id Data for Dashboard -- Totals"});
   }
-  var drinksServedObj = new Object();
-  if (data.id == 'drinksServed_esp') {
-    drinksServedObj.esp = data.value.value;
-  }
-  if (data.id == 'drinksServed_amer') {
-    drinksServedObj.amer = data.value.value;
-  }
-  if (data.id == 'drinksServed_cap') {
-    drinksServedObj.cap = data.value.value;
-  }
-  if (data.id == 'drinksServed_dcaf') {
-    drinksServedObj.dcaf = data.value.value;
-  }
-  if (data.id == 'drinksServed_reg') {
-    drinksServedObj.reg = data.value.value;
-  }
-
+  var keyWord = data.id;
   var datafinal = new Object();
-  datafinal.drinksServed = drinksServedObj;
-  datafinal.zoneto ="kiosk";
-  datafinal.zonefrom ="dashboard";
-  // toDo : More
+  if (data.id.indexOf("drinksServed") > -1) {
+      var subType = keyWord.indexOf("_");
+      var coffee = data.id.substring(subType + 1, data.id.length);
+      var drinksServedObj = new Object();
+      if (coffee == 'esp') {
+        drinksServedObj.esp = data.value.value;
+      }
+      if (coffee == 'amer') {
+        drinksServedObj.amer = data.value.value;
+      }
+      if (coffee == 'cap') {
+        drinksServedObj.cap = data.value.value;
+      }
+      if (coffee == 'dcaf') {
+        drinksServedObj.dcaf = data.value.value;
+      }
+      if (coffee == 'reg') {
+        drinksServedObj.reg = data.value.value;
+      }
+       if (coffee == 'tea') {
+        drinksServedObj.tea = data.value.value;
+      }
+      datafinal.drinksServed = drinksServedObj;  
+    
+  }
+  
+  if (data.id.indexOf("consumption") > -1) {
+     datafinal.totalounces = data.value.value;
+  }
+   if (data.id.indexOf("totVisitors") > -1) {
+     datafinal.totVisitors = data.value.value;
+  }
+  if (data.id.indexOf("stations") > -1) {
+    var subStat = keyWord.indexOf("_");
+     var station = data.id.substring(subStat + 1, data.id.length);
+     var stationsObj = new Object();
+     if (station == 'station1') {
+        stationsObj.station1 = data.value.value;
+      }
+      if (station == 'station2') {
+        stationsObj.station2 = data.value.value;
+      }
+      if (station == 'station3') {
+        stationsObj.station3 = data.value.value;
+      }
+      datafinal.stations = stationsObj; 
+  }
+  
+    if (data.id.indexOf("regions") > -1) {
+     var subReg = keyWord.indexOf("_");
+     var region = data.id.substring(subReg + 1, data.id.length);
+     var resgionsObj = new Object();
+     if (region == 'west') {
+        resgionsObj.west = data.value.value;
+      }
+      if (region == 'midwest') {
+        resgionsObj.midwest = data.value.value;
+      }
+      if (region == 'neMidAtlantic') {
+        resgionsObj.neMidAtlantic = data.value.value;
+      }
+      if (region == 'neNewEngland') {
+        resgionsObj.neNewEngland = data.value.value;
+      }
+      if (region == 'sWestSouthCentral') {
+        resgionsObj.sWestSouthCentral = data.value.value;
+      }
+      if (region == 'sSouthAtlanticESCentral') {
+        resgionsObj.sSouthAtlanticESCentral = data.value.value;
+      }
+      datafinal.regions = resgionsObj; 
+  }
+  
+   datafinal.zoneto ="kiosk";
+   datafinal.zonefrom ="dashboard";
    io.sockets.emit('dashboard', datafinal);
    response.status(200).json({results: "Message Send"});
 });
-
-
 app.post("/dashboard", function(request, response) {
   var totals = request.body;
   if(_.isUndefined(totals) || _.isEmpty(totals)) {
@@ -158,9 +208,69 @@ app.post("/dashboard", function(request, response) {
   io.sockets.emit('dashboard', totals);
    response.status(200).json({results: "Message Send"});
 });
+app.post("/xwelcome", function(request, response) {
+  var infoXively = JSON.stringify(request.body);
+  var toJsonTotals = JSON.parse(infoXively);
+  var toJsonBody = JSON.parse(toJsonTotals.body);
 
+  if(_.isUndefined(toJsonBody) || _.isEmpty(toJsonBody)) {
+    return response.status(400).json({error: "Invalid Data for Welcome -- Body"});
+  }
+  if(_.isUndefined(toJsonBody.triggering_datastream) || _.isEmpty(toJsonBody.triggering_datastream)) {
+    return response.status(400).json({error: "Invalid Data for Welcome -- Totals"});
+  }
+  var people = toJsonBody.triggering_datastream;
+  if(_.isUndefined(people.id) || _.isEmpty(people.id)) {
+    return response.status(400).json({error: "Invalid Id Data for People "});
+  }
+  
+  var strObjDelimited = people.value.value.split("|");
+  var preJsonString = {};
+  for (var i = 0; i < strObjDelimited.length; i++) {
+    var pairWord = strObjDelimited[i].split(":");
+    preJsonString[pairWord[0]] = pairWord[1];
+  }
+  var toJsonString = JSON.stringify(preJsonString);
+  var peopleXively = JSON.parse(toJsonString);
+  var peopleObj = new Object();
+  peopleObj.favcoffee = peopleXively.favoriteDrink;
+  peopleObj.fname = peopleXively.firstname;
+  peopleObj.greeting = peopleXively.greeting;
+  peopleObj.city = peopleXively.guestCity;
+  peopleObj.lname = peopleXively.lastname;
+  peopleObj.msg1 = peopleXively.message;
+  peopleObj.msg2 = peopleXively.message;
+  peopleObj.state = peopleXively.state;
+  peopleObj.email = peopleXively.tagId;
+  peopleObj.name = peopleXively.firstname+" "+peopleXively.lastname;
+  peopleObj.id = peopleXively.tagId;
+  peopleObj.crcombined = peopleXively.guestCity + " "+peopleXively.state;
+  peopleObj.zonefrom = "Xively";
+  peopleObj.zoneto =  peopleXively.deviceId;
+  peopleObj.dt =  moment().format();
+  var activePeople = appfire.child('people/'+peopleObj.id);
+  activePeople
+    .once('value', function(snap) {
+      if(!snap.val()) {
+         activePeople.set(peopleObj);
+      }
+  });
+  io.sockets.emit('welcome', peopleObj);
+  requestify.request(configDB.url_controller+"/xively", {
+      method: 'POST',
+      body: peopleObj,
+      headers : {
+              'Content-Type': 'application/json'
+      },
+      dataType: 'json'        
+      }).then(function(response) {
+          // Get the response body
+          console.log(response);
+      });
+  // // TODO:  Send to Server
+  response.status(200).json({results: "Message Send"});
 
-
+});
 app.post("/welcome", function(request, response) {
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
@@ -205,10 +315,7 @@ app.post("/welcome", function(request, response) {
   
 
 });
-
-
 app.post("/xively", function(request, response) {
-  
   var people = request.body;
 
   if(_.isUndefined(people) || _.isEmpty(people)) {
@@ -229,11 +336,8 @@ app.post("/xively", function(request, response) {
   if(_.isUndefined(people.zoneto) || _.isEmpty(people.zoneto)) {
     return response.status(400).json({error: "Zone Must be defined"});
   }
-  if(_.isUndefined(people.companyname) || _.isEmpty(people.companyname) ){
-    return response.status(400).json({error: "Company Must be defined"});
-  }
-  
-   var fsessType = 'xternal';
+
+  var fsessType = 'xternal';
    
   if (people.zonefrom == 'IoT') {
     console.log("---");
@@ -271,6 +375,73 @@ app.post("/xively", function(request, response) {
           console.log(response);
       });
   // TODO:  Send to Server
+  response.status(200).json({results: "Message Send"});
+  
+
+});
+app.post("/xxively", function(request, response) {
+ var infoXively = JSON.stringify(request.body);
+  var toJsonTotals = JSON.parse(infoXively);
+  var toJsonBody = JSON.parse(toJsonTotals.body);
+  //   console.log(infoXively);
+  // console.log(toJsonBody);
+
+  if(_.isUndefined(toJsonBody) || _.isEmpty(toJsonBody)) {
+    return response.status(400).json({error: "Invalid Data for Welcome -- Body"});
+  }
+  if(_.isUndefined(toJsonBody.triggering_datastream) || _.isEmpty(toJsonBody.triggering_datastream)) {
+    return response.status(400).json({error: "Invalid Data for Welcome -- Totals"});
+  }
+  var people = toJsonBody.triggering_datastream;
+  if(_.isUndefined(people.id) || _.isEmpty(people.id)) {
+    return response.status(400).json({error: "Invalid Id Data for People "});
+  }
+  var strObjDelimited = people.value.value.toString().split("|");
+  var preJsonString = {};
+  for (var i = 0; i < strObjDelimited.length; i++) {
+    var pairWord = strObjDelimited[i].split(":");
+    preJsonString[pairWord[0]] = pairWord[1];
+  }
+  var toJsonString = JSON.stringify(preJsonString);
+  var peopleXively = JSON.parse(toJsonString);
+  var peopleObj = new Object();
+  peopleObj.favcoffee = peopleXively.favoriteDrink;
+  peopleObj.fname = peopleXively.firstname;
+  peopleObj.greeting = peopleXively.greeting;
+  peopleObj.city = peopleXively.guestCity;
+  peopleObj.lname = peopleXively.lastname;
+  peopleObj.msg1 = peopleXively.message;
+  peopleObj.msg2 = peopleXively.message;
+  peopleObj.state = peopleXively.state;
+  peopleObj.email = peopleXively.tagId;
+  peopleObj.name = peopleXively.firstname+" "+peopleXively.lastname;
+  peopleObj.id = peopleXively.tagId;
+  peopleObj.crcombined = peopleXively.guestCity + " "+peopleXively.state;
+  peopleObj.zonefrom = "Xively";
+  peopleObj.zoneto =  peopleXively.deviceId;
+  peopleObj.dt =  moment().format();
+  var activePeople = appfire.child('people/'+peopleObj.id);
+  activePeople
+    .once('value', function(snap) {
+      if(!snap.val()) {
+         activePeople.set(peopleObj);
+         io.sockets.emit('unknown', peopleObj);
+      } else {
+        io.sockets.emit('register', peopleObj);
+      }
+  });
+  requestify.request(configDB.url_controller+"/xively", {
+      method: 'POST',
+      body: peopleObj,
+      headers : {
+              'Content-Type': 'application/json'
+      },
+      dataType: 'json'        
+      }).then(function(response) {
+          // Get the response body
+          console.log(response);
+      });
+  // // TODO:  Send to Server
   response.status(200).json({results: "Message Send"});
   
 

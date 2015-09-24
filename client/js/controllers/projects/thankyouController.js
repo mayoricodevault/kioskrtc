@@ -60,8 +60,6 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
                 }
             }
     });
-  
-    
     Socket.on('ping', function(data){
         var socketid = LSFactory.getSocketId();
         if (LSFactory.getSessionId() === data.sessionid) {
@@ -72,25 +70,19 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
             }
         }
     });
-
-
     if ($scope.people.length>9){
       $scope.people.shift();
     }
     
     $scope.redirectSplash=function(){
-         $timeout(function() {
+        // $timeout(function() {
              
         
         $timeout(function() {
-        location.reload();    
-        },500);
-        $location.path("/splash");
-        }, 15000);
-        
-        
-        
-        
+        //location.reload();    
+        //},500);
+            $location.path("/splash");
+        }, 5000);
     };
     
     function compare(a,b) {

@@ -27,10 +27,9 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     
     var baristaTagOld=LSFactory.getTagId();
     $scope.baristaTagID=baristaTagOld;
-    
     $scope.$watch('currentPerson',function(){
         if($scope.currentPerson){
-            $http.post('https://kiosk-mmayorivera.c9.io/weather',$scope.getPlace($scope.currentPerson))
+            $http.post(API_URL+'/weather',$scope.getPlace($scope.currentPerson))
         	.success(function(data){
         		$scope.weather=data.query.results.channel;
             });

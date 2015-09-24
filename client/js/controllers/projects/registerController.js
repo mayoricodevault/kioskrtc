@@ -1,4 +1,3 @@
-
 xively.controller('registerController', ['$scope', '$rootScope', 'Socket','localStorageService','VisitorsService', 'sharedProperties' ,'LSFactory','SubscriptionFactory','$window', 'API_URL',function($scope, $rootScope, Socket,localStorageService, VisitorsService, sharedProperties, LSFactory,SubscriptionFactory, $window, API_URL){
    
     $scope.cleanVisitors = VisitorsService.getVisitors();
