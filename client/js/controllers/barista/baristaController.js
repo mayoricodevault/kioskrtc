@@ -18,9 +18,8 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     $scope.$watch('fbBind', function() {
         refreshFb();
     });    
-    
-    var currentPersonOld=localStorageService.get('currentPerson');
-    $scope.currentPerson=currentPersonOld;
+
+    $scope.currentPerson=localStorageService.get('currentPerson');
     
     var currentIndexOld=localStorageService.get('currentIndex');
     $scope.currentIndex=currentIndexOld || 0;
@@ -29,13 +28,9 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     $scope.baristaTagID=baristaTagOld;
     $scope.$watch('currentPerson',function(){
         if($scope.currentPerson){
-            $http.post(API_URL+'/weather',$scope.getPlace($scope.currentPerson))
-        	.success(function(data){
-        		$scope.weather=data.query.results.channel;
-            });
             $scope.coffee($scope.currentPerson.favcoffee);
-            localStorageService.set('currentPerson',$scope.currentPerson);
         }
+        localStorageService.set('currentPerson',$scope.currentPerson);
     },true);
     $scope.$watch('currentIndex',function(){
         localStorageService.set('currentIndex',$scope.currentIndex);
@@ -82,6 +77,7 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
 				return;
 			}
 	        if (order.active==1 && order.masterId==$scope.baristaTagID) {
+	            console.log(order);
 	            $scope.orders.push(order);
 	            $scope.totalOrdersActive++;
 	        }

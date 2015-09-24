@@ -32,8 +32,8 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="libs/ngtoast/dist/ngToast.min.css"/>
     <link rel="stylesheet" href="libs/angular-chart.js/angular-chart.css" />
+    <link rel="stylesheet" href="libs/angular-hotkeys/hotkeys.css" />    
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-    
 
 <script type="text/javascript">
   function preventBack() { window.history.forward(); }
@@ -46,6 +46,8 @@
 
 <body ng-cloak onpageshow="if (event.persisted) noBack();" >
     <toast></toast>
+   
+    
     <div ng-model="snap" style="display:none;"></div>
     <div class="container-fluid" >
       <!-- Main component for a primary marketing message or call to action -->
@@ -80,6 +82,7 @@
     <script type="text/javascript" src="libs/angular-sanitize/angular-sanitize.min.js"></script>
     <script type="text/javascript" src="libs/ngtoast/dist/ngToast.min.js"></script>
      <script type="text/javascript" src="libs/angular-messages/angular-messages.js"></script>
+     <script type="text/javascript" src="libs/angular-hotkeys/hotkeys.js"></script>
      <script src="https://cdn.rawgit.com/Luegg/angularjs-scroll-glue/master/src/scrollglue.js"></script>
      <!-- Install library chart-->
     <script src="libs/chartjs/Chart.js"></script>

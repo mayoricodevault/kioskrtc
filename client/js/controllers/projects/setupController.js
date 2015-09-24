@@ -1,4 +1,12 @@
-xively.controller('setupController',['$scope','$rootScope','$window',  'Api', 'Socket', 'SubscriptionFactory', 'LSFactory', 'API_URL', '$animate', 'deviceDetector', 'ngToast','$location',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, LSFactory, API_URL, $animate, deviceDetector, ngToast, $location){
+xively.controller('setupController',['$scope',
+    '$rootScope',
+    '$window', 
+    'Api', 
+    'Socket', 
+    'SubscriptionFactory', 
+    'API_URL', 
+    '$animate', 
+    'deviceDetector', 'ngToast','$location',function($scope,$rootScope,$window,  Api, Socket, SubscriptionFactory, API_URL, $animate, deviceDetector, ngToast, $location){
     $scope.deviceDetector=deviceDetector;
 	$scope.DeviceTye="KIOSK";
     $scope.serverSelected = "";

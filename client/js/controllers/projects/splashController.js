@@ -9,9 +9,10 @@ xively.controller('splashController', ['$scope',
     'SessionsService',
     'Orders',
     'Sessions',
+    'hotkeys',
     'FIREBASE_URI_ORDERS',
     'FIREBASE_URI_SESSIONS',
-    'API_URL','localStorageService', 
+    'API_URL','localStorageService',
     function($scope, 
     $rootScope, 
     Socket, 
@@ -23,13 +24,28 @@ xively.controller('splashController', ['$scope',
     SessionsService,
     Orders,
     Sessions,
+    hotkeys,
     FIREBASE_URI_ORDERS,
     FIREBASE_URI_SESSIONS,
     API_URL,localStorageService){
     $scope.base64 = '';
     $scope.orders = [];
-    
     $scope.sessions = [];
+    $scope.helpVisible=false;
+    hotkeys.bindTo($scope)
+    .add({
+      combo: 'esc',
+      description: 'Kiosk Information',
+      callback: function() {
+        if ($scope.helpVisible) {
+            $scope.helpVisible = false;
+        } else {
+            $scope.helpVisible = true;
+        }
+      }
+     
+    });
+    
     Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbOBind");
     $scope.isFavorite="splash";
     $scope.$watch('isFavorite',function(){
@@ -63,9 +79,11 @@ xively.controller('splashController', ['$scope',
            if(getOrderCoffee(data.email)){
                 storeService.jsonWrite('paneSelected',{id:'3'});
                 $location.path('/kiosk/select');
+                //$location.path('/kiosk/select/3');
            }  else {
              storeService.jsonWrite('paneSelected',{id:'1'});
              $location.path('/kiosk/select');
+             //$location.path('/kiosk/select/1');
            }
         }
     });

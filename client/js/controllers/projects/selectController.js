@@ -1,4 +1,4 @@
-xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window','$timeout','ngToast','OrdersService','Api', 'SessionsService','Orders','FIREBASE_URI_ORDERS', 'Visitors', 'FIREBASE_URI', function($scope,$rootScope, Socket,localStorageService,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window,$timeout,ngToast,OrdersService,Api, SessionsService, Orders, FIREBASE_URI_ORDERS, Visitors, FIREBASE_URI){
+xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window','$timeout','ngToast','OrdersService','Api', 'SessionsService','Orders','FIREBASE_URI_ORDERS', 'Visitors', 'FIREBASE_URI','$routeParams', function($scope,$rootScope, Socket,localStorageService,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window,$timeout,ngToast,OrdersService,Api, SessionsService, Orders, FIREBASE_URI_ORDERS, Visitors, FIREBASE_URI,$routeParams){
     $scope.currentfavcoffee;
     $scope.currentPerson=$rootScope.currentPerson;
     $scope.paneSelected = storeService.jsonRead('paneSelected');
@@ -9,6 +9,8 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.oldFavorite=$rootScope.currentPerson;
     $scope.people;
     $scope.searchNameFocus=false;
+    $scope.param = $routeParams.param;
+    console.log("routeparams --> ",$scope.param);
     
     console.log("paneselected --> ",$scope.paneSelected);
     if($scope.paneSelected.id=='2'){

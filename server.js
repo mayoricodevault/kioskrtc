@@ -77,11 +77,48 @@ io.on('connection', function(socket) {
       });
   });
   
+  socket.on('unsubscribed', function(data){
+      requestify.request(configDB.url_controller+"/xively", {
+        method: 'POST',
+        body: data,
+        headers : {
+                'Content-Type': 'application/json'
+        },
+        dataType: 'json'        
+      }).then(function(response) {
+      });
+  });
+  
   socket.on('disconnect', function(data){
     console.log(data + ' has Disconnected!');
   });
 });
+app.post("/vizix-served", function(request, response) {
+  
+  requestify.request(configDB.vizixserved , {
+    method: 'PUT',
+    headers : {'api_key':'root','Content-Type': 'application/json'},
+    dataType: 'json' ,
+     body: request.body,
+    }).then(function(res) {
+        
+         return response.status(200).json("ok");
+    });
 
+});
+app.post("/vizix-order", function(request, response) {
+  
+  requestify.request(configDB.vizixorder , {
+    method: 'POST',
+    headers : {'api_key':'root','Content-Type': 'application/json'},
+    dataType: 'json' ,
+    body: request.body,
+    }).then(function(res) {
+         
+         return response.status(200).json("ok");
+    });
+
+});
 app.post("/weather", function(request, response) {
   var city = request.body.city;
   var state = request.body.state;
@@ -449,6 +486,7 @@ app.post("/xxively", function(request, response) {
 app.post("/add-order", function (req, res) {
   var order = req.body.people;
   var activeOrder = appfire.child('orders/'+ replaceAll(order.email));
+  console.log(order);
   activeOrder.once('value', function(snap) {
       //if(!snap.val()) {
          var obj = new Object();

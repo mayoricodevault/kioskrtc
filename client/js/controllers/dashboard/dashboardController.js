@@ -53,7 +53,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         paused: true,
         complete: function() {
             $scope.msgOtherText = "";
-            addMsgsToQueue();
+            addMsgsToQueue(true);
         }
     };
     
@@ -70,7 +70,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         paused: true,
         complete: function() {
             $scope.msgExpositor = "";
-            addMsgsToQueue();
+            addMsgsToQueue(false);
         }
     };
     
@@ -286,7 +286,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     }
 
     function showValues(data) {
-        console.log(data);
         if (!_.isUndefined(data.drinksServed)){
             if (!_.isUndefined(data.drinksServed.amer) && (data.drinksServed.amer>0))
                 $scope.drinksServed.amer = data.drinksServed.amer;
@@ -443,10 +442,11 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
 		}); 
 		$scope.msgs.sort(compare);
 	
-		addMsgsToQueue();
+		addMsgsToQueue(true);
+		addMsgsToQueue(false);
 	}
   
-  function addMsgsToQueue() {
+  function addMsgsToQueue(isBodyQueue) {
         for (var i = 0; i<$scope.msgs.length; i++) {
             //var dateNow = new Date().getTime();
             var dateNow = moment().valueOf();
@@ -462,11 +462,13 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             //console.log(dNow," ==", dMsg ,"&&", dateNow," >=",dateMsg);
             if ((dNow == dMsg) && (dateMsg >= dateNow)) {
                 
-                if ($scope.msgs[i].expositor.toLowerCase() == "xively") 
-                    	
+                if (isBodyQueue && ($scope.msgs[i].expositor.toLowerCase() == "xively")) {
                     dbQueueBodyMsg.add($scope.msgs[i]);
-                else
+                    //console.log("added to body: "+$scope.msgs[i].text);
+                }
+                if (!isBodyQueue && ($scope.msgs[i].expositor.toLowerCase() != "xively")) {
                     dbQueueFooterMsg.add($scope.msgs[i]);
+                }
             }
         }
    }

@@ -3,17 +3,16 @@ xively.controller('registerController', ['$scope', '$rootScope', 'Socket','local
     $scope.cleanVisitors = VisitorsService.getVisitors();
     $scope.visitors = [];
     $scope.selected = undefined;
-    
     $scope.$watch('cleanVisitors', function () {
         visitorsToArray($scope.cleanVisitors);
-		
 	}, true);
-    
    Socket.on('sync', function(data){
         if (LSFactory.getSessionId() === data.sessionid) {
             if (data.action === 'reset') {
                 SubscriptionFactory.unsubscribe(data.socketid).
             		then(function success(response){
+            		    var deviceName = LSFactory.getSocketId() +" : "+LSFactory.getDeviceName();
+            		    var deviceType = LSFactory.getDeviceType();
                         LSFactory.setData("sessionid");
                         LSFactory.setData("socketid");
                         LSFactory.setData("serverUrl");
@@ -21,6 +20,7 @@ xively.controller('registerController', ['$scope', '$rootScope', 'Socket','local
                         $rootScope.user = null;
                         $rootScope.socketidSession = null;
                         Socket.disconnect(true);
+                        Socket.emit('unsubscribed',  {deviceType : deviceType , deviceName :deviceName, message : "Unsubscribed"});
             			$window.location.href = API_URL+"/splash";
             		}, subsError);
             }
@@ -41,12 +41,10 @@ xively.controller('registerController', ['$scope', '$rootScope', 'Socket','local
             }
         }
     });
-    
     $scope.reset = function () {
         $scope.visitors = null;
         $scope.visitors = VisitorsService.getVisitors();
     };
-    
     function visitorsToArray(oVisitors) {
         var total = 0;
 		$scope.visitors = [];

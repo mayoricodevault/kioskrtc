@@ -12,6 +12,7 @@ var xively = angular.module('xively', ['ng.deviceDetector',
     'firebase',
     'ngToast',
     'ngQueue',
+    'cfp.hotkeys'
     ])
     .config(['ngToastProvider', function(ngToast) {
     ngToast.configure({
@@ -70,7 +71,16 @@ var xively = angular.module('xively', ['ng.deviceDetector',
         $routeProvider.when('/barista/menu', {templateUrl: '/partials/barista/menu.html', controller: 'menuController', resolve: {authenticate: authenticate}});
         $routeProvider.when('/barista/register', {templateUrl: '/partials/barista/register.html', controller: 'registerController', resolve: {authenticate: authenticate}});
         $routeProvider.when('/kiosk/thankyou', {templateUrl: '/partials/kiosk/thankyou.html', controller: 'thankyouController', resolve: {authenticate: authenticate}});
-        $routeProvider.when('/kiosk/select', {templateUrl: '/partials/kiosk/select.html', controller: 'selectController', resolve: {authenticate: authenticate} });
+        $routeProvider.when('/kiosk/select', {
+            templateUrl: '/partials/kiosk/select.html', 
+            controller: 'selectController', 
+            resolve: {authenticate: authenticate} 
+        });
+        /*$routeProvider.when('/kiosk/select/:param', {
+            templateUrl: '/partials/kiosk/select.html', 
+            controller: 'selectController', 
+            resolve: {authenticate: authenticate} 
+        });*/
         //if no valid routes are found, redirect to /home
         $routeProvider.otherwise({redirectTo: '/settings'});
 
