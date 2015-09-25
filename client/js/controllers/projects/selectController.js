@@ -1,7 +1,7 @@
-xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window','$timeout','ngToast','OrdersService','Api', 'SessionsService','Orders','FIREBASE_URI_ORDERS', 'Visitors', 'FIREBASE_URI','$routeParams', function($scope,$rootScope, Socket,localStorageService,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window,$timeout,ngToast,OrdersService,Api, SessionsService, Orders, FIREBASE_URI_ORDERS, Visitors, FIREBASE_URI,$routeParams){
+xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window','$timeout','ngToast','OrdersService','Api', 'SessionsService','Orders','FIREBASE_URI_ORDERS', 'Visitors', 'FIREBASE_URI', function($scope,$rootScope, Socket,localStorageService,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window,$timeout,ngToast,OrdersService,Api, SessionsService, Orders, FIREBASE_URI_ORDERS, Visitors, FIREBASE_URI){
     $scope.currentfavcoffee;
     $scope.currentPerson=$rootScope.currentPerson;
-    $scope.paneSelected = storeService.jsonRead('paneSelected');
+    $scope.paneSelected = getPaneSelected();
     $scope.isFavorite;
     $scope.selected = undefined;
     $scope.trySelect = false;
@@ -9,10 +9,6 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.oldFavorite=$rootScope.currentPerson;
     $scope.people;
     $scope.searchNameFocus=false;
-    $scope.param = $routeParams.param;
-    console.log("routeparams --> ",$scope.param);
-    
-    console.log("paneselected --> ",$scope.paneSelected);
     if($scope.paneSelected.id=='2'){
         $scope.searchNameFocus = true;
     }
@@ -131,6 +127,8 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         SelPerson.zoneto = selVisitor.zoneto;
         SelPerson.zonefrom = selVisitor.zonefrom;
         SelPerson.region = selVisitor.region;
+        SelPerson.thingid = selVisitor.thingid;
+        SelPerson.id = selVisitor.id;
         $scope.currentPerson = SelPerson;
         LSFactory.setData("favcoffee",SelPerson.favcoffee);    
         $scope.paneSelected = {id:'3'};
@@ -145,11 +143,10 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     */
     $scope.order=function(){
         var orderPerson = _.find($scope.orders, function(findord) {
-            return findord.email === $scope.currentPerson.email ; 
+            return findord.id === $scope.currentPerson.id ; 
         });
-        
         if (orderPerson) {
-            if (parseInt(orderPerson.active,10) == 1) {
+            if (orderPerson.active == 1 || orderPerson.active=='1') {
                 orderPerson.tagId=LSFactory.getTagId();
                 if($scope.paneSelected.id==="3")
                     orderPerson.favcoffee=$scope.favcoffee;
@@ -167,9 +164,21 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             orderPerson.timeStamp = new Date().getTime();
             OrdersService.updateOrderStatus(orderPerson, 1);
         }
-        orderPerson = $scope.currentPerson;
         $scope.hideMsg(); 
-        //Todo: Post to Viziz Order Queue
+        var bodyOrder = {
+            name: orderPerson.thingid,
+            serial: orderPerson.thingid
+        };
+        $http.post(API_URL + '/vizix-order', {bodyOrder}).
+                then(function(response) {
+                    console.log("Response message1: ");
+                    console.log(response);
+                }, function(response) {
+                    console.log("Response message2: ");
+                    console.log(response);
+        },1000);       
+        
+        // End post vizix
         //
         $location.path("/kiosk/thankyou");
     };// end Click Order
@@ -296,8 +305,15 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
         
     }
 
+    function getPaneSelected(){
+        if (_.isEmpty(storeService.jsonRead('paneSelected')) || _.isUndefined(storeService.jsonRead('paneSelected'))) {
+            return { id : 2};
+        } else {
+            return storeService.jsonRead('paneSelected');
+        }
+    }
     function getOrderCoffee(favcoffee, personId) {
-            var coffeeSel
+            var coffeeSel;
             var favorite = {Espresso:1, Cappuccino:2, Americano:3,
                         Regular_Coffee:4, Decaf_Coffee:5, Tea:6};
             if (favcoffee.toString().search('Regular') >-1) {

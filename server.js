@@ -1,4 +1,5 @@
 var express = require('express');
+// var ipfilter = require('express-ipfilter');
 var app = express();
 var favicon = require('express-favicon');
 var http = require('http').Server(app);
@@ -19,6 +20,7 @@ var Firebase = require('firebase');
 var appfire = new Firebase(configDB.firebase);
 var moment = require('moment');
 var fs = require('fs');
+// var ips = ['127.0.0.1', '172.17.95.96'];
 
 app.use(session);
 app.use(cors());
@@ -26,6 +28,7 @@ app.use(favicon(__dirname + '/client/img/favicon.ico'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride());
+// app.use(ipfilter(ips));
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, 'client', 'views'));
 app.use(express.static(path.resolve(__dirname, 'client')));
@@ -78,6 +81,7 @@ io.on('connection', function(socket) {
   });
   
   socket.on('unsubscribed', function(data){
+    
       requestify.request(configDB.url_controller+"/xively", {
         method: 'POST',
         body: data,
@@ -86,6 +90,7 @@ io.on('connection', function(socket) {
         },
         dataType: 'json'        
       }).then(function(response) {
+        
       });
   });
   
@@ -101,21 +106,69 @@ app.post("/vizix-served", function(request, response) {
     dataType: 'json' ,
      body: request.body,
     }).then(function(res) {
-        
+      console.log("served");
+         console.log(res.body);      
          return response.status(200).json("ok");
     });
 
 });
 app.post("/vizix-order", function(request, response) {
-  
+  var tDate = new Date();
+  var timeStamp = tDate.getTime().toString();
+  var orderTo = {
+    "thingType.id" : 4,
+    "group.id": 5,
+    "name": request.body.bodyOrder.name+timeStamp,
+     "serial": request.body.bodyOrder.serial+timeStamp,
+     "childrenIdList": [],
+     "fields":[{"id":37,"unit":"","timeSeries":false,"symbol":"","name":"zone","type":9,"typeLabel":"Zone"},
+      {"id":35,"unit":"","timeSeries":false,"symbol":"","name":"drink","type":1,"typeLabel":"String"},
+      {"id":33,"unit":"","timeSeries":false,"symbol":"","name":"orderTime","type":11,"typeLabel":"Date"},
+      {"id":36,"unit":"","timeSeries":false,"symbol":"","name":"region","type":1,"typeLabel":"String"},
+      {"id":34,"unit":"","timeSeries":false,"symbol":"","name":"person","type":1,"typeLabel":"String"}]
+  };
   requestify.request(configDB.vizixorder , {
-    method: 'POST',
+    method: 'PUT',
     headers : {'api_key':'root','Content-Type': 'application/json'},
     dataType: 'json' ,
-    body: request.body,
+    body: orderTo,
     }).then(function(res) {
-         
-         return response.status(200).json("ok");
+        var addOrder = JSON.parse(res.body) ;
+        var activeOrder = appfire.child('orders/'+request.body.bodyOrder.serial);
+         activeOrder
+          .once('value', function(snap) {
+              if(snap.val()) {
+                 var currentOrder = snap.val();
+                 currentOrder.orderthingid = addOrder.id;
+                 currentOrder.ordertTimeStamp = timeStamp;
+                 activeOrder.set(currentOrder);
+                 var dataValues = { "values" : [
+                     {"operationId":0,"value":request.body.bodyOrder.serial,"field":{"fieldTypeId":34,"thingId": addOrder.id}},
+                     {"operationId":1,"value":currentOrder.favcoffee,"field":{"fieldTypeId":35,"thingId": addOrder.id}},
+                     {"operationId":2,"value":currentOrder.region,"field":{"fieldTypeId":36,"thingId": addOrder.id}},
+                     {"operationId":3,"value":currentOrder.timeStamp,"field":{"fieldTypeId":33,"thingId": addOrder.id}},
+                     {"operationId":4,"value":currentOrder.tagid,"field":{"fieldTypeId":37,"thingId": addOrder.id}},
+                     {"operationId":5,"value":currentOrder.favcoffee,"field":{"fieldTypeId":32,"thingId":currentOrder.thingid}} 
+                  ]};
+                 requestify.request(configDB.vizixserved , {
+                    method: 'POST',
+                    headers : {'api_key':'root','Content-Type': 'application/json'},
+                    dataType: 'json' ,
+                    body: dataValues,
+                    }).then(function(res) {
+                        console.log(res)  ;                                           
+                       
+                       return response.status(200).json(res.body);
+                    }, function(res){
+                      console.log('eerererererer');
+                      console.log(res)  ;  
+                       return response.status(400).json(res.body);
+                    });
+              }
+          });
+    }, function(res) {
+      console.log(res.body);
+      return response.status(400).json(res.body);
     });
 
 });
@@ -352,137 +405,102 @@ app.post("/welcome", function(request, response) {
   
 
 });
+// CR ->: Pass : xively
 app.post("/xively", function(request, response) {
-  var people = request.body;
-
-  if(_.isUndefined(people) || _.isEmpty(people)) {
+  var remoteIp = getRemoteIp(request);
+  var msgXively = request.body;
+  if(_.isUndefined(msgXively) || _.isEmpty(msgXively)) {
     return response.status(400).json({error: "Invalid People Card"});
   }
-  if(_.isUndefined(people.name) || _.isEmpty(people.name)) {
-    return response.status(400).json({error: "Name is invalid"});
+  if(_.isUndefined(msgXively.zonefrom) || _.isEmpty(msgXively.zonefrom)) {
+    return response.status(400).json( {error: "Zone Must be defined IoT from Admin or Other"});
   }
-  if(_.isUndefined(people.email) || _.isEmpty(people.email)){
-    return response.status(400).json( {error: "Email Must be defined"});
+  if(_.isUndefined(msgXively.zoneto) || _.isEmpty(msgXively.zoneto)) {
+    return response.status(400).json({error: "Zone/Socket or Device ID Must be defined"});
   }
-  if(_.isUndefined(people.favcoffee) || _.isEmpty(people.favcoffee)) {
-    return response.status(400).json( {error: "Favorite Must be defined"});
+  if(_.isUndefined(msgXively.tagId) || _.isEmpty(msgXively.tagId)) {
+    return response.status(400).json({error: "Need People Id to Continue"});
   }
-  if(_.isUndefined(people.zonefrom) || _.isEmpty(people.zonefrom)) {
-    return response.status(400).json( {error: "Zone Must be defined"});
-  }
-  if(_.isUndefined(people.zoneto) || _.isEmpty(people.zoneto)) {
-    return response.status(400).json({error: "Zone Must be defined"});
-  }
-
-  var fsessType = 'xternal';
-   
-  if (people.zonefrom == 'IoT') {
-    console.log("---");
-    var fSession = appfire.child('sessions/'+people.zoneto);
-    fSession
-      .once('value', function(snap) {
-        if(snap.val()) {
-            var fSess = snap.val();
-        } 
-      });
-  }
-  
-  var activePeople = appfire.child('people/'+replaceAll(people.email));
+  var activePeople = appfire.child('people/'+msgXively.tagId);
   activePeople
     .once('value', function(snap) {
-      if(!snap.val()) {
-         activePeople.set(people);
-         io.sockets.emit('unknown', people);
-       } else {
-         io.sockets.emit('register', people);
+      if(snap.val()) {
+         var newPeople = new Object();
+         newPeople = snap.val();
+         newPeople.zoneto= msgXively.zoneto;
+         newPeople.zonefrom= msgXively.zonefrom;
+         var activeOrder = appfire.child('orders/'+msgXively.tagId);
+         activeOrder
+          .once('value', function(snap) {
+              newPeople.hasOrder = false;
+              if(snap.val()) {
+                 var currentOrder = snap.val();
+                 if (currentOrder.active==1 || currentOrder.active=='1') {
+                     newPeople.hasOrder = true;
+                 } 
+              } 
+              io.sockets.emit('register', newPeople);
+          });
        }
   });
-  
-  people.dt =  moment().format();
-  people.deviceType =fsessType;
-  requestify.request(configDB.url_controller+"/xively", {
-      method: 'POST',
-      body: people,
-      headers : {
-              'Content-Type': 'application/json'
-      },
-      dataType: 'json'        
-      }).then(function(response) {
-          // Get the response body
-          console.log(response);
-      });
-  // TODO:  Send to Server
+  msgXively.remoteIp = remoteIp;
+  sendRequests(msgXively);
   response.status(200).json({results: "Message Send"});
-  
-
 });
 app.post("/xxively", function(request, response) {
- var infoXively = JSON.stringify(request.body);
+  var remoteIp = getRemoteIp(request);
+  var infoXively = JSON.stringify(request.body);
   var toJsonTotals = JSON.parse(infoXively);
   var toJsonBody = JSON.parse(toJsonTotals.body);
-  //   console.log(infoXively);
-  // console.log(toJsonBody);
-
   if(_.isUndefined(toJsonBody) || _.isEmpty(toJsonBody)) {
-    return response.status(400).json({error: "Invalid Data for Welcome -- Body"});
+    return response.status(400).json({error: "Invalid Data for Kiosk -- Body"});
   }
   if(_.isUndefined(toJsonBody.triggering_datastream) || _.isEmpty(toJsonBody.triggering_datastream)) {
-    return response.status(400).json({error: "Invalid Data for Welcome -- Totals"});
+    return response.status(400).json({error: "Invalid Data for Kiosk -- Totals"});
   }
-  var people = toJsonBody.triggering_datastream;
-  if(_.isUndefined(people.id) || _.isEmpty(people.id)) {
-    return response.status(400).json({error: "Invalid Id Data for People "});
-  }
-  var strObjDelimited = people.value.value.toString().split("|");
+  var msgStream = toJsonBody.triggering_datastream;
+  var strObjDelimited = msgStream.value.value.toString().split("|");
   var preJsonString = {};
   for (var i = 0; i < strObjDelimited.length; i++) {
     var pairWord = strObjDelimited[i].split(":");
     preJsonString[pairWord[0]] = pairWord[1];
   }
   var toJsonString = JSON.stringify(preJsonString);
-  var peopleXively = JSON.parse(toJsonString);
-  var peopleObj = new Object();
-  peopleObj.favcoffee = peopleXively.favoriteDrink;
-  peopleObj.fname = peopleXively.firstname;
-  peopleObj.greeting = peopleXively.greeting;
-  peopleObj.city = peopleXively.guestCity;
-  peopleObj.lname = peopleXively.lastname;
-  peopleObj.msg1 = peopleXively.message;
-  peopleObj.msg2 = peopleXively.message;
-  peopleObj.state = peopleXively.state;
-  peopleObj.email = peopleXively.tagId;
-  peopleObj.name = peopleXively.firstname+" "+peopleXively.lastname;
-  peopleObj.id = peopleXively.tagId;
-  peopleObj.crcombined = peopleXively.guestCity + " "+peopleXively.state;
-  peopleObj.zonefrom = "Xively";
-  peopleObj.zoneto =  peopleXively.deviceId;
-  peopleObj.dt =  moment().format();
-  var activePeople = appfire.child('people/'+peopleObj.id);
+  var msgXively = JSON.parse(toJsonString);
+   if(_.isUndefined(msgXively.zoneto) || _.isEmpty(msgXively.zoneto)) {
+    return response.status(400).json({error: "Zone/Socket or Device ID Must be defined"});
+  }
+  if(_.isUndefined(msgXively.tagId) || _.isEmpty(msgXively.tagId)) {
+    return response.status(400).json({error: "Need Msg Id to Continue"});
+  }  
+  msgXively.zonefrom = "Vizix";
+  var activePeople = appfire.child('people/'+msgXively.tagId);
   activePeople
     .once('value', function(snap) {
-      if(!snap.val()) {
-         activePeople.set(peopleObj);
-         io.sockets.emit('unknown', peopleObj);
-      } else {
-        io.sockets.emit('register', peopleObj);
-      }
+      if(snap.val()) {
+         var newPeople = new Object();
+         newPeople = snap.val();
+         newPeople.zoneto= msgXively.zoneto;
+         newPeople.zonefrom= msgXively.zonefrom;
+         var activeOrder = appfire.child('orders/'+msgXively.tagId);
+         activeOrder
+          .once('value', function(snap) {
+              newPeople.hasOrder = false;
+              if(snap.val()) {
+                 var currentOrder = snap.val();
+                 if (currentOrder.active==1 || currentOrder.active=='1') {
+                     newPeople.hasOrder = true;
+                 } 
+              } 
+              io.sockets.emit('register', newPeople);
+          });
+       }
   });
-  requestify.request(configDB.url_controller+"/xively", {
-      method: 'POST',
-      body: peopleObj,
-      headers : {
-              'Content-Type': 'application/json'
-      },
-      dataType: 'json'        
-      }).then(function(response) {
-          // Get the response body
-          console.log(response);
-      });
-  // // TODO:  Send to Server
-  response.status(200).json({results: "Message Send"});
-  
-
+  msgXively.remoteIp = remoteIp;
+  sendRequests(msgXively);
+  response.status(200).json({results: "Message Send"}); 
 });
+// CR END ->: Pass : xively
 app.post("/add-order", function (req, res) {
   var order = req.body.people;
   var activeOrder = appfire.child('orders/'+ replaceAll(order.email));
@@ -605,6 +623,20 @@ app.get('/*', function(req, res) {
   res.render('index.ejs');
 });
 // ---> end routes <---- 
+function sendRequests(msgIn) {
+  var newMsg = new Object();
+  newMsg = msgIn;
+  newMsg.timeStamp = new Date().getTime();
+  var msgActive = appfire.child('requests');
+  var newPostRef = msgActive.push();
+  newPostRef
+    .once('value', function(snap) {
+      if(!snap.val()) {
+         newPostRef.set(msgIn);
+       } 
+  });
+}
+
 function authenticate(req,res, next) {
   var body =  req.body;
   if(_.isUndefined(body.socketid)) {
@@ -641,3 +673,9 @@ function replaceAll( text){
       text = text.toString().replace(".",",");
   return text;
 }
+
+function getRemoteIp(req) {
+        return ( req.headers["X-Forwarded-For"]
+                || req.headers["x-forwarded-for"]
+                || req.client.remoteAddress );
+};

@@ -1,5 +1,5 @@
 
-xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'$http','API_URL', 'Orders','FIREBASE_URI_ORDERS','OrdersService','LSFactory','VisitorsService','$window','$timeout',function($scope, Socket,localStorageService,$http,API_URL,Orders, FIREBASE_URI_ORDERS,OrdersService,LSFactory,VisitorsService,$window,$timeout){
+xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'$http','API_URL', 'Orders','FIREBASE_URI_ORDERS','OrdersService','LSFactory','VisitorsService','$window','$timeout','$location',function($scope, Socket,localStorageService,$http,API_URL,Orders, FIREBASE_URI_ORDERS,OrdersService,LSFactory,VisitorsService,$window,$timeout,$location){
     
     Socket.connect();
     $scope.currentPerson;
@@ -17,12 +17,12 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
     var currentPersonOld=localStorageService.get('currentPerson');
     $scope.currentPerson=currentPersonOld ||  [];
     $scope.$watch('currentPerson',function(){
+        
+        
         if($scope.currentPerson){
-        $scope.selectFavCoffee();
-        $http.post(API_URL + '/weather',$scope.getPlace($scope.currentPerson))
-    	.success(function(data){
-        		$scope.weather=data.query.results.channel;
-        });
+            
+              $scope.selectFavCoffee();
+              localStorageService.set('currentPerson',$scope.currentPerson);
         }
         localStorageService.set('currentPerson',$scope.currentPerson);
        
@@ -48,6 +48,8 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
     $scope.served=function(){
 		
         var person=$scope.currentPerson;
+        $scope.currentPerson=undefined;
+        
 		person.zonefrom = LSFactory.getSessionId();
 
 		
@@ -57,28 +59,29 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
         var tagId=LSFactory.getTagId();
         person.tagId=tagId;
         person.favcoffee=$scope.favcoffee;	
-        person.masterId="";
+        if(!person.masterId)
+            person.masterId=LSFactory.getTagId();
         person.tagId=LSFactory.getTagId();
         person.companyname="";
         person.zoneto="";
-		console.log(person);
+		
         //Save Order
-        $scope.currentPerson=undefined;
-        console.log($scope.currentPerson);
+        
         $timeout(function(){
             $http.post(API_URL + '/add-order', { people: person }).
                 then(function(response) {
                 }, function(response) {
             },1000);                
         });		
-		
+
 		
 		/*
 		OrdersService.updateOrderStatus(person, 0);
 		*/
 		Socket.emit("served", person);
-		
-		
+		$timeout(function() {
+            $location.path("/barista");
+        }, 600);
     };
 
     

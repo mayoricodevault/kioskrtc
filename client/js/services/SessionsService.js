@@ -1,6 +1,7 @@
 xively.factory('SessionsService', ['$firebaseObject', 'FIREBASE_URI_ROOT', 'LSFactory', function ( $firebaseObject, FIREBASE_URI_ROOT, LSFactory) {
     var ref = new Firebase(FIREBASE_URI_ROOT+"/sessions");
     var activeSessions =  $firebaseObject(ref);
+    var sessions =[]; 
     var getSessions = function () {
         return activeSessions;
     };
@@ -29,6 +30,22 @@ xively.factory('SessionsService', ['$firebaseObject', 'FIREBASE_URI_ROOT', 'LSFa
         
     };
     
+    function checkIfSessExists(sessId, exists) {
+      ref.child(sessId).once('value', function(snap) {
+        exists = (snap.val() !== null);
+      });
+      return exists;
+    }
+    
+    function findActiveSess(sessId, activeSess) {
+      activeSess = false;
+      ref.child(sessId).once('value', function(snap) {
+        if (snap.val() ) {
+            activeSess = snap.val();
+        }
+      });
+      return activeSess;
+    }
     
     var addSession = function (session){
         activeSessions.$add(session);
@@ -39,13 +56,18 @@ xively.factory('SessionsService', ['$firebaseObject', 'FIREBASE_URI_ROOT', 'LSFa
         var refSession = new Firebase(session_url);
         var syncObject = $firebaseObject(refSession);
          syncObject.$loaded().then(function() {
-                syncObject.$remove();
+            syncObject.$remove();
         });
+    };
+
+    var findSession = function (sessId){
+        return findActiveSess(sessId);
     };
 
     return {
         all: activeSessions,
         getSessions: getSessions,
+        findSession: findSession,
         addSession: addSession,
         removeSession:removeSession,
         updateSessionStatus: updateSessionStatus

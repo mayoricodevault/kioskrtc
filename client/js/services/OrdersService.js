@@ -47,6 +47,10 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_U
                 syncObject.state = order.state;
                 syncObject.city = order.city;
                 syncObject.region = order.region;
+                syncObject.thingid = order.thingid;
+                syncObject.id = order.id;
+                console.log(syncObject.region+" "+order.region);
+                console.log("order --> ",order);
                 syncObject.active = active;
                 syncObject.$save();
             }

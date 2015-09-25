@@ -1,6 +1,6 @@
 xively.controller('baristaController', ['$scope','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', 'SessionsService','SubscriptionFactory', function ($scope,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, SessionsService, SubscriptionFactory) {
     
-    $scope.currentPerson;
+    $scope.currentPerson=undefined;
     $scope.currentIndex;
     $scope.serveOrders = [];
     $scope.orders = [];
@@ -14,12 +14,31 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
         localStorageService.set('isFavorite',$scope.isFavorite);
     },true);
 
-    Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbBind");
-    $scope.$watch('fbBind', function() {
-        refreshFb();
-    });    
-
-    $scope.currentPerson=localStorageService.get('currentPerson');
+    Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbOBind");
+    $scope.$watch('fbOBind', function() {
+		$scope.orders = [];
+		angular.forEach($scope.fbOBind, function(order){
+			if (!order || !order.active) {
+				return;
+			}
+			if (order.active==1 && order.masterId==$scope.baristaTagID) {
+	            
+	            $scope.orders.push(order);
+	            $scope.totalOrdersActive++;
+	        }
+		}); 
+		$scope.orders.sort(compare);
+		if($scope.currentPerson==undefined){
+		    for(var i=0;i<$scope.totalOrdersActive;i++){
+		        if($scope.orders[i].active==1 && $scope.orders[i].masterId==$scope.baristaTagID){
+		            $scope.currentIndex=i;
+		            $scope.currentPerson=$scope.orders[i];
+		            break;
+		        }
+		    }
+		}
+    });  
+    
     
     var currentIndexOld=localStorageService.get('currentIndex');
     $scope.currentIndex=currentIndexOld || 0;
@@ -69,31 +88,7 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
 
    
 	
-	function refreshFb(){
-	    $scope.totalOrdersActive=0;
-		$scope.orders = [];
-		angular.forEach($scope.fbBind, function(order){
-			if (!order || !order.name) {
-				return;
-			}
-	        if (order.active==1 && order.masterId==$scope.baristaTagID) {
-	            console.log(order);
-	            $scope.orders.push(order);
-	            $scope.totalOrdersActive++;
-	        }
-		}); 
-		$scope.orders.sort(compare);
-		if($scope.currentPerson==undefined){
-		    for(var i=0;i<$scope.totalOrdersActive;i++){
-		        if($scope.orders[i].active==1 && $scope.orders[i].masterId==$scope.baristaTagID){
-		            $scope.currentIndex=i;
-		            $scope.currentPerson=$scope.orders[i];
-		            break;
-		        }
-		    }
-		}
-		    
-	}
+
     $scope.coffee= function(coffee){
    
         if(coffee==="Espresso")

@@ -13,9 +13,11 @@ xively.controller('setupController',['$scope',
     $scope.devices = [];
     $scope.formShow = true;
     Api.Device.query({}, function(data){
-        for(var key in data){
+        console.log("--->",data);
+        $scope.devices = data;
+        /*for(var key in data){
                 $scope.devices.push(data[key]);
-        }
+        }*/
         $scope.formShow=$scope.devices.length > 0 ? true : false;
     });
     $scope.subscribe = function(deviceName,tagid, serverUrl, deviceType, masterid) {

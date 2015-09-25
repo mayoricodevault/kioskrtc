@@ -76,11 +76,6 @@ var xively = angular.module('xively', ['ng.deviceDetector',
             controller: 'selectController', 
             resolve: {authenticate: authenticate} 
         });
-        /*$routeProvider.when('/kiosk/select/:param', {
-            templateUrl: '/partials/kiosk/select.html', 
-            controller: 'selectController', 
-            resolve: {authenticate: authenticate} 
-        });*/
         //if no valid routes are found, redirect to /home
         $routeProvider.otherwise({redirectTo: '/settings'});
 

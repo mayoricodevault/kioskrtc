@@ -11,7 +11,7 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
                 showWelcome(item);
             },
             options = {
-                delay: 1000, //delay 2 seconds between processing items
+                delay: 1000, //delay 1 seconds between processing items
                 paused: true, //start out paused
                 complete: function() { console.log('complete!'); }
             };
@@ -21,6 +21,11 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 	function populateQueue(person){
 		
 		myQueue.add(person);
+		//console.log("myQueue --> ",myQueue.Queue);
+		var queue = myQueue.Queue;
+		for(var key in queue){
+			console.log(queue[key]);
+		}
 	}
 	//populateQueue();
 	 

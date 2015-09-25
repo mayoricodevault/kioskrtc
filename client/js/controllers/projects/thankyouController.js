@@ -38,7 +38,7 @@ xively.controller('thankyouController', ['$scope', 'Socket','localStorageService
 		    
 		   	$scope.currentIndex=$scope.totalOrdersActive;
 	    	$scope.currentPerson=$scope.people[$scope.currentIndex-1];
-	    	console.log($scope.currentPerson,"cuure");
+	    	
 		}
 	}
 
