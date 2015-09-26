@@ -94,6 +94,7 @@ xively.controller('splashController', ['$scope',
         }
     });
      $scope.ordernow=function() {
+          $rootScope.currentPerson={};
           $scope.serving = true;
           storeService.jsonWrite('paneSelected',{id:'2'});
           $location.path('/kiosk/select');

@@ -16,6 +16,7 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
 
     Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbOBind");
     $scope.$watch('fbOBind', function() {
+        $scope.totalOrdersActive=0;
 		$scope.orders = [];
 		angular.forEach($scope.fbOBind, function(order){
 			if (!order || !order.active) {
@@ -59,9 +60,33 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
         var person=$scope.currentPerson;
         $scope.currentPerson=undefined;
 		person.zonefrom = LSFactory.getSessionId();
+		if(!person.region){
+		    person.region="";
+		}
+		if(!person.state){
+		    person.state="";
+		}
+		if(!person.favcoffee){
+		    person.favcoffee="";
+		}
+		if(!person.city) {
+		    person.city="";
+		}
 		OrdersService.updateOrderStatus(person, 0);
+		var bodyOrder = {
+            "id": person.id
+        };
+        $http.post(API_URL + '/vizix-served', bodyOrder)
+            .then(function(response) {
+                console.log("Response message1: ");
+                console.log(response);
+            }, function( response ){
+                  console.log("Response message2: ");
+                console.log(response);
+                
+            }
+        );       
 		Socket.emit("served", person);
-		
     };
     
     $scope.isActiveOrder=function(active){
@@ -71,7 +96,7 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     };
     
     $scope.isActive=function(email){
- 	    if(email===$scope.currentPerson.email && $scope.totalOrdersActive>0){
+ 	    if($scope.currentPerson && email===$scope.currentPerson.email && $scope.totalOrdersActive>0){
  	        return true;
  	    }
  	    return false;

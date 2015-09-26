@@ -1,28 +1,62 @@
-xively.controller('selectController', ['$scope','$rootScope','Socket','localStorageService','VisitorsService','storeService','$http','$location','SubscriptionFactory', 'LSFactory', 'API_URL','$window','$timeout','ngToast','OrdersService','Api', 'SessionsService','Orders','FIREBASE_URI_ORDERS', 'Visitors', 'FIREBASE_URI', function($scope,$rootScope, Socket,localStorageService,VisitorsService,storeService,$http,$location,SubscriptionFactory, LSFactory, API_URL,$window,$timeout,ngToast,OrdersService,Api, SessionsService, Orders, FIREBASE_URI_ORDERS, Visitors, FIREBASE_URI){
+xively.controller('selectController', ['$scope',
+    '$rootScope',
+    'Socket',
+    'localStorageService',
+    'VisitorsService',
+    'storeService',
+    '$http',
+    '$location',
+    'SubscriptionFactory', 
+    'LSFactory', 
+    'API_URL',
+    '$window',
+    '$timeout',
+    'ngToast',
+    'OrdersService',
+    'Api', 
+    'SessionsService',
+    'Orders',
+    'FIREBASE_URI_ORDERS', 
+    'Visitors', 'FIREBASE_URI', function($scope,
+    $rootScope, 
+    Socket,
+    localStorageService,
+    VisitorsService,
+    storeService,
+    $http,
+    $location,
+    SubscriptionFactory, 
+    LSFactory, 
+    API_URL,
+    $window,
+    $timeout,
+    ngToast,
+    OrdersService,
+    Api, 
+    SessionsService, 
+    Orders, 
+    FIREBASE_URI_ORDERS, 
+    Visitors, 
+    FIREBASE_URI){
+    $scope.paneSelected = {id:'2'};
     $scope.currentfavcoffee;
-    $scope.currentPerson=$rootScope.currentPerson;
     $scope.paneSelected = getPaneSelected();
     $scope.isFavorite;
-    $scope.selected = undefined;
+    $scope.selected = null;// importante no cambiar valor para ipads no funciona
     $scope.trySelect = false;
     $scope.visitors = [];
     $scope.oldFavorite=$rootScope.currentPerson;
     $scope.people;
+    if (_.isEmpty($rootScope.currentPerson)) {
+         $scope.currentPerson={};
+    } else {
+        $scope.currentPerson = $rootScope.currentPerson;
+    }
     $scope.searchNameFocus=false;
     if($scope.paneSelected.id=='2'){
         $scope.searchNameFocus = true;
     }
-    
-    Visitors(FIREBASE_URI).$bindTo($scope, "fbVBind");
-    $scope.$watch('fbVBind', function() {
-		$scope.visitors = [];
-		angular.forEach($scope.fbVBind, function(visitor){
-			if (!visitor || !visitor.email) {
-				return;
-			}
-            $scope.visitors.push(visitor);
-		}); 
-    });    
+    $scope.visitors = VisitorsService.getVisitors();
     Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbOBind");
     $scope.$watch('fbOBind', function() {
 		$scope.orders = [];
@@ -47,13 +81,11 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.$watch('people',function(){
         localStorageService.set('people',$scope.people);
     },true);
-    
      var oldisFavorite=localStorageService.get('isFavorite');
     $scope.isFavorite=oldisFavorite || false;
     $scope.$watch('isFavorite',function(){
         localStorageService.set('isFavorite',$scope.isFavorite);
     },true);
-    
     Socket.on('sync', function(data){
         if (LSFactory.getSessionId() === data.sessionid) {
             if (data.action === 'snap') {
@@ -82,9 +114,8 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             }
         }
     });
-
     $scope.selectUser = function(selVisitor){
-       $scope.isFavorite=false;
+      $scope.isFavorite=false;
         if($scope.selected===undefined) {
             ngToast.create({
                 className: 'danger',
@@ -113,91 +144,91 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
                 }
             }
         }
-        if(_.isUndefined(selVisitor.zonefrom) || _.isEmpty(selVisitor.zonefrom)) {
-            selVisitor.zonefrom = "kiosk";
-            selVisitor.zoneto = LSFactory.getTagId() ;
-        }
         var SelPerson = Object();
         SelPerson.favcoffee = selVisitor.favcoffee;
         SelPerson.city = selVisitor.city;
         SelPerson.name = selVisitor.name;
         SelPerson.email = selVisitor.email;
-        SelPerson.tagId = selVisitor.tagId;
         SelPerson.state = selVisitor.state;
-        SelPerson.zoneto = selVisitor.zoneto;
-        SelPerson.zonefrom = selVisitor.zonefrom;
+        SelPerson.zoneto = LSFactory.getTagId();
+        SelPerson.zonefrom = "kiosk";
         SelPerson.region = selVisitor.region;
         SelPerson.thingid = selVisitor.thingid;
         SelPerson.id = selVisitor.id;
         $scope.currentPerson = SelPerson;
-        LSFactory.setData("favcoffee",SelPerson.favcoffee);    
-        $scope.paneSelected = {id:'3'};
+        LSFactory.setData("favcoffee",SelPerson.favcoffee);  
         selectCoffee(SelPerson.favcoffee);
-        return false;
+        $scope.paneSelected = {id:'3'};
+        return true;
     }; 
-    
-   /*
-     *************************
-     *  click Order
-     *************************
-    */
     $scope.order=function(){
         var orderPerson = _.find($scope.orders, function(findord) {
             return findord.id === $scope.currentPerson.id ; 
         });
-        if (orderPerson) {
-            if (orderPerson.active == 1 || orderPerson.active=='1') {
-                orderPerson.tagId=LSFactory.getTagId();
-                if($scope.paneSelected.id==="3")
-                    orderPerson.favcoffee=$scope.favcoffee;
-                orderPerson.active=1;
-                orderPerson.masterId=LSFactory.getMasterId();
-                orderPerson.timeStamp = new Date().getTime();
-            }
-        } else  {
-            orderPerson = $scope.currentPerson;	
-            orderPerson.tagId=LSFactory.getTagId();
-            if($scope.paneSelected.id==="3")
-                orderPerson.favcoffee=$scope.favcoffee;
-            orderPerson.active=1;
-            orderPerson.masterId=LSFactory.getMasterId();
-            orderPerson.timeStamp = new Date().getTime();
+        if (!orderPerson) {
+            orderPerson = $scope.currentPerson;
             OrdersService.updateOrderStatus(orderPerson, 1);
         }
+        orderPerson.tagId=LSFactory.getTagId();
+        orderPerson.masterId=LSFactory.getMasterId();                
+        if($scope.paneSelected.id==="3")
+            orderPerson.favcoffee=$scope.favcoffee;
+        orderPerson.active=1;
+        orderPerson.timeStamp = new Date().getTime();        
+        
+        // if (orderPerson) {
+        //     if (orderPerson.active == 1 || orderPerson.active=='1') {
+        //         orderPerson.tagId=LSFactory.getTagId();
+        //         orderPerson.masterId=LSFactory.getMasterId();                
+        //         if($scope.paneSelected.id==="3")
+        //             orderPerson.favcoffee=$scope.favcoffee;
+        //         orderPerson.active=1;
+        //         orderPerson.timeStamp = new Date().getTime();
+        //     }
+        // } else  {
+        //     orderPerson = $scope.currentPerson;	
+        //     orderPerson.tagId=LSFactory.getTagId();
+        //     orderPerson.masterId=LSFactory.getMasterId();
+        //     if($scope.paneSelected.id==="3")
+        //         orderPerson.favcoffee=$scope.favcoffee;
+        //     orderPerson.active=1;
+
+        //     orderPerson.timeStamp = new Date().getTime();
+        //     OrdersService.updateOrderStatus(orderPerson, 1);
+        // }
         $scope.hideMsg(); 
         var bodyOrder = {
-            name: orderPerson.thingid,
-            serial: orderPerson.thingid
+            "name": orderPerson.thingid,
+            "serial": orderPerson.id
         };
-        $http.post(API_URL + '/vizix-order', {bodyOrder}).
-                then(function(response) {
-                    console.log("Response message1: ");
-                    console.log(response);
-                }, function(response) {
-                    console.log("Response message2: ");
-                    console.log(response);
-        },1000);       
-        
-        // End post vizix
-        //
+        $http.post(API_URL + '/vizix-order', bodyOrder)
+            .then(function(response) {
+                console.log("Response message1: ");
+                console.log(response);
+            }, function( response ){
+                  console.log("Response message2: ");
+                console.log(response);
+                
+            }
+        );       
         $location.path("/kiosk/thankyou");
-    };// end Click Order
+    };
     
     $scope.selectMenuBar=function(){
-       $scope.isFavorite=true;
-       $scope.menuBar();
+      $scope.isFavorite=true;
+      $scope.menuBar();
     };
 
     $scope.menuBar=function(){
-       var people=$scope.currentPerson;
-       var curretOrderCoffee=getOrderCoffee(people.favcoffee, people.email);
+      var people=$scope.currentPerson;
+      var curretOrderCoffee=getOrderCoffee(people.favcoffee, people.email);
         LSFactory.setData("favcoffee",curretOrderCoffee);    
         selectCoffee(curretOrderCoffee);
         $scope.activeGlass = function(coffee){
              selectCoffee(coffee);
         };    
-       $scope.paneSelected = {id:'3'};
-       storeService.jsonWrite('paneSelected',$scope.paneSelected);
+      $scope.paneSelected = {id:'3'};
+      storeService.jsonWrite('paneSelected',$scope.paneSelected);
     };
     
     $scope.reset = function () {
@@ -218,13 +249,11 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
     $scope.closeMsg = function () {
         $scope.trySelect=false;
     };
-    // Hiding alert
     $scope.hideMsg = function(){
         $timeout(function() {
             $scope.closeMsg();
         }, 3000);
     };
-    
     $scope.defaultValues = function() {
         $scope.blacks = true; 
     };
@@ -265,7 +294,6 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             $scope.currentfavcoffee="amer";
         }
     }
-    
     function selectCoffee(cofSel){
         $scope.esp=false;
         $scope.cap=false;
@@ -299,44 +327,42 @@ xively.controller('selectController', ['$scope','$rootScope','Socket','localStor
             $scope.favcoffee="Tea";
             break;                
         default: 
-           $scope.esp=true;
-           $scope.favcoffee="Espresso";
+          $scope.esp=true;
+          $scope.favcoffee="Espresso";
         }
         
     }
-
+    function getOrderCoffee(favcoffee, personId) {
+        var coffeeSel;
+        var favorite = {Espresso:1, Cappuccino:2, Americano:3,
+                    Regular_Coffee:4, Decaf_Coffee:5, Tea:6};
+        if (favcoffee.toString().search('Regular') >-1) {
+            favcoffee= "Regular_Coffee";
+        }   
+         if (favcoffee.toString().search('Decaf') >-1) {
+            favcoffee= "Decaf_Coffee";
+        }  
+        var coffee=favcoffee;
+         var activeOrder = _.find($scope.orders, function(findord) {
+                return findord.email === personId && parseInt(findord.active,10) == 1 ; 
+        });
+        if (activeOrder) {
+            coffee = activeOrder.favcoffee;
+            if (coffee.search('Regular') >-1) {
+                coffee= "Regular_Coffee";
+            }   
+             if (coffee.search('Decaf') >-1) {
+                coffee= "Decaf_Coffee";
+            }  
+        }
+        coffeeSel=favorite[coffee];
+		return coffeeSel;
+    } 
     function getPaneSelected(){
-        if (_.isEmpty(storeService.jsonRead('paneSelected')) || _.isUndefined(storeService.jsonRead('paneSelected'))) {
+        if (_.isEmpty(storeService.jsonRead('paneSelected')) || _.isUndefined(storeService.jsonRead('paneSelected')) || !$rootScope.currentPerson) {
             return { id : 2};
         } else {
             return storeService.jsonRead('paneSelected');
         }
     }
-    function getOrderCoffee(favcoffee, personId) {
-            var coffeeSel;
-            var favorite = {Espresso:1, Cappuccino:2, Americano:3,
-                        Regular_Coffee:4, Decaf_Coffee:5, Tea:6};
-            if (favcoffee.toString().search('Regular') >-1) {
-                favcoffee= "Regular_Coffee";
-            }   
-             if (favcoffee.toString().search('Decaf') >-1) {
-                favcoffee= "Decaf_Coffee";
-            }  
-            var coffee=favcoffee;
-             var activeOrder = _.find($scope.orders, function(findord) {
-                    return findord.email === personId && parseInt(findord.active,10) == 1 ; 
-            });
-            if (activeOrder) {
-                coffee = activeOrder.favcoffee;
-                if (coffee.search('Regular') >-1) {
-                    coffee= "Regular_Coffee";
-                }   
-                 if (coffee.search('Decaf') >-1) {
-                    coffee= "Decaf_Coffee";
-                }  
-            }
-            coffeeSel=favorite[coffee];
-    		return coffeeSel;
-        } // end function 
-    
 }]);

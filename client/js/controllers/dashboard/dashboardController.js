@@ -286,6 +286,8 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     }
 
     function showValues(data) {
+        console.log("--DATA--");
+        console.log(data);
         if (!_.isUndefined(data.drinksServed)){
             if (!_.isUndefined(data.drinksServed.amer) && (data.drinksServed.amer>0))
                 $scope.drinksServed.amer = data.drinksServed.amer;
@@ -303,18 +305,19 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
         }
         
         if (!_.isUndefined(data.regions)) {
-            if (!_.isUndefined(data.regions.west) && (data.regions.west!=null) && (data.regions.west>0))
-                $scope.regions.reg1 = data.regions.west;
-            if (!_.isUndefined(data.regions.midwest) && (data.regions.midwest!=null) && (data.regions.midwest>0))
-                $scope.regions.reg2 = data.regions.midwest;
-            if (!_.isUndefined(data.regions.neMidAtlantic) && (data.regions.neMidAtlantic!=null) && (data.regions.neMidAtlantic>0))
-                $scope.regions.reg3 = data.regions.neMidAtlantic;
-            if (!_.isUndefined(data.regions.neNewEngland) && (data.regions.neNewEngland!=null) && (data.regions.neNewEngland>0))
-                $scope.regions.reg4 = data.regions.neNewEngland;
-            if (!_.isUndefined(data.regions.sWestSouthCentral) && (data.regions.sWestSouthCentral!=null) && (data.regions.sWestSouthCentral>0))
-                $scope.regions.reg5 = data.regions.sWestSouthCentral;
-            if (!_.isUndefined(data.regions.sSouthAtlanticESCentral) && (data.regions.sSouthAtlanticESCentral!=null) && (data.regions.sSouthAtlanticESCentral>0))
-                $scope.regions.reg6 = data.regions.sSouthAtlanticESCentral;
+            console.log("exist regions...");
+            if (!_.isUndefined(data.regions.west))
+                $scope.regions.reg1 = parseInt(data.regions_West);
+            if (!_.isUndefined(data.regions.midwest))
+                $scope.regions.reg2 = parseInt(data.regions_Midwest);
+            if (!_.isUndefined(data.regions.neMidAtlantic))
+                $scope.regions.reg3 = parseInt(data.regions_Mid_Atlantic);
+            if (!_.isUndefined(data.regions.neNewEngland))
+                $scope.regions.reg4 = parseInt(data.regions_New_England);
+            if (!_.isUndefined(data.regions.sWestSouthCentral))
+                $scope.regions.reg5 = parseInt(data.regions_Southwest);
+            if (!_.isUndefined(data.regions.sSouthAtlanticESCentral))
+                $scope.regions.reg6 = parseInt(data.regions_Southeast);
         }
         
         $scope.state1 = $scope.regions.reg1;

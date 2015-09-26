@@ -29,10 +29,11 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_U
     };
     
      var updateOrderStatus = function (order, active) {
-        var cleanEmail = replaceAll(order.email);
-        var syncObject = $firebaseObject(refOrder.child(cleanEmail));
+         console.log(order);
+        var syncObject = $firebaseObject(refOrder.child(order.id));
         syncObject.$loaded().then(function() {
             if (syncObject.active) {
+                syncObject.timeStamp = new Date().getTime();
                 syncObject.active =active;
                 syncObject.$save();
             } else{
@@ -40,7 +41,7 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_U
                 syncObject.favcoffee = order.favcoffee;
                 syncObject.masterId = order.masterId;
                 syncObject.name = order.name;
-                syncObject.timeStamp = order.timeStamp;
+                syncObject.timeStamp = new Date().getTime();
                 syncObject.tagId = order.tagId;
                 syncObject.zonefrom = order.zonefrom;
                 syncObject.zoneto = order.zoneto;
@@ -49,8 +50,6 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_U
                 syncObject.region = order.region;
                 syncObject.thingid = order.thingid;
                 syncObject.id = order.id;
-                console.log(syncObject.region+" "+order.region);
-                console.log("order --> ",order);
                 syncObject.active = active;
                 syncObject.$save();
             }

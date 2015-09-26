@@ -61,9 +61,21 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
         person.favcoffee=$scope.favcoffee;	
         if(!person.masterId)
             person.masterId=LSFactory.getTagId();
+        		if(!person.region){
+		    person.region="";
+		}
+		if(!person.state){
+		    person.state="";
+		}
+		if(!person.favcoffee){
+		    person.favcoffee="";
+		}
+		if(!person.city)
+		    person.city="";
         person.tagId=LSFactory.getTagId();
         person.companyname="";
-        person.zoneto="";
+        if(!person.zoneto)
+        person.zoneto=person.masterId;
 		
         //Save Order
         
@@ -81,7 +93,7 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
 		Socket.emit("served", person);
 		$timeout(function() {
             $location.path("/barista");
-        }, 600);
+        }, 1000);
     };
 
     
