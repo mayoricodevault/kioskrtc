@@ -100,8 +100,8 @@ io.on('connection', function(socket) {
 });
 app.post("/vizix-served", function(request, response) {
   var pushDash =request.body;
-  console.log("---------->>>>> servido")
-  console.log(pushDash);
+  // console.log("---------->>>>> servido")
+  // console.log(pushDash);
   var activeOrder = appfire.child('orders/'+pushDash.id);
    activeOrder
     .once('value', function(snap) {
@@ -122,16 +122,16 @@ app.post("/vizix-served", function(request, response) {
                     dataType: 'json' ,
                     body: {},
                 }).then(function(res) {
-                      console.log(res.body);
+                      // console.log(res.body);
                       return response.status(200);
                 }, function(res){
-                  console.log("error servido");
-                      console.log(res.body);
+                      // console.log("error servido");
+                      // console.log(res.body);
                       return response.status(400).json(res.body);
                 });      
             }, function(res) {
-              console.log('------->');
-              console.log(res.body);
+              // console.log('------->');
+              // console.log(res.body);
               return response.status(400).json(res.body);
             });
         }
@@ -152,12 +152,14 @@ app.post("/vizix-order", function(request, response) {
       {"id":36,"unit":"","timeSeries":false,"symbol":"","name":"region","type":1,"typeLabel":"String"},
       {"id":34,"unit":"","timeSeries":false,"symbol":"","name":"person","type":1,"typeLabel":"String"}]
   };
+  // console.log(    configDB.vizixorder);
   requestify.request(configDB.vizixorder , {
     method: 'PUT',
     headers : {'api_key':'root','Content-Type': 'application/json'},
     dataType: 'json' ,
     body: orderTo,
     }).then(function(res) {
+          console.log(res.body);
         var addOrder = JSON.parse(res.body) ;
         var activeOrder = appfire.child('orders/'+request.body.serial);
          activeOrder
@@ -188,8 +190,11 @@ app.post("/vizix-order", function(request, response) {
                             dataType: 'json' ,
                             body: {},
                         }).then(function(res) {
+                              console.log('errrr');
                               return response.status(200);
                         }, function(res){
+                              console.log('errrr');
+                              console.log(res.body);
                               return response.status(400).json(res.body);
                         });
                     }, function(res){
@@ -208,7 +213,7 @@ app.post("/weather", function(request, response) {
   var state = request.body.state;
   var weather =null;
   if(_.isUndefined(city) || _.isEmpty(city) || _.isUndefined(state) || _.isEmpty(state)) {
-    return response.status(400).json({error: "Invalid Zip Code"});
+    return response.status(400).json({error: "Invalid Data"});
   }
   requestify.request("https://query.yahooapis.com/v1/public/yql?q=select wind from weather.forecast where woeid in (select woeid from geo.places(1) where text='"+city+", "+state+"')&format=json&callback=", {
     method: 'GET',
@@ -220,6 +225,7 @@ app.post("/weather", function(request, response) {
 
 });
 app.post("/xdashboard", function(request, response) {
+    var remoteIp = getRemoteIp(request);
   var totals = JSON.stringify(request.body);
   var toJsonTotals = JSON.parse(totals);
   var toJsonBody = JSON.parse(toJsonTotals.body);
@@ -230,11 +236,12 @@ app.post("/xdashboard", function(request, response) {
     return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
   }
   var data = toJsonBody.triggering_datastream;
+  console.log('asdasdasdasdas');
+  console.log(data);
+  console.log('sdasdasdasdasda--->');
   if(_.isUndefined(data.id) || _.isEmpty(data.id)) {
     return response.status(400).json({error: "Invalid Id Data for Dashboard -- Totals"});
   }
-  console.log("fecha estalar ---20152605");
-  console.log(data);
   var keyWord = data.id;
   var datafinal = new Object();
   if (data.id.indexOf("drinksServed") > -1) {
@@ -262,7 +269,6 @@ app.post("/xdashboard", function(request, response) {
       datafinal.drinksServed = drinksServedObj;  
     
   }
-  
   if (data.id.indexOf("consumption") > -1) {
      datafinal.totalounces = data.value.value;
   }
@@ -284,8 +290,7 @@ app.post("/xdashboard", function(request, response) {
       }
       datafinal.stations = stationsObj; 
   }
-  
-    if (data.id.indexOf("regions") > -1) {
+  if (data.id.indexOf("regions") > -1) {
      var subReg = keyWord.indexOf("_");
      var region = data.id.substring(subReg + 1, data.id.length);
      var resgionsObj = new Object();
@@ -308,16 +313,16 @@ app.post("/xdashboard", function(request, response) {
         resgionsObj.sSouthAtlanticESCentral = data.value.value;
       }
       datafinal.regions = resgionsObj;
-      console.log("----------->fecha estelar 20150926122");
-      console.log(resgionsObj);
   }
-  
-   datafinal.zoneto ="kiosk";
-   datafinal.zonefrom ="dashboard";
-   io.sockets.emit('dashboard', datafinal);
-   response.status(200).json({results: "Message Send"});
+  datafinal.zoneto ="dashboard";
+  datafinal.zonefrom ="Xively";
+  io.sockets.emit('dashboard', datafinal);
+  datafinal.remoteIp = remoteIp;
+  sendRequests(datafinal);
+  response.status(200).json({results: "Message Send"}); 
 });
 app.post("/dashboard", function(request, response) {
+  var remoteIp = getRemoteIp(request);
   var totals = request.body;
   if(_.isUndefined(totals) || _.isEmpty(totals)) {
     return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
@@ -329,9 +334,13 @@ app.post("/dashboard", function(request, response) {
     return response.status(400).json({error: "Zone Must be defined"});
   }
   io.sockets.emit('dashboard', totals);
-   response.status(200).json({results: "Message Send"});
+  totals.remoteIp = remoteIp;
+  sendRequests(totals);
+  response.status(200).json({results: "Message Send"}); 
 });
+// CR ->: Pass : xively
 app.post("/xwelcome", function(request, response) {
+   var remoteIp = getRemoteIp(request);
   var infoXively = JSON.stringify(request.body);
   var toJsonTotals = JSON.parse(infoXively);
   var toJsonBody = JSON.parse(toJsonTotals.body);
@@ -355,90 +364,72 @@ app.post("/xwelcome", function(request, response) {
   }
   var toJsonString = JSON.stringify(preJsonString);
   var peopleXively = JSON.parse(toJsonString);
-  var peopleObj = new Object();
-  peopleObj.favcoffee = peopleXively.favoriteDrink;
-  peopleObj.fname = peopleXively.firstname;
-  peopleObj.greeting = peopleXively.greeting;
-  peopleObj.city = peopleXively.guestCity;
-  peopleObj.lname = peopleXively.lastname;
-  peopleObj.msg1 = peopleXively.message;
-  peopleObj.msg2 = peopleXively.message;
-  peopleObj.state = peopleXively.state;
-  peopleObj.email = peopleXively.tagId;
-  peopleObj.name = peopleXively.firstname+" "+peopleXively.lastname;
-  peopleObj.id = peopleXively.tagId;
-  peopleObj.crcombined = peopleXively.guestCity + " "+peopleXively.state;
-  peopleObj.zonefrom = "Xively";
-  peopleObj.zoneto =  peopleXively.deviceId;
-  peopleObj.dt =  moment().format();
-  var activePeople = appfire.child('people/'+peopleObj.id);
+
+  if(_.isUndefined(peopleXively.tagId) || _.isEmpty(peopleXively.tagId)) {
+    return response.status(400).json({error: "Invalid People Card"});
+  }
+  if(_.isUndefined(peopleXively.zoneto) || _.isEmpty(peopleXively.zoneto)) {
+    return response.status(400).json({error: "Invalid Zone Destination"});
+  }  
+  var peopleid = peopleXively.tagId;
+  var zoneto = peopleXively.zoneto;
+  var activePeople = appfire.child('people/'+peopleid);
   activePeople
     .once('value', function(snap) {
-      if(!snap.val()) {
-         activePeople.set(peopleObj);
+      if(snap.val()) {
+        var peopleObj = new Object();
+        peopleObj = snap.val();
+        peopleObj.zonefrom = "Xively";
+        peopleObj.zoneto =  zoneto;
+        io.sockets.emit('welcome', peopleObj);
       }
   });
-  io.sockets.emit('welcome', peopleObj);
-  requestify.request(configDB.url_controller+"/xively", {
-      method: 'POST',
-      body: peopleObj,
-      headers : {
-              'Content-Type': 'application/json'
-      },
-      dataType: 'json'        
-      }).then(function(response) {
-          // Get the response body
-          console.log(response);
-      });
-  // // TODO:  Send to Server
-  response.status(200).json({results: "Message Send"});
-
+  peopleXively.zonefrom = "Xively";
+  peopleXively.remoteIp = remoteIp;
+  sendRequests(peopleXively);
+  response.status(200).json({results: "Message Send"});   
 });
 app.post("/welcome", function(request, response) {
+  var remoteIp = getRemoteIp(request);
   var people = request.body;
   if(_.isUndefined(people) || _.isEmpty(people)) {
     return response.status(400).json({error: "Invalid People Card"});
   }
+  if(_.isUndefined(people.tagId) || _.isEmpty(people.tagId)) {
+    return response.status(400).json({error: "Invalid People Card"});
+  }
+  if(_.isUndefined(people.zoneto) || _.isEmpty(people.zoneto)) {
+    return response.status(400).json({error: "Invalid Zone Destination"});
+  }  
+  var peopleid = people.tagId;
+  var zoneto = people.zoneto;
   if (people.zonefrom == 'IoT') {
     var fSession = appfire.child('sessions/'+people.zoneto);
     fSession
       .once('value', function(snap) {
         if(snap.val()) {
-            var fSess = snap.val();
-            //people.zoneto = fSess.tagId;  // Todo : Please Do not touch
+           var currentSess = snap.val();
+           var activePeople = appfire.child('people/'+peopleid);
+            activePeople
+              .once('value', function(snap) {
+                if(snap.val()) {
+                  var peopleObj = new Object();
+                  peopleObj = snap.val();
+                  peopleObj.zonefrom = "IoT";
+                  peopleObj.zoneto =  currentSess.tagId;
+                  io.sockets.emit('welcome', peopleObj);
+                }
+            });
         } else {
            response.status(400).json({results: "Socket id Session Not Found.. Rejected"});
         }
       });
   }
-  // var activePeople = appfire.child('people/'+replaceAll(people.email));
-  // activePeople
-  //   .once('value', function(snap) {
-  //     if(snap.val()) {
-  //       io.sockets.emit('welcome', people);
-  //     }
-  // });
-  
-  io.sockets.emit('welcome', people);
-
-  people.dt =  moment().format();
-  requestify.request(configDB.url_controller+"/xively", {
-      method: 'POST',
-      body: people,
-      headers : {
-              'Content-Type': 'application/json'
-      },
-      dataType: 'json'        
-      }).then(function(response) {
-          // Get the response body
-          console.log(response);
-      });
-  // // TODO:  Send to Server
-  response.status(200).json({results: "Message Send"});
-  
-
+  people.zonefrom = "Xively";
+  people.remoteIp = remoteIp;
+  sendRequests(people);
+  response.status(200).json({results: "Message Send"});   
 });
-// CR ->: Pass : xively
 app.post("/xively", function(request, response) {
   var remoteIp = getRemoteIp(request);
   var msgXively = request.body;
@@ -618,7 +609,7 @@ app.post('/unsubscribe', unAuth, function(req, res) {
   var foundSession = appfire.child('sessions/'+body.socketid);
     foundSession.remove(function(error) {
       if (error) {
-       res.status(400).json({results: "Synchronization failed"})
+        res.status(400).json({results: "Synchronization failed"});
       } else {
         res.status(200).json({results: "Session Removed"});
       }
@@ -638,11 +629,9 @@ app.post('/alive', function(req, res) {
     if(_.isUndefined(body.isdeleted)) {
         res.status(400).json({results: "Invalid Request!!!"});
     }
-    console.log(body);
     io.sockets.emit('ping', {sessionid : body.sessionid, ts : body.ts, isdeleted: body.isdeleted});
     res.status(200).send("Message received and proceed to Forward");
 });
-
 app.get('/', function(req, res) {
   res.render('index.ejs');
 });

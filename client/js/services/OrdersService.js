@@ -29,7 +29,6 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_U
     };
     
      var updateOrderStatus = function (order, active) {
-         console.log(order);
         var syncObject = $firebaseObject(refOrder.child(order.id));
         syncObject.$loaded().then(function() {
             if (syncObject.active) {

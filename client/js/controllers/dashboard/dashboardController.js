@@ -1,5 +1,4 @@
 xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL','Messages', 'FIREBASE_URI_MSGS', '$queue', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL,  Messages, FIREBASE_URI_MSGS, $queue){
-    // Doughnut chart
     $scope.colorsdoghnut = [{
             fillColor: 'rgba(255, 72, 51, 0.8)',
             strokeColor: 'rgba(255, 72, 51, 0.8)',
@@ -13,25 +12,16 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightStroke: 'rgba(194, 194, 194, 0.8)',
             tooltipFillColor:'rgba(194, 194, 194, 0.9)'
         }];
-    // Doughnut initial data
     $scope.doughnutData = [0, 100];
     $scope.doughnutPercent = 0;
-    //
     $scope.msgs = [];
     var visited=[false,false,false,false,false,false,false,false];
     var nWidgets=6;
     var totalWidgets = 8;
-    
     Messages(FIREBASE_URI_MSGS).$bindTo($scope, "fbMBind");
     $scope.$watch('fbMBind', function() {
-
         refreshFbM();
     });    
-  
-    
-    //$scope.sumDrinks=$scope.drinksServed.esp+$scope.drinksServed.amer+$scope.drinksServed.reg+
-    //$scope.drinksServed.dcaf+$scope.drinksServed.cap+$scope.drinksServed.tea;
-    
     // Queue structure
     var queueCallBack = function(item) {
                 //$scope.person = item;
@@ -76,15 +66,10 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     
 	var dbQueue = $queue.queue(queueCallBack, options);
 	dbQueue.start();
-	
 	var dbQueueBodyMsg = $queue.queue(bodyQueueCallBack, bodyMsgsOptions);
 	dbQueueBodyMsg.start();
-	
 	var dbQueueFooterMsg = $queue.queue(footerQueueCallBack, footerMsgsOptions);
 	dbQueueFooterMsg.start();
-    
-   
-    
     function makeArrayOf(value, length) {
         var arr = [], i = length;
         while (i--) {
@@ -286,8 +271,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     }
 
     function showValues(data) {
-        console.log("--DATA--");
-        console.log(data);
         if (!_.isUndefined(data.drinksServed)){
             if (!_.isUndefined(data.drinksServed.amer) && (data.drinksServed.amer>0))
                 $scope.drinksServed.amer = data.drinksServed.amer;
@@ -301,46 +284,59 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 $scope.drinksServed.reg = data.drinksServed.reg;
             if (!_.isUndefined(data.drinksServed.tea) && (data.drinksServed.tea>0))
                 $scope.drinksServed.tea = data.drinksServed.tea;
-        
         }
-        
         if (!_.isUndefined(data.regions)) {
-            console.log("exist regions...");
-            if (!_.isUndefined(data.regions.west))
-                $scope.regions.reg1 = parseInt(data.regions_West);
-            if (!_.isUndefined(data.regions.midwest))
-                $scope.regions.reg2 = parseInt(data.regions_Midwest);
-            if (!_.isUndefined(data.regions.neMidAtlantic))
-                $scope.regions.reg3 = parseInt(data.regions_Mid_Atlantic);
-            if (!_.isUndefined(data.regions.neNewEngland))
-                $scope.regions.reg4 = parseInt(data.regions_New_England);
-            if (!_.isUndefined(data.regions.sWestSouthCentral))
-                $scope.regions.reg5 = parseInt(data.regions_Southwest);
-            if (!_.isUndefined(data.regions.sSouthAtlanticESCentral))
-                $scope.regions.reg6 = parseInt(data.regions_Southeast);
+            if (!_.isUndefined(data.regions.west) && (data.regions.west!=null) && (data.regions.west>0))
+                $scope.regions.reg1 = data.regions.west;
+            if (!_.isUndefined(data.regions.midwest) && (data.regions.midwest!=null) && (data.regions.midwest>0))
+                $scope.regions.reg2 = data.regions.midwest;
+            if (!_.isUndefined(data.regions.neMidAtlantic) && (data.regions.neMidAtlantic!=null) && (data.regions.neMidAtlantic>0))
+                $scope.regions.reg3 = data.regions.neMidAtlantic;
+            if (!_.isUndefined(data.regions.neNewEngland) && (data.regions.neNewEngland!=null) && (data.regions.neNewEngland>0))
+                $scope.regions.reg4 = data.regions.neNewEngland;
+            if (!_.isUndefined(data.regions.sWestSouthCentral) && (data.regions.sWestSouthCentral!=null) && (data.regions.sWestSouthCentral>0))
+                $scope.regions.reg5 = data.regions.sWestSouthCentral;
+            if (!_.isUndefined(data.regions.sSouthAtlanticESCentral) && (data.regions.sSouthAtlanticESCentral!=null) && (data.regions.sSouthAtlanticESCentral>0))
+                $scope.regions.reg6 = data.regions.sSouthAtlanticESCentral;
         }
-        
         $scope.state1 = $scope.regions.reg1;
         $scope.state2 = $scope.regions.reg2;
         $scope.state3 = $scope.regions.reg3;
         $scope.state4 = $scope.regions.reg4;
         $scope.state5 = $scope.regions.reg5;
-        $scope.state6 = $scope.regions.reg6
-        
+        $scope.state6 = $scope.regions.reg6;
+        console.log('mike');
+        console.log(data);
         // Stations
         if (!_.isUndefined(data.stations)) {
-            if (!_.isUndefined(data.stations.station1) && (data.stations.station1!=null) && (data.stations.station1>0))
-                $scope.station1 = data.stations.station1;
-            if (!_.isUndefined(data.stations.station2) && (data.stations.station2!=null) && (data.stations.station2>0))
-                $scope.station2 = data.stations.station2;
-            if (!_.isUndefined(data.stations.station3) && (data.stations.station3!=null) && (data.stations.station3>0))
-                $scope.station3 = data.stations.station3;
+            if (!_.isUndefined(data.stations.station1)) {
+                if(data.stations.station1!=null && data.stations.station1>0) {
+                    $scope.station1 = data.stations.station1;
+                }
+            }
+            if (!_.isUndefined(data.stations.station2)) {
+                if(data.stations.station2!=null && data.stations.station2>0) {
+                    $scope.station2 = data.stations.station2;
+                }
+            }
+            if (!_.isUndefined(data.stations.station3)) {
+                if(data.stations.station3!=null && data.stations.station3>0) {
+                    $scope.station3 = data.stations.station3;
+                }
+            }
         }
-        
-        if (!_.isUndefined(data.totalounces) && (data.totalounces!=null) && (data.totalounces>0))
-            $scope.totalounces = numberWithCommas(data.totalounces);
-        if ((data.totVisitors) && (data.totVisitors!=null) && (data.totVisitors>0))
-            $scope.totVisitors = data.totVisitors;
+        if (!_.isUndefined(data.totalounces)){
+            if(data.totalounces!=null && data.totalounces>0) {
+                $scope.totalounces = numberWithCommas(data.totalounces);
+            }
+        } 
+        if (!_.isUndefined(data.totVisitors)){
+            if(data.totVisitors!=null && data.totVisitors>0) {
+                $scope.totVisitors = data.totVisitors;
+            }
+        } else {
+            data.totVisitors= 0;
+        }
         $scope.totalDrinksServed = numberWithCommas($scope.regions.reg1+
                                     $scope.regions.reg2+
                                     $scope.regions.reg3+
@@ -365,8 +361,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             $scope.drinksServed.amer,
             $scope.drinksServed.esp,
         ]];
-        
-        
         $scope.colorsxively = [{
             fillColor: 'rgba(255, 72, 51, 0.8)',
             strokeColor: 'rgba(255, 72, 51, 0.8)',
@@ -402,7 +396,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             }
         }
     });
-    
     Socket.on('sync', function(data){
         if (LSFactory.getSessionId() === data.sessionid) {
             if (data.action === 'reset') {
@@ -428,15 +421,10 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             }
         }
     });
-    
-    
-    
-    // Messages
   function refreshFbM(){
 	    $scope.totalMsgsActive=0;
 		$scope.msgs = [];
 		angular.forEach($scope.fbMBind, function(msg){
-		  
 			if (!msg || !msg.text) {
 				return;
 			}
@@ -448,7 +436,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
 		addMsgsToQueue(true);
 		addMsgsToQueue(false);
 	}
-  
   function addMsgsToQueue(isBodyQueue) {
         for (var i = 0; i<$scope.msgs.length; i++) {
             //var dateNow = new Date().getTime();
@@ -475,14 +462,13 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             }
         }
    }
-  
-   function compare(a,b) {
+  function compare(a,b) {
         if (a.end < b.end)
             return -1;
         if (a.end > b.end)
             return 1;
     return 0;
-    }
+  }
     
     // Showing messages
     /*var msgIndexActual = 0;

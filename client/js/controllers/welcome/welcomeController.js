@@ -1,14 +1,45 @@
-xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localStorageService','VisitorsService', 'sharedProperties' ,'LSFactory','SubscriptionFactory','$window', 'API_URL', 'SessionsService','$queue','$timeout',function($scope, $rootScope, Socket,localStorageService, VisitorsService, sharedProperties, LSFactory,SubscriptionFactory, $window, API_URL, SessionsService,$queue,$timeout){
+xively.controller('welcomeController', ['$scope', 
+	'$rootScope', 
+	'Socket',
+	'localStorageService',
+	'sharedProperties' ,
+	'LSFactory',
+	'SubscriptionFactory',
+	'$window', 
+	'API_URL', 
+	'hotkeys',
+	'SessionsService',
+	'$queue',
+	'$timeout',function($scope, $rootScope, Socket,localStorageService, sharedProperties, LSFactory,SubscriptionFactory, $window, API_URL, hotkeys, SessionsService,$queue,$timeout){
    
-    //$(document).ready(function(){
     var min=1,max=9;
 	var arr_occupied = [0,0,0,0,0,0,0,0,0,0]; //if is occupied
-	var arr_wName = ['','welcome1','welcome2','welcome3','welcome4','welcome5','welcome6','welcome7','welcome8','welcome9'] //welcome id name
-	var arr_email = ['','','','','','','','','',''];
+	var arr_wName = ['','welcome1','welcome2','welcome3','welcome4','welcome5','welcome6','welcome7','welcome8','welcome9'] ;
 	var ArrayItems = [];
-	var sizeArray=0;
-	
-	
+    $scope.deviceName = LSFactory.getDeviceName();
+    $scope.deviceDetected = LSFactory.getDeviceDetected();
+    $scope.deviceTagid = LSFactory.getTagId();
+    $scope.deviceType = LSFactory.getDeviceType().toUpperCase();	
+	$scope.helpVisible=false; //No tocar
+	hotkeys.bindTo($scope)
+    .add({
+      combo: 'esc+s',
+      description: 'Kiosk Information',
+      callback: function() {
+        if ($scope.helpVisible) {
+            $scope.helpVisible = false;
+        } else {
+            $scope.helpVisible = true;
+        }
+      }
+    });
+    $scope.unregister=function() {
+     SubscriptionFactory.unsubscribe(LSFactory.getSocketId()).
+		then(function success(response){
+            Socket.disconnect(true);
+			$window.location.href = API_URL+"/settings";
+		}, subsError);
+    };
 	var queueCallBack = function(item) {
                 //$scope.person = item;
                 showWelcome(item);
@@ -20,241 +51,16 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
             };
 	var myQueue = $queue.queue(queueCallBack, options);
 	myQueue.start();
-	
-	/*var fakeData = [
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "2",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Pedro"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "3",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Juan"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"},
-		{id: "1",msg1: "tarola",msg2: "como estas muy buenas noches",greeting: "hola",fname: "Carlos"}
-	];
-	
-	//for(var i=0;i<fakeData.length;i++){
-	f(1);
-	function f(idx){
-		if(idx==192)return true;
-		$timeout(function(){
-			populateQueue(fakeData[idx]);
-			f(++idx);
-		},300);
-		return true;
-	}*/
-		
-	//}
-	
-	
-	
-	
 	function populateQueue(person){
-		
 		console.log(typeof ArrayItems[person.id],"==","undefined",ArrayItems[person.id],"==",0);
 		if(typeof ArrayItems[person.id]=="undefined" || ArrayItems[person.id]==0){
 			ArrayItems[person.id]=1;
 			//console.log("in",ArrayItems[person.id]);
 			myQueue.add(person);
 		}
-		//console.log("myQueue --> ",myQueue.Queue);
-		/*for(var i=1;i<=idxArray;i++){
-			ArrayItems[i]={
-				id:person.id,
-				active:1
-			}
-		}*/
-		
 	}
-	//populateQueue();
-	 
     $scope.person = {};
-    
-     Socket.on('ping', function(data){
+    Socket.on('ping', function(data){
         var socketid = LSFactory.getSocketId();
         if (LSFactory.getSessionId() === data.sessionid) {
             SessionsService.updateSessionStatus(socketid, data.ts, data.isdeleted);
@@ -264,7 +70,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
             }
         }
     });
-    
     Socket.on('sync', function(data){
         if (LSFactory.getSessionId() === data.sessionid) {
             if (data.action === 'reset') {
@@ -293,13 +98,7 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
     
     
     Socket.on('welcome', function(data){
-        //$scope.person = data;
-        //if($scope.person.zonefrom){
         populateQueue(data);
-            //showWelcome();
-        /*}else{
-            removeWelcome()
-        }*/
     });
     
     function explode(pos){
@@ -308,26 +107,21 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 	}
 
 	function display(pos,action,item){
-		//if(action==1){
-		
 		    arr_occupied[pos]=1;
 		    $scope.person = item;
-			
 		    if (!$scope.person.msg1) {
 		    	$scope.person.msg1 = "Missing Text";
 		    }
 		    if (!$scope.person.msg2) {
 		    	$scope.person.msg2 = "Missing Text";
 		    }
-		    
 		    var ms=getRandom(1,2);
 			var message=['',$scope.person.msg1,$scope.person.msg2];
-		    
 		    var bubleSize='hello-circle-',
 		    	circleText='hello-circleText-',
 		    	rowCircle='row-circle-',
 		    	messagebox='messagebox-';
-		    
+		    var size="md";
 		    if(message[ms].length>53){size = 'lg';}
 		    else if(message[ms].length>39){size = 'md';}
 		    else{size = 'sm';}
@@ -362,19 +156,8 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 				 	
 				 	arr_occupied[pos]=0;
 			 	});  
-			
-            //arr_occupied[pos]=0;
-            //.addClass('show');
-			//arr_occupied[pos]=1;
-			//arr_email[pos]=$scope.person.email;
 			$('#personName'+pos).text($scope.person.greeting+" "+$scope.person.fname);
 			$('#message'+pos).text(message[ms]);
-		/*}else{
-			$('#'+arr_wName[pos]).removeClass('show').addClass('hide');
-			arr_occupied[pos]=0;
-			arr_email[pos]='';
-		}*/
-		
 	}
 
 	function isOccupied(pos){
@@ -388,20 +171,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 	
 	function getRandom(min,max){
 		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-
-	function isAllOccupied(){
-		for(var i=min;i<=max;i++)
-			if(arr_occupied[i]==0)return false;
-		
-		return true;
-	}
-
-	function anythingIsOccupied(){
-		for(var i=min;i<=max;i++)
-			if(arr_occupied[i]==1)return true;
-		
-		return false;
 	}
 
 	function showWelcome(item){
@@ -428,23 +197,6 @@ xively.controller('welcomeController', ['$scope', '$rootScope', 'Socket','localS
 		}
 	}
 
-	function removeWelcome(){
-		var pos=-1;
-		
-		for(var i=1;i<=5;i++){
-			if(arr_email[i].toLowerCase()==$scope.person.email.toLowerCase())
-				pos = i;
-		}
-
-		if(pos==-1){
-		    alert("The email doesn't exist");
-		    console.log("email --> ",$scope.person.email);
-		}
-		else{
-			display(pos,0);
-		}
-	}
-	
 	function subsError(response) {
         console.log("Error");
     }

@@ -167,35 +167,14 @@ xively.controller('selectController', ['$scope',
         });
         if (!orderPerson) {
             orderPerson = $scope.currentPerson;
-            OrdersService.updateOrderStatus(orderPerson, 1);
-        }
+        }  
         orderPerson.tagId=LSFactory.getTagId();
         orderPerson.masterId=LSFactory.getMasterId();                
         if($scope.paneSelected.id==="3")
             orderPerson.favcoffee=$scope.favcoffee;
         orderPerson.active=1;
         orderPerson.timeStamp = new Date().getTime();        
-        
-        // if (orderPerson) {
-        //     if (orderPerson.active == 1 || orderPerson.active=='1') {
-        //         orderPerson.tagId=LSFactory.getTagId();
-        //         orderPerson.masterId=LSFactory.getMasterId();                
-        //         if($scope.paneSelected.id==="3")
-        //             orderPerson.favcoffee=$scope.favcoffee;
-        //         orderPerson.active=1;
-        //         orderPerson.timeStamp = new Date().getTime();
-        //     }
-        // } else  {
-        //     orderPerson = $scope.currentPerson;	
-        //     orderPerson.tagId=LSFactory.getTagId();
-        //     orderPerson.masterId=LSFactory.getMasterId();
-        //     if($scope.paneSelected.id==="3")
-        //         orderPerson.favcoffee=$scope.favcoffee;
-        //     orderPerson.active=1;
-
-        //     orderPerson.timeStamp = new Date().getTime();
-        //     OrdersService.updateOrderStatus(orderPerson, 1);
-        // }
+        OrdersService.updateOrderStatus(orderPerson, 1);
         $scope.hideMsg(); 
         var bodyOrder = {
             "name": orderPerson.thingid,
