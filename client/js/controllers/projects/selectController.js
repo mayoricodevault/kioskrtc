@@ -168,10 +168,12 @@ xively.controller('selectController', ['$scope',
         if (!orderPerson) {
             orderPerson = $scope.currentPerson;
         }  
+        orderPerson.zoneto=LSFactory.getTagId();
         orderPerson.tagId=LSFactory.getTagId();
         orderPerson.masterId=LSFactory.getMasterId();                
-        if($scope.paneSelected.id==="3")
+        if($scope.paneSelected.id==3){
             orderPerson.favcoffee=$scope.favcoffee;
+        }
         orderPerson.active=1;
         orderPerson.timeStamp = new Date().getTime();        
         OrdersService.updateOrderStatus(orderPerson, 1);

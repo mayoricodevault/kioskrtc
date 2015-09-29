@@ -99,6 +99,8 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     // print order Array
     //printArray(orderToChange, nWidgets);
     
+    //Set Window title
+    document.title="XCB - Dashboard";
     
     visited = makeArrayOf(false, totalWidgets+1);
     var displaywidget=makeArrayOf(0, nWidgets);
@@ -260,7 +262,6 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     $scope.station2 = 0;
     $scope.station3 = 0;
     $scope.totalounces = 0;
-    $scope.totalDrinksServed = 0;
     
     function numberWithCommas(x) {
         x = x.toString();
@@ -273,17 +274,17 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     function showValues(data) {
         if (!_.isUndefined(data.drinksServed)){
             if (!_.isUndefined(data.drinksServed.amer) && (data.drinksServed.amer>0))
-                $scope.drinksServed.amer = data.drinksServed.amer;
+                $scope.drinksServed.amer = parseInt(data.drinksServed.amer);
             if (!_.isUndefined(data.drinksServed.cap) && (data.drinksServed.cap>0))
-                $scope.drinksServed.cap = data.drinksServed.cap;
+                $scope.drinksServed.cap = parseInt(data.drinksServed.cap);
             if (!_.isUndefined(data.drinksServed.dcaf) && (data.drinksServed.dcaf>0))
-                $scope.drinksServed.dcaf = data.drinksServed.dcaf;
+                $scope.drinksServed.dcaf = parseInt(data.drinksServed.dcaf);
             if (!_.isUndefined(data.drinksServed.esp) && (data.drinksServed.esp>0))
-                $scope.drinksServed.esp = data.drinksServed.esp;
+                $scope.drinksServed.esp = parseInt(data.drinksServed.esp);
             if (!_.isUndefined(data.drinksServed.reg) && (data.drinksServed.reg>0))
-                $scope.drinksServed.reg = data.drinksServed.reg;
+                $scope.drinksServed.reg = parseInt(data.drinksServed.reg);
             if (!_.isUndefined(data.drinksServed.tea) && (data.drinksServed.tea>0))
-                $scope.drinksServed.tea = data.drinksServed.tea;
+                $scope.drinksServed.tea = parseInt(data.drinksServed.tea);
         }
         if (!_.isUndefined(data.regions)) {
             if (!_.isUndefined(data.regions.west) && (data.regions.west!=null) && (data.regions.west>0))
@@ -294,34 +295,41 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 $scope.regions.reg3 = data.regions.neMidAtlantic;
             if (!_.isUndefined(data.regions.neNewEngland) && (data.regions.neNewEngland!=null) && (data.regions.neNewEngland>0))
                 $scope.regions.reg4 = data.regions.neNewEngland;
-            if (!_.isUndefined(data.regions.sWestSouthCentral) && (data.regions.sWestSouthCentral!=null) && (data.regions.sWestSouthCentral>0))
-                $scope.regions.reg5 = data.regions.sWestSouthCentral;
             if (!_.isUndefined(data.regions.sSouthAtlanticESCentral) && (data.regions.sSouthAtlanticESCentral!=null) && (data.regions.sSouthAtlanticESCentral>0))
-                $scope.regions.reg6 = data.regions.sSouthAtlanticESCentral;
+                $scope.regions.reg5 = data.regions.sSouthAtlanticESCentral;
+            if (!_.isUndefined(data.regions.sWestSouthCentral) && (data.regions.sWestSouthCentral!=null) && (data.regions.sWestSouthCentral>0))
+                $scope.regions.reg6 = data.regions.sWestSouthCentral;
+            
         }
-        $scope.state1 = $scope.regions.reg1;
-        $scope.state2 = $scope.regions.reg2;
-        $scope.state3 = $scope.regions.reg3;
-        $scope.state4 = $scope.regions.reg4;
-        $scope.state5 = $scope.regions.reg5;
-        $scope.state6 = $scope.regions.reg6;
+        $scope.state1 = parseInt($scope.regions.reg1);
+        $scope.state2 = parseInt($scope.regions.reg2);
+        $scope.state3 = parseInt($scope.regions.reg3);
+        $scope.state4 = parseInt($scope.regions.reg4);
+        $scope.state5 = parseInt($scope.regions.reg5);
+        $scope.state6 = parseInt($scope.regions.reg6);
         console.log('mike');
         console.log(data);
         // Stations
         if (!_.isUndefined(data.stations)) {
             if (!_.isUndefined(data.stations.station1)) {
                 if(data.stations.station1!=null && data.stations.station1>0) {
-                    $scope.station1 = data.stations.station1;
+                    $scope.station1 = parseInt(data.stations.station1);
+                } else {
+                    $scope.station1 = 0;
                 }
             }
             if (!_.isUndefined(data.stations.station2)) {
                 if(data.stations.station2!=null && data.stations.station2>0) {
-                    $scope.station2 = data.stations.station2;
+                    $scope.station2 = parseInt(data.stations.station2);
+                } else {
+                    $scope.station2 = 0;
                 }
             }
             if (!_.isUndefined(data.stations.station3)) {
                 if(data.stations.station3!=null && data.stations.station3>0) {
-                    $scope.station3 = data.stations.station3;
+                    $scope.station3 = parseInt(data.stations.station3);
+                } else {
+                    $scope.station3 = 0;
                 }
             }
         }
@@ -330,26 +338,27 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
                 $scope.totalounces = numberWithCommas(data.totalounces);
             }
         } 
+        // totVisitors and totVisitorsServed
         if (!_.isUndefined(data.totVisitors)){
             if(data.totVisitors!=null && data.totVisitors>0) {
-                $scope.totVisitors = data.totVisitors;
+                $scope.totVisitors = parseInt(data.totVisitors);
             }
         } else {
             data.totVisitors= 0;
         }
-        $scope.totalDrinksServed = numberWithCommas($scope.regions.reg1+
-                                    $scope.regions.reg2+
-                                    $scope.regions.reg3+
-                                    $scope.regions.reg4+
-                                    $scope.regions.reg5+
-                                    $scope.regions.reg6);
-                                    
-        $scope.totalCoffeeServed = parseInt($scope.drinksServed.amer)+
+        if (!_.isUndefined(data.totVisitorsServed)) {
+            if ((data.totVisitorsServed != null) && (data.totVisitorsServed > 0)) {
+                $scope.totalCoffeeServed = parseInt(data.totVisitorsServed);
+            } else {
+                $scope.totalCoffeeServed = 0;
+            }
+        }
+        /*$scope.totalCoffeeServed = parseInt($scope.drinksServed.amer)+
                                 parseInt($scope.drinksServed.cap) +
                                 parseInt($scope.drinksServed.dcaf) +
                                 parseInt($scope.drinksServed.esp) +
                                 parseInt($scope.drinksServed.reg) +
-                                parseInt($scope.drinksServed.tea);
+                                parseInt($scope.drinksServed.tea);*/
         
         // Bar chart
         //$scope.barData = [$scope.drinksServed];
@@ -368,7 +377,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightStroke: 'rgba(47, 132, 71, 0.8)',
             tooltipFillColor:'rgba(255, 72, 51, 0.8)'
         }];
-        console.log("totalCoffeeServed:"+$scope.totalCoffeeServed+"totVisitors:"+$scope.totVisitors);
+        console.log("totalCoffeeServed:"+$scope.totalCoffeeServed+"  totVisitors:"+$scope.totVisitors);
         // Doughnut chart
         var difference = $scope.totVisitors-$scope.totalCoffeeServed;
         if (difference<0) difference = 0;

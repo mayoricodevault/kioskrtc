@@ -10,6 +10,9 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     $scope.baristaTagID;
     $scope.isFavorite=false;
     
+    //Set Window title
+    document.title="XCB - Barista";
+    
     $scope.$watch('isFavorite',function(){
         localStorageService.set('isFavorite',$scope.isFavorite);
     },true);
@@ -39,8 +42,6 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
 		    }
 		}
     });  
-    
-    
     var currentIndexOld=localStorageService.get('currentIndex');
     $scope.currentIndex=currentIndexOld || 0;
     
@@ -74,6 +75,7 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
 		}
 		OrdersService.updateOrderStatus(person, 0);
 		var bodyOrder = {
+		    "name": person.thingid,
             "id": person.id
         };
         $http.post(API_URL + '/vizix-served', bodyOrder)
@@ -86,7 +88,6 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
                 
             }
         );       
-		Socket.emit("served", person);
     };
     
     $scope.isActiveOrder=function(active){
@@ -110,9 +111,6 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
         $scope.userSearch.name="";        
          
     };
-
-   
-	
 
     $scope.coffee= function(coffee){
    
@@ -140,7 +138,6 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
             }
         }
     });
-    
     Socket.on('sync', function(data){
         if (LSFactory.getSessionId() === data.sessionid) {
             if (data.action === 'reset') {

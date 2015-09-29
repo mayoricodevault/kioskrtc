@@ -76,7 +76,7 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
 		$scope.totalOrders = total;        
 		
     },true);
-    $scope.selectUser = function(){
+    $scope.selectUser = function(selVisitor){
         $scope.isFavorite=false;
         if($scope.selected===undefined) {
             ngToast.create({
@@ -103,6 +103,18 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
             return false;
         }
         
+        var SelPerson = Object();
+        SelPerson.favcoffee = selVisitor.favcoffee;
+        SelPerson.city = selVisitor.city;
+        SelPerson.name = selVisitor.name;
+        SelPerson.email = selVisitor.email;
+        SelPerson.state = selVisitor.state;
+        SelPerson.zoneto = LSFactory.getTagId();
+        SelPerson.zonefrom = "Barista";
+        SelPerson.region = selVisitor.region;
+        SelPerson.thingid = selVisitor.thingid;
+        SelPerson.id = selVisitor.id;
+        $scope.currentPerson = SelPerson;
         $scope.currentPerson = $scope.selected;
         $scope.urlbarista="/barista/menu";
         $scope.isFavorite=false;

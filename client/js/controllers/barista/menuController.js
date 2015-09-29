@@ -48,12 +48,13 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
     $scope.served=function(){
 		
         var person=$scope.currentPerson;
+        console.log(person);
         $scope.currentPerson=undefined;
         
 		person.zonefrom = LSFactory.getSessionId();
 
 		
-        var timeStamp = Math.floor(Date.now() / 1000);
+        var timeStamp = Math.floor(Date.now());
         person.active="0"; //served
         person.timeStamp=timeStamp;
         var tagId=LSFactory.getTagId();
@@ -79,17 +80,23 @@ xively.controller('menuController', ['$scope', 'Socket','localStorageService' ,'
 		
         //Save Order
         
-        $timeout(function(){
-            $http.post(API_URL + '/add-order', { people: person }).
-                then(function(response) {
-                }, function(response) {
-            },1000);                
-        });		
-
+        OrdersService.updateOrderStatus(person, 0);
+        
+        var bodyOrder = {
+            "name": person.thingid,
+            "serial": person.id
+        };
+        $http.post(API_URL + '/vizix-order', bodyOrder)
+            .then(function(response) {
+                console.log("Response message1: ");
+                console.log(response);
+            }, function( response ){
+                  console.log("Response message2: ");
+                console.log(response);
+                
+            }
+        );       
 		
-		/*
-		OrdersService.updateOrderStatus(person, 0);
-		*/
 		Socket.emit("served", person);
 		$timeout(function() {
             $location.path("/barista");

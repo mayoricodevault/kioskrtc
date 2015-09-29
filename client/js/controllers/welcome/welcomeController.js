@@ -21,6 +21,8 @@ xively.controller('welcomeController', ['$scope',
     $scope.deviceTagid = LSFactory.getTagId();
     $scope.deviceType = LSFactory.getDeviceType().toUpperCase();	
 	$scope.helpVisible=false; //No tocar
+	//Set Window title
+    document.title="XCB - Welcome";
 	hotkeys.bindTo($scope)
     .add({
       combo: 'esc+s',

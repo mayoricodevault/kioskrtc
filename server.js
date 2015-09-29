@@ -100,8 +100,6 @@ io.on('connection', function(socket) {
 });
 app.post("/vizix-served", function(request, response) {
   var pushDash =request.body;
-  // console.log("---------->>>>> servido")
-  // console.log(pushDash);
   var activeOrder = appfire.child('orders/'+pushDash.id);
    activeOrder
     .once('value', function(snap) {
@@ -146,22 +144,22 @@ app.post("/vizix-order", function(request, response) {
     "name": request.body.serial+"O"+timeStamp,
      "serial": request.body.serial+"O"+timeStamp,
      "childrenIdList": [],
-     "fields":[{"id":37,"unit":"","timeSeries":false,"symbol":"","name":"zone","type":1,"typeLabel":"String"},
+     "fields":[
+      {"id":37,"unit":"","timeSeries":false,"symbol":"","name":"zone","type":1,"typeLabel":"String"},
       {"id":35,"unit":"","timeSeries":false,"symbol":"","name":"drink","type":1,"typeLabel":"String"},
       {"id":33,"unit":"","timeSeries":false,"symbol":"","name":"orderTime","type":11,"typeLabel":"Date"},
       {"id":36,"unit":"","timeSeries":false,"symbol":"","name":"region","type":1,"typeLabel":"String"},
       {"id":34,"unit":"","timeSeries":false,"symbol":"","name":"person","type":1,"typeLabel":"String"}]
   };
-  // console.log(    configDB.vizixorder);
   requestify.request(configDB.vizixorder , {
     method: 'PUT',
     headers : {'api_key':'root','Content-Type': 'application/json'},
     dataType: 'json' ,
     body: orderTo,
     }).then(function(res) {
-          console.log(res.body);
         var addOrder = JSON.parse(res.body) ;
         var activeOrder = appfire.child('orders/'+request.body.serial);
+        var serialThing = request.body.serial;
          activeOrder
           .once('value', function(snap) {
               if(snap.val()) {
@@ -175,7 +173,7 @@ app.post("/vizix-order", function(request, response) {
                      {"operationId":1,"value":currentOrder.favcoffee,"field":{"fieldTypeId":35,"thingId": addOrder.id}},
                      {"operationId":2,"value":currentOrder.region,"field":{"fieldTypeId":36,"thingId": addOrder.id}},
                      {"operationId":3,"value":tDate,"field":{"fieldTypeId":33,"thingId": addOrder.id}},
-                    {"operationId":4,"value":currentOrder.masterId,"field":{"fieldTypeId":37,"thingId": addOrder.id}},
+                     {"operationId":4,"value":currentOrder.masterId,"field":{"fieldTypeId":37,"thingId": addOrder.id}},
                      {"operationId":5,"value":currentOrder.favcoffee,"field":{"fieldTypeId":32,"thingId":currentOrder.thingid}} 
                   ]};
                 requestify.request(configDB.vizixserved , {
@@ -185,16 +183,16 @@ app.post("/vizix-order", function(request, response) {
                     body: dataValues,
                     }).then(function(res) {
                         requestify.request(configDB.vizixdasboard , {
-                            method: 'GET',
+                            method: 'POST',
                             headers : {'Content-Type': 'application/json'},
                             dataType: 'json' ,
                             body: {},
                         }).then(function(res) {
-                              console.log('errrr');
+                              console.log('Vizix Order -'+currentOrder.orderthingid);
+                              console.log('For Tag:'+serialThing)
                               return response.status(200);
                         }, function(res){
-                              console.log('errrr');
-                              console.log(res.body);
+                              console.log('Error:'+res.body);
                               return response.status(400).json(res.body);
                         });
                     }, function(res){
@@ -225,7 +223,7 @@ app.post("/weather", function(request, response) {
 
 });
 app.post("/xdashboard", function(request, response) {
-    var remoteIp = getRemoteIp(request);
+  var remoteIp = getRemoteIp(request);
   var totals = JSON.stringify(request.body);
   var toJsonTotals = JSON.parse(totals);
   var toJsonBody = JSON.parse(toJsonTotals.body);
@@ -236,9 +234,6 @@ app.post("/xdashboard", function(request, response) {
     return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
   }
   var data = toJsonBody.triggering_datastream;
-  console.log('asdasdasdasdas');
-  console.log(data);
-  console.log('sdasdasdasdasda--->');
   if(_.isUndefined(data.id) || _.isEmpty(data.id)) {
     return response.status(400).json({error: "Invalid Id Data for Dashboard -- Totals"});
   }
@@ -272,8 +267,11 @@ app.post("/xdashboard", function(request, response) {
   if (data.id.indexOf("consumption") > -1) {
      datafinal.totalounces = data.value.value;
   }
-   if (data.id.indexOf("totVisitors") > -1) {
+  if (data.id=="totVisitors") {
      datafinal.totVisitors = data.value.value;
+  }
+  if (data.id=="totVisitorsServed") {
+     datafinal.totVisitorsServed = data.value.value;
   }
   if (data.id.indexOf("stations") > -1) {
     var subStat = keyWord.indexOf("_");
@@ -314,6 +312,88 @@ app.post("/xdashboard", function(request, response) {
       }
       datafinal.regions = resgionsObj;
   }
+  datafinal.zoneto ="dashboard";
+  datafinal.zonefrom ="Xively";
+  io.sockets.emit('dashboard', datafinal);
+  datafinal.remoteIp = remoteIp;
+  sendRequests(datafinal);
+  response.status(200).json({results: "Message Send"}); 
+});
+app.post("/vdashboard", function(request, response) {
+  var remoteIp = getRemoteIp(request);
+  var data = request.body;
+  if(_.isUndefined(data) || _.isEmpty(data)) {
+    return response.status(400).json({error: "Invalid Data for Dashboard -- Totals"});
+  }
+  var dataArray = data.datastreams;
+  var datafinal = new Object();
+  var drinksServedObj = new Object();
+  var resgionsObj = new Object();
+  var stationsObj = new Object();
+  for(var key in dataArray){
+    var obj = dataArray[key];
+    var expr = obj.id;
+    switch(expr){
+      case "consumption":
+        datafinal.totalounces = obj.current_value;
+        break;
+      case "drinksServed_amer":
+        drinksServedObj.amer = obj.current_value;
+        break;
+      case "drinksServed_cap":
+        drinksServedObj.cap = obj.current_value;
+        break;
+      case "drinksServed_dcaf":
+        drinksServedObj.dcaf = obj.current_value;
+        break;
+      case "drinksServed_esp":
+        drinksServedObj.esp = obj.current_value;
+        break;
+      case "drinksServed_reg":
+        drinksServedObj.reg = obj.current_value;
+        break;
+      case "drinksServed_tea":
+        drinksServedObj.tea = obj.current_value;
+        break;
+      case "regions_Mid_Atlantic":
+        resgionsObj.neMidAtlantic = obj.current_value;
+        break;
+      case "regions_Midwest":
+        resgionsObj.midwest = obj.current_value;
+        break;
+      case "regions_New_England":
+        resgionsObj.neNewEngland = obj.current_value;
+        break;
+      case "regions_Southeast":
+        resgionsObj.sSouthAtlanticESCentral = obj.current_value;
+        break;
+      case "regions_Southwest":
+        resgionsObj.sWestSouthCentral = obj.current_value;
+        break;
+      case "regions_West":
+        resgionsObj.west = obj.current_value;
+        break;
+      case "stations_station3":
+        stationsObj.station3 = obj.current_value;
+        break;
+      case "stations_station1":
+        stationsObj.station1 = obj.current_value;
+        break;
+      case "stations_station2":
+        stationsObj.station2 = obj.current_value;
+        break;
+      case "totVisitors":
+        datafinal.totVisitors = obj.current_value;
+        break;
+      case "totVisitorsServed":
+        datafinal.totVisitorsServed = obj.current_value;
+        break;
+    }
+  }
+  datafinal.drinksServed = drinksServedObj;
+  datafinal.regions = resgionsObj;
+  datafinal.stations = stationsObj;
+  
   datafinal.zoneto ="dashboard";
   datafinal.zonefrom ="Xively";
   io.sockets.emit('dashboard', datafinal);
@@ -371,6 +451,36 @@ app.post("/xwelcome", function(request, response) {
   if(_.isUndefined(peopleXively.zoneto) || _.isEmpty(peopleXively.zoneto)) {
     return response.status(400).json({error: "Invalid Zone Destination"});
   }  
+  var peopleid = peopleXively.tagId;
+  var zoneto = peopleXively.zoneto;
+  var activePeople = appfire.child('people/'+peopleid);
+  activePeople
+    .once('value', function(snap) {
+      if(snap.val()) {
+        var peopleObj = new Object();
+        peopleObj = snap.val();
+        peopleObj.zonefrom = "Xively";
+        peopleObj.zoneto =  zoneto;
+        io.sockets.emit('welcome', peopleObj);
+      }
+  });
+  peopleXively.zonefrom = "Xively";
+  peopleXively.remoteIp = remoteIp;
+  sendRequests(peopleXively);
+  response.status(200).json({results: "Message Send"});   
+});
+app.post("/vwelcome", function(request, response) {
+  var remoteIp = getRemoteIp(request);
+  var peopleXively = request.body;
+  if(_.isUndefined(peopleXively) || _.isEmpty(peopleXively)) {
+    return response.status(400).json({error: "Invalid Data for Welcome -- Body"});
+  }
+  if(_.isUndefined(peopleXively.tagId) || _.isEmpty(peopleXively.tagId)) {
+    return response.status(400).json({error: "Invalid People Card"});
+  }
+  if(_.isUndefined(peopleXively.zoneto) || _.isEmpty(peopleXively.zoneto)) {
+    return response.status(400).json({error: "Invalid Zone Destination"});
+  }
   var peopleid = peopleXively.tagId;
   var zoneto = peopleXively.zoneto;
   var activePeople = appfire.child('people/'+peopleid);
@@ -497,6 +607,45 @@ app.post("/xxively", function(request, response) {
   if(_.isUndefined(msgXively.tagId) || _.isEmpty(msgXively.tagId)) {
     return response.status(400).json({error: "Need Msg Id to Continue"});
   }  
+  msgXively.zonefrom = "Vizix";
+  var activePeople = appfire.child('people/'+msgXively.tagId);
+  activePeople
+    .once('value', function(snap) {
+      if(snap.val()) {
+         var newPeople = new Object();
+         newPeople = snap.val();
+         newPeople.zoneto= msgXively.zoneto;
+         newPeople.zonefrom= msgXively.zonefrom;
+         var activeOrder = appfire.child('orders/'+msgXively.tagId);
+         activeOrder
+          .once('value', function(snap) {
+              newPeople.hasOrder = false;
+              if(snap.val()) {
+                 var currentOrder = snap.val();
+                 if (currentOrder.active==1 || currentOrder.active=='1') {
+                     newPeople.hasOrder = true;
+                 } 
+              } 
+              io.sockets.emit('register', newPeople);
+          });
+       }
+  });
+  msgXively.remoteIp = remoteIp;
+  sendRequests(msgXively);
+  response.status(200).json({results: "Message Send"}); 
+});
+app.post("/vxively", function(request, response) {
+  var remoteIp = getRemoteIp(request);
+  var msgXively = request.body;
+  if(_.isUndefined(msgXively) || _.isEmpty(msgXively)) {
+    return response.status(400).json({error: "Invalid Data for Kiosk -- Body"});
+  }
+  if(_.isUndefined(msgXively.zoneto) || _.isEmpty(msgXively.zoneto)) {
+    return response.status(400).json({error: "Zone/Socket or Device ID Must be defined"});
+  }
+  if(_.isUndefined(msgXively.tagId) || _.isEmpty(msgXively.tagId)) {
+    return response.status(400).json({error: "Need Msg Id to Continue"});
+  }
   msgXively.zonefrom = "Vizix";
   var activePeople = appfire.child('people/'+msgXively.tagId);
   activePeople
