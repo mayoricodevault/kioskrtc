@@ -105,11 +105,20 @@ app.post("/vizix-served", function(request, response) {
     .once('value', function(snap) {
         if(snap.val()) {
             var currentOrder = snap.val();  
-            var dataValues = { "values" : [
-                {"operationId":4,"value":"","field":{"fieldTypeId":37,"thingId": currentOrder.orderthingid}}
-            ]};  
+            var dataValues = 
+            {
+              "thingTypeCode":"xperience.person",
+              "group":">Xperience.Xively>Xperience.Xively.Group",
+              "serialNumber":currentOrder.serial,
+              "children":[],
+              "udfs": {
+                "drinksServed": {
+                    "value": currentOrder.favcoffee
+                }    
+              }
+            };
             requestify.request(configDB.vizixserved , {
-            method: 'POST',
+            method: 'PATCH',
             headers : {'api_key':'root','Content-Type': 'application/json'},
             dataType: 'json' ,
              body: dataValues,
@@ -123,12 +132,10 @@ app.post("/vizix-served", function(request, response) {
                       // console.log(res.body);
                       return response.status(200);
                 }, function(res){
-                      // console.log("error servido");
                       // console.log(res.body);
                       return response.status(400).json(res.body);
                 });      
             }, function(res) {
-              // console.log('------->');
               // console.log(res.body);
               return response.status(400).json(res.body);
             });
@@ -138,98 +145,154 @@ app.post("/vizix-served", function(request, response) {
 app.post("/vizix-order", function(request, response) {
   var tDate = new Date();
   var timeStamp = tDate.getTime().toString();
-  var orderTo = {
-    "thingTypeCode":"xperience_order",
-    "group":">Xperience.Xively>Xperience.Xively.Group",
-    "name":request.body.serial+"O"+timeStamp,
-    "serialNumber":request.body.serial+"O"+timeStamp,
-    "children":[],
-    "udfs": {
-      "drink": {
-        "value": currentOrder.favcoffee
-      },
-      "orderTime": {
-        "value": timeStamp
-      },
-      "person": {
-        "value": "SHIFTCODE1001"
-      },
-      "region": {
-        "value": currentOrder.region
-      },
-      "zone": {
-        "value": currentOrder.masterId
-      }     
-  },
-  };
-  console.log(request);
-  requestify.request(configDB.vizixorder , {
-    method: 'PUT',
-    headers : {'api_key':'root','Content-Type': 'application/json'},
-    dataType: 'json' ,
-    body: orderTo,
-    }).then(function(res) {
-      console.info("response");
-            console.log(res.body);
-        var addOrder = JSON.parse(res.body) ;
-        console.log(addOrder);
-        var activeOrder = appfire.child('orders/'+request.body.serial);
-        console.log(activeOrder);
-        var serialThing = request.body.serial;
-        console.log(serialThing);
-         activeOrder
-          .once('value', function(snap) {
-            
-              if(snap.val()) {
-                 var currentOrder = snap.val();
-                 currentOrder.orderthingid = addOrder.id;
-                 currentOrder.ordertTimeStamp = timeStamp;
-                 var orderTime = moment().format();
-                 activeOrder.set(currentOrder);
-                 var dataValues = 
-                 {
-                    "thingTypeCode":"xperience.person",
+  var activeOrder = appfire.child('orders/'+request.body.serial);
+  console.log(request.body);
+   activeOrder
+    .once('value', function(snap) {
+        if(snap.val()) {
+           var currentOrder = snap.val();
+            var orderTo = {
+              "thingTypeCode":"xperience_order",
+              "group":">Xperience.Xively>Xperience.Xively.Group",
+              "name":request.body.serial+"O"+timeStamp,
+              "serialNumber":request.body.serial+"O"+timeStamp,
+              "children":[],
+              "udfs": {
+                "drink": {
+                  "value": currentOrder.favcoffee
+                },
+                "orderTime": {
+                  "value": timeStamp
+                },
+                "person": {
+                  "value": request.body.serial
+                },
+                "region": {
+                  "value": currentOrder.region
+                },
+                "zone": {
+                  "value": currentOrder.masterId
+                }     
+              }
+            };
+            requestify.request(configDB.vizixorder , {
+              method: 'PUT',
+              headers : {'api_key':'root','Content-Type': 'application/json'},
+              dataType: 'json' ,
+              body: orderTo,
+              }).then(function(res) {
+                var orderRet = JSON.parse(res.body);
+                var addOrder = orderRet.thing ;
+                var serialThing = request.body.serial;  
+                currentOrder.orderthingid = addOrder.id;
+                currentOrder.ordertTimeStamp = timeStamp;
+                activeOrder.set(currentOrder);
+                var orderTime = moment().format();
+                var dataValues = 
+                { "thingTypeCode":"xperience.person",
                     "group":">Xperience.Xively>Xperience.Xively.Group",
-                    "name":request.body.serial+"O"+timeStamp,
+                    "name":request.body.serial,
                     "serialNumber":request.body.serial,
                     "children":[],
                     "udfs": {
-                      "drinkServed": {
+                      "drinksServed": {
                         "value": currentOrder.favcoffee
                       }     
-                  },
-                  };
-          
-                requestify.request(configDB.vizixserved , {
-                    method: 'PATCH',
-                    headers : {'api_key':'root','Content-Type': 'application/json'},
-                    dataType: 'json' ,
-                    body: dataValues,
+                    }
+                };
+                requestify.request(configDB.vizixserved + "/" +currentOrder.thingid, {
+                method: 'PATCH',
+                headers : {'api_key':'root','Content-Type': 'application/json'},
+                dataType: 'json' ,
+                body: dataValues,
+                }).then(function(res) {
+                    console.log("------>");
+                    console.log(res.body);
+                    requestify.request(configDB.vizixdasboard , {
+                        method: 'POST',
+                        headers : {'Content-Type': 'application/json'},
+                        dataType: 'json' ,
+                        body: {},
                     }).then(function(res) {
-                        requestify.request(configDB.vizixdasboard , {
-                            method: 'POST',
-                            headers : {'Content-Type': 'application/json'},
-                            dataType: 'json' ,
-                            body: {},
-                        }).then(function(res) {
-                              console.log('Vizix Order -'+currentOrder.orderthingid);
-                              console.log('For Tag:'+serialThing)
-                              return response.status(200);
-                        }, function(res){
-                              console.log('Error:'+res.body);
-                              return response.status(400).json(res.body);
-                        });
+                          console.log(res.body);
+                          console.log('Vizix Order -'+currentOrder.orderthingid);
+                          console.log('For Tag:'+serialThing)
+                          return response.status(200);
                     }, function(res){
-                      return response.status(400).json(res.body);
+                          console.log(res.body);
+                          console.log('Error:'+res.body);
+                          return response.status(400).json(res.body);
                     });
-              }
-          });
-    }, function(res) {
-      console.log(res.body);
-      return response.status(400).json(res.body);
+                }, function(res){
+                  console.log(res.body);
+                  return response.status(400).json(res.body);
+                });                
+              }, function(res) {
+                  console.log(res.body);
+                  return response.status(400).json(res.body);                  
+              });
+        }
     });
-
 });
+    //     var addOrder = JSON.parse(res.body) ;
+    //     console.log(addOrder);
+    //     var activeOrder = appfire.child('orders/'+request.body.serial);
+    //     console.log(activeOrder);
+    //     var serialThing = request.body.serial;
+    //     console.log(serialThing);
+    //     activeOrder
+    //       .once('value', function(snap) {
+            
+    //           if(snap.val()) {
+    //             var currentOrder = snap.val();
+    //             currentOrder.orderthingid = addOrder.id;
+    //             currentOrder.ordertTimeStamp = timeStamp;
+    //             var orderTime = moment().format();
+    //             activeOrder.set(currentOrder);
+    //             var dataValues = 
+    //             {
+    //                 "thingTypeCode":"xperience.person",
+    //                 "group":">Xperience.Xively>Xperience.Xively.Group",
+    //                 "name":request.body.serial+"O"+timeStamp,
+    //                 "serialNumber":request.body.serial,
+    //                 "children":[],
+    //                 "udfs": {
+    //                   "drinkServed": {
+    //                     "value": currentOrder.favcoffee
+    //                   }     
+    //               },
+    //               };
+          
+    //             requestify.request(configDB.vizixserved , {
+    //                 method: 'PATCH',
+    //                 headers : {'api_key':'root','Content-Type': 'application/json'},
+    //                 dataType: 'json' ,
+    //                 body: dataValues,
+    //                 }).then(function(res) {
+    //                     requestify.request(configDB.vizixdasboard , {
+    //                         method: 'POST',
+    //                         headers : {'Content-Type': 'application/json'},
+    //                         dataType: 'json' ,
+    //                         body: {},
+    //                     }).then(function(res) {
+    //                           console.log('Vizix Order -'+currentOrder.orderthingid);
+    //                           console.log('For Tag:'+serialThing)
+    //                           return response.status(200);
+    //                     }, function(res){
+    //                           console.log('Error:'+res.body);
+    //                           return response.status(400).json(res.body);
+    //                     });
+    //                 }, function(res){
+    //                   return response.status(400).json(res.body);
+    //                 });
+    //           }
+    //       });
+    // }, function(res) {
+    //   console.log(res.body);
+    //   return response.status(400).json(res.body);
+    // });
+
+// });
 app.post("/weather", function(request, response) {
   var city = request.body.city;
   var state = request.body.state;

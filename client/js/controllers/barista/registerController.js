@@ -75,7 +75,6 @@ xively.controller('registerController', ['$scope',
         SelPerson.thingid = selVisitor.thingid;
         SelPerson.id = selVisitor.id;
         $scope.currentPerson = SelPerson;
-        $scope.currentPerson = $scope.selected;
         $scope.isFavorite=false;
         $location.path("/barista/menu");
         return true;

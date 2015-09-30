@@ -324,7 +324,7 @@ body{
     }
     .barDataLabels {
         position:absolute;
-        right: 0;
+        right: -25px;
         top:112px;
     	margin-top: 0;
     	margin-right: 0;
