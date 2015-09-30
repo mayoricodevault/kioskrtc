@@ -139,45 +139,69 @@ app.post("/vizix-order", function(request, response) {
   var tDate = new Date();
   var timeStamp = tDate.getTime().toString();
   var orderTo = {
-    "thingType.id" : 4,
-    "group.id": 5,
-    "name": request.body.serial+"O"+timeStamp,
-     "serial": request.body.serial+"O"+timeStamp,
-     "childrenIdList": [],
-     "fields":[
-      {"id":37,"unit":"","timeSeries":false,"symbol":"","name":"zone","type":1,"typeLabel":"String"},
-      {"id":35,"unit":"","timeSeries":false,"symbol":"","name":"drink","type":1,"typeLabel":"String"},
-      {"id":33,"unit":"","timeSeries":false,"symbol":"","name":"orderTime","type":11,"typeLabel":"Date"},
-      {"id":36,"unit":"","timeSeries":false,"symbol":"","name":"region","type":1,"typeLabel":"String"},
-      {"id":34,"unit":"","timeSeries":false,"symbol":"","name":"person","type":1,"typeLabel":"String"}]
+    "thingTypeCode":"xperience_order",
+    "group":">Xperience.Xively>Xperience.Xively.Group",
+    "name":request.body.serial+"O"+timeStamp,
+    "serialNumber":request.body.serial+"O"+timeStamp,
+    "children":[],
+    "udfs": {
+      "drink": {
+        "value": currentOrder.favcoffee
+      },
+      "orderTime": {
+        "value": timeStamp
+      },
+      "person": {
+        "value": "SHIFTCODE1001"
+      },
+      "region": {
+        "value": currentOrder.region
+      },
+      "zone": {
+        "value": currentOrder.masterId
+      }     
+  },
   };
+  console.log(request);
   requestify.request(configDB.vizixorder , {
     method: 'PUT',
     headers : {'api_key':'root','Content-Type': 'application/json'},
     dataType: 'json' ,
     body: orderTo,
     }).then(function(res) {
+      console.info("response");
+            console.log(res.body);
         var addOrder = JSON.parse(res.body) ;
+        console.log(addOrder);
         var activeOrder = appfire.child('orders/'+request.body.serial);
+        console.log(activeOrder);
         var serialThing = request.body.serial;
+        console.log(serialThing);
          activeOrder
           .once('value', function(snap) {
+            
               if(snap.val()) {
                  var currentOrder = snap.val();
                  currentOrder.orderthingid = addOrder.id;
                  currentOrder.ordertTimeStamp = timeStamp;
                  var orderTime = moment().format();
                  activeOrder.set(currentOrder);
-                 var dataValues = { "values" : [
-                     {"operationId":0,"value":request.body.serial,"field":{"fieldTypeId":34,"thingId": addOrder.id}},
-                     {"operationId":1,"value":currentOrder.favcoffee,"field":{"fieldTypeId":35,"thingId": addOrder.id}},
-                     {"operationId":2,"value":currentOrder.region,"field":{"fieldTypeId":36,"thingId": addOrder.id}},
-                     {"operationId":3,"value":tDate,"field":{"fieldTypeId":33,"thingId": addOrder.id}},
-                     {"operationId":4,"value":currentOrder.masterId,"field":{"fieldTypeId":37,"thingId": addOrder.id}},
-                     {"operationId":5,"value":currentOrder.favcoffee,"field":{"fieldTypeId":32,"thingId":currentOrder.thingid}} 
-                  ]};
+                 var dataValues = 
+                 {
+                    "thingTypeCode":"xperience.person",
+                    "group":">Xperience.Xively>Xperience.Xively.Group",
+                    "name":request.body.serial+"O"+timeStamp,
+                    "serialNumber":request.body.serial,
+                    "children":[],
+                    "udfs": {
+                      "drinkServed": {
+                        "value": currentOrder.favcoffee
+                      }     
+                  },
+                  };
+          
                 requestify.request(configDB.vizixserved , {
-                    method: 'POST',
+                    method: 'PATCH',
                     headers : {'api_key':'root','Content-Type': 'application/json'},
                     dataType: 'json' ,
                     body: dataValues,
@@ -277,12 +301,15 @@ app.post("/xdashboard", function(request, response) {
     var subStat = keyWord.indexOf("_");
      var station = data.id.substring(subStat + 1, data.id.length);
      var stationsObj = new Object();
-     if (station == 'station1') {
+     // Plaza Foyer 2
+     if (station == 'station2') {
         stationsObj.station1 = data.value.value;
       }
-      if (station == 'station2') {
+      // Plaza Foyer 1
+      if (station == 'station1') {
         stationsObj.station2 = data.value.value;
       }
+      // IoT Showcase
       if (station == 'station3') {
         stationsObj.station3 = data.value.value;
       }

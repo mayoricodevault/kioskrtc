@@ -151,5 +151,5 @@ var xively = angular.module('xively', ['ng.deviceDetector',
     .constant('FIREBASE_URI_MSGS', 'https://kxively.firebaseio.com/messages')
     .constant('FIREBASE_URI_ROOT', 'https://kxively.firebaseio.com')
     .constant('FIREBASE_URI_SESSIONS', 'https://kxively.firebaseio.com/sessions')
-    .constant("API_URL", 'https://kiosk-mmayorivera.c9.io');
+    .constant("API_URL", 'https://client.xivelylive.com');
     

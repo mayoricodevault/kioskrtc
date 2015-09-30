@@ -1,4 +1,16 @@
-xively.controller('baristaController', ['$scope','localStorageService','Socket','$http','OrdersService','API_URL', 'LSFactory','Orders','FIREBASE_URI_ORDERS', 'SessionsService','SubscriptionFactory', function ($scope,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, SessionsService, SubscriptionFactory) {
+xively.controller('baristaController', ['$scope',
+    'localStorageService',
+    'Socket',
+    '$http',
+    'OrdersService',
+    'API_URL', 
+    'LSFactory',
+    'Orders',
+    'FIREBASE_URI_ORDERS', 
+    'SessionsService',
+    'SubscriptionFactory',
+    '$location',
+    'hotkeys','$window', function ($scope,localStorageService,Socket,$http,OrdersService,API_URL, LSFactory, Orders, FIREBASE_URI_ORDERS, SessionsService, SubscriptionFactory, $location, hotkeys, $window) {
     
     $scope.currentPerson=undefined;
     $scope.currentIndex;
@@ -9,14 +21,27 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     $scope.currentfavcoffee;
     $scope.baristaTagID;
     $scope.isFavorite=false;
-    
-    //Set Window title
-    document.title="XCB - Barista";
-    
+    $scope.helpVisible=false;
+    $scope.deviceName = LSFactory.getDeviceName();
+    $scope.deviceDetected = LSFactory.getDeviceDetected();
+    $scope.deviceTagid = LSFactory.getTagId();
+    $scope.deviceType = LSFactory.getDeviceType().toUpperCase();    
+    hotkeys.bindTo($scope)
+    .add({
+      combo: 'esc+s',
+      description: 'Barista Information',
+      callback: function() {
+        if ($scope.helpVisible) {
+            $scope.helpVisible = false;
+        } else {
+            $scope.helpVisible = true;
+        }
+      }
+    });    
+    document.title="Barista";
     $scope.$watch('isFavorite',function(){
         localStorageService.set('isFavorite',$scope.isFavorite);
     },true);
-
     Orders(FIREBASE_URI_ORDERS).$bindTo($scope, "fbOBind");
     $scope.$watch('fbOBind', function() {
         $scope.totalOrdersActive=0;
@@ -80,16 +105,17 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
         };
         $http.post(API_URL + '/vizix-served', bodyOrder)
             .then(function(response) {
-                console.log("Response message1: ");
                 console.log(response);
             }, function( response ){
-                  console.log("Response message2: ");
+                  console.log("Error: "+response.body);
                 console.log(response);
                 
             }
         );       
     };
-    
+    $scope.neworder=function(){
+        $location.path("/barista/register");
+    }     
     $scope.isActiveOrder=function(active){
         if(active==1)
             return true;
@@ -187,5 +213,12 @@ xively.controller('baristaController', ['$scope','localStorageService','Socket',
     };
     $scope.Favorite = function(){
         $scope.isFavorite=true;
+    };
+     $scope.unregister=function() {
+     SubscriptionFactory.unsubscribe(LSFactory.getSocketId()).
+    	then(function success(response){
+            Socket.disconnect(true);
+    		$window.location.href = API_URL+"/settings";
+    	}, subsError);
     };
 }]);

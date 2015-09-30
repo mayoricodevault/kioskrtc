@@ -16,8 +16,8 @@ xively.factory('OrdersService', ['$firebaseObject','$firebaseArray', 'FIREBASE_U
         return $firebaseObject(orderInstance);
     };
     
-    var getOrder = function(email){
-        refOrder.child(replaceAll(email)).once('value',function(snap){
+    var getOrder = function(idPerson){
+        refOrder.child(idPerson).once('value',function(snap){
             if(!snap.val()) {
               // not exist  
               return null;

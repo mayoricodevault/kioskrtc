@@ -1,5 +1,13 @@
-xively.controller('registerController', ['$scope','$location','localStorageService','Socket','$http','OrdersService','API_URL','ngToast','VisitorsService','LSFactory','$window', function ($scope, $location,localStorageService,Socket,$http,OrdersService,API_URL,ngToast,VisitorsService,LSFactory,$window) {
-    
+xively.controller('registerController', ['$scope',
+    '$location',
+    'localStorageService',
+    'Socket',
+    '$http',
+    'API_URL',
+    'ngToast',
+    'VisitorsService',
+    'LSFactory',
+    '$window', function ($scope, $location,localStorageService,Socket,$http,API_URL,ngToast,VisitorsService,LSFactory,$window) {
     $scope.currentPerson;
     $scope.serveOrders=[];
     $scope.orders=[];
@@ -7,9 +15,7 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
     $scope.currentIndex;
     $scope.visitors = [];
     $scope.cleanVisitorsT = VisitorsService.getVisitors();
-    $scope.urlbarista="#";
     $scope.isFavorite=localStorageService.get('isFavorite');
-    
     $scope.$watch('isFavorite',function(){
         localStorageService.set('isFavorite',$scope.isFavorite);
     },true);
@@ -18,13 +24,11 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
     $scope.$watch('currentPerson',function(){
         localStorageService.set('currentPerson',$scope.currentPerson);
     },true);
-
     var currentIndexOld=localStorageService.get('currentIndex');
     $scope.currentIndex=currentIndexOld || 0;
     $scope.$watch('currentIndex',function(){
         localStorageService.set('currentIndex',$scope.currentIndex);
     },true);
-    
      $scope.$watch('cleanVisitorsT', function () {
         visitorsToArray($scope.cleanVisitorsT);
     }, true);
@@ -33,49 +37,6 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
     	$scope.visitors = oVisitors;
     }
     
-
-    var fbBind =  OrdersService.getOrders();
-    fbBind.$bindTo($scope,"serveOrders").then(function() {
-        var total = 0;
-		$scope.orders = [];
-		angular.forEach($scope.serveOrders, function(order){
-			if (!order || !order.name) {
-				return;
-			}
-	        $scope.orders.push(order);
-            if(total===$scope.currentIndex){
-                if($scope.orders[total].active===1)
-                {
-                    $scope.currentPerson=$scope.orders[total];       
-                }
-                else
-                    $scope.currentIndex;
-            }
-			total++;
-		});
-		$scope.totalOrders = total;        
-		
-    });    
-    
-    $scope.$watch('serveOrders',function(){
-        var total = 0;
-		$scope.orders = [];
-		angular.forEach($scope.serveOrders, function(order){
-			if (!order || !order.name) {
-				return;
-			}
-	        $scope.orders.push(order);
-            if(total===$scope.currentIndex){
-                if($scope.orders[total].active===1)
-                    $scope.currentPerson=$scope.orders[total];       
-                else
-                    $scope.currentIndex;
-            }
-			total++;
-		});
-		$scope.totalOrders = total;        
-		
-    },true);
     $scope.selectUser = function(selVisitor){
         $scope.isFavorite=false;
         if($scope.selected===undefined) {
@@ -102,7 +63,6 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
             $scope.trySelect=true;
             return false;
         }
-        
         var SelPerson = Object();
         SelPerson.favcoffee = selVisitor.favcoffee;
         SelPerson.city = selVisitor.city;
@@ -116,59 +76,12 @@ xively.controller('registerController', ['$scope','$location','localStorageServi
         SelPerson.id = selVisitor.id;
         $scope.currentPerson = SelPerson;
         $scope.currentPerson = $scope.selected;
-        $scope.urlbarista="/barista/menu";
         $scope.isFavorite=false;
+        $location.path("/barista/menu");
         return true;
     }; 
-    function getFavCoffeePerson(personSelected){
-        var peopleTbl=VisitorsService.getVisitors();
-        var favoriteCoffee="";
-        
-        var arrayLength = peopleTbl.length;
-        for (var i = 0; i < arrayLength; i++) {
-            if(peopleTbl[i].email===personSelected.email){
-                favoriteCoffee =peopleTbl[i].favcoffee;
-                break;
-            }    
-        return favoriteCoffee;
-    } // end function getFavCoffeePerson
-    }
-    $scope.isActiveOrder=function(active)
-    {
-        if(active===1)
-            return true;
-        return false;
-    };
-    
-    $scope.isActive=function(index){
- 	    if(index==$scope.currentIndex)
- 	        return true;
- 	    return false;
- 	};
-    
-    $scope.active=function(person,index) {
-         $scope.currentPerson=person;
-         $scope.currentIndex=index;
-    };
-    
-	function getOrderCoffee(orders,obj) {
-            var coffee="";
-    		orders.forEach(function (order) {
-    		   var active = parseInt(order.active);
-    			if (order.email === obj.email && active===1) {
-    			    if(order.favcoffee==="Regular Coffee"){
-    			        order.favcoffee="Regular_Coffee";
-    			    }
-    			     if(order.favcoffee==="Decaf Coffee"){
-    			        order.favcoffee="Decaf_Coffee";
-    			    }
-    				coffee=order.favcoffee; 
-    				return coffee;      
-    			}
-    		});
-    		return coffee;
-    } // end function 
     $scope.cancel = function(){
         $scope.currentPerson=undefined;
+        $location.path("/barista");
     };
 }]);
