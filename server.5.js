@@ -20,7 +20,6 @@ var Firebase = require('firebase');
 var appfire = new Firebase(configDB.firebase);
 var moment = require('moment');
 var fs = require('fs');
-var saveRequests = "false";
 // var ips = ['127.0.0.1', '172.17.95.96'];
 app.use(session);
 app.use(cors());
@@ -98,11 +97,6 @@ io.on('connection', function(socket) {
     console.log(data + ' has Disconnected!');
   });
 });
-app.get("/deleteMessages", function(request, response) {
-    var msgActive = appfire.child('requests');
-    msgActive.remove();
-    return response.status(200);
-});
 app.post("/vizix-served", function(request, response) {
   var pushDash =request.body;
   var activeOrder = appfire.child('orders/'+pushDash.id);
@@ -129,7 +123,7 @@ app.post("/vizix-served", function(request, response) {
              body: dataValues,
             }).then(function(res) {
                 requestify.request(configDB.vizixdasboard , {
-                    method: 'POST',
+                    method: 'GET',
                     headers : {'Content-Type': 'application/json'},
                     dataType: 'json' ,
                     body: {},
@@ -846,19 +840,17 @@ app.get('/*', function(req, res) {
 });
 // ---> end routes <---- 
 function sendRequests(msgIn) {
-  if (saveRequests=="true" ) {
-    var newMsg = new Object();
-    newMsg = msgIn;
-    newMsg.timeStamp = new Date().getTime();
-    var msgActive = appfire.child('requests');
-    var newPostRef = msgActive.push();
-    newPostRef
-      .once('value', function(snap) {
-        if(!snap.val()) {
-           newPostRef.set(msgIn);
-         } 
-    });
-  }
+  var newMsg = new Object();
+  newMsg = msgIn;
+  newMsg.timeStamp = new Date().getTime();
+  var msgActive = appfire.child('requests');
+  var newPostRef = msgActive.push();
+  newPostRef
+    .once('value', function(snap) {
+      if(!snap.val()) {
+         newPostRef.set(msgIn);
+       } 
+  });
 }
 
 function authenticate(req,res, next) {

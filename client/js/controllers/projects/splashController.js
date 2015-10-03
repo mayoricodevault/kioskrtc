@@ -94,6 +94,7 @@ xively.controller('splashController', ['$scope',
         }
     });
      $scope.ordernow=function() {
+
           $rootScope.currentPerson={};
           $scope.serving = true;
           storeService.jsonWrite('paneSelected',{id:'2'});
@@ -110,7 +111,7 @@ xively.controller('splashController', ['$scope',
         console.log("Error");
     }
     function isStation(tagId) {
-        
+       console.log(tagId);
        var thisOneIsCall=false;
        var thisSi = LSFactory.getSocketId();
        var activeSession = SessionsService.findSession(thisSi) ;

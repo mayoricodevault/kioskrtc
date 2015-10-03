@@ -46,6 +46,12 @@ var xively = angular.module('xively', ['ng.deviceDetector',
                 resolve: {authenticate: authenticate}
             
         });
+    
+        $routeProvider.when('/reset', {
+            templateUrl: '/partials/reset.html', 
+            controller: 'resetController'
+        });
+        
         
         $routeProvider.when('/barista', {
                 templateUrl: '/partials/barista/select.html', 
@@ -145,6 +151,7 @@ var xively = angular.module('xively', ['ng.deviceDetector',
     })
     .run(function($rootScope){
         $rootScope.currentPerson;
+        FastClick.attach(document.body);
     })
     .constant('FIREBASE_URI', 'https://kxively.firebaseio.com/people')
     .constant('FIREBASE_URI_ORDERS', 'https://kxively.firebaseio.com/orders')

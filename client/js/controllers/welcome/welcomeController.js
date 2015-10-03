@@ -176,6 +176,7 @@ xively.controller('welcomeController', ['$scope',
 	}
 
 	function showWelcome(item){
+		console.log("item --> ",item);
 		$timeout(function(){
 			ArrayItems[item.id]=0;
 			//console.log("end ",ArrayItems[item.id]);

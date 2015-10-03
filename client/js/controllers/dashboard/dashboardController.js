@@ -1,4 +1,4 @@
-xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL','Messages', 'FIREBASE_URI_MSGS', '$queue', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL,  Messages, FIREBASE_URI_MSGS, $queue){
+xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compile','$window', 'LSFactory', 'SessionsService' ,'SubscriptionFactory', 'API_URL','Messages', 'FIREBASE_URI_MSGS', '$queue', '$http', function($scope, Socket, $timeout, $compile, $window, LSFactory, SessionsService, SubscriptionFactory, API_URL,  Messages, FIREBASE_URI_MSGS, $queue, $http){
     $scope.colorsdoghnut = [{
             fillColor: 'rgba(255, 72, 51, 0.8)',
             strokeColor: 'rgba(255, 72, 51, 0.8)',
@@ -18,6 +18,19 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
     var visited=[false,false,false,false,false,false,false,false];
     var nWidgets=6;
     var totalWidgets = 8;
+    
+    $http.get(API_URL + '/refreshDashboard', {})
+        .then(function(response) {
+            console.log("Response message1: ");
+            console.log(response);
+        }, function( response ){
+              console.log("Response message2: ");
+            console.log(response);
+            
+        }
+    );           
+    
+    
     Messages(FIREBASE_URI_MSGS).$bindTo($scope, "fbMBind");
     $scope.$watch('fbMBind', function() {
         refreshFbM();
@@ -377,6 +390,7 @@ xively.controller('dashboardController', ['$scope', 'Socket', '$timeout','$compi
             highlightStroke: 'rgba(47, 132, 71, 0.8)',
             tooltipFillColor:'rgba(255, 72, 51, 0.8)'
         }];
+        $scope.totVisitors=300;
         console.log("totalCoffeeServed:"+$scope.totalCoffeeServed+"  totVisitors:"+$scope.totVisitors);
         // Doughnut chart
         var difference = $scope.totVisitors-$scope.totalCoffeeServed;
